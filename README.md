@@ -1,6 +1,6 @@
 # Hallucinations in Noisy Channels
 
-**A Unified Information-Theoretic and Thermodynamic Framework for Understanding LLM Hallucination Errors**
+**Information-Theoretic and Thermodynamic Framework for Understanding LLM Hallucination Errors**
 
 [![License: CC BY 4.0](https://img.shields.io/badge/License-CC%20BY%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by/4.0/)
 [![Status: Theoretical Framework](https://img.shields.io/badge/Status-Theoretical%20Framework-blue.svg)]()
@@ -40,7 +40,7 @@ LLMs are **teachers, not just generators**. During inference, they must first **
 
 ## Key Contributions
 
-### Unified Multi-Mechanism Framework
+### Multi-Mechanism Framework
 
 ```
 Training (Compression) → Matching → Reconstruction (Context) → Transmission (Teaching)
@@ -269,8 +269,7 @@ If you use this framework in your research, please cite:
 
 ```bibtex
 @techreport{goldman2025hallucinations,
-  title={Hallucinations in Noisy Channels: A Unified Information-Theoretic 
-         and Thermodynamic Framework for Understanding LLM Hallucination Errors},
+  title={Hallucinations in Noisy Channels: An Information-Theoretic and Thermodynamic Framework for Understanding LLM Hallucination Errors},
   author={Goldman, Oscar},
   institution={Shogu Research Group @ Datamutant.ai, subsidiary of 温心重工業},
   year={2025},
@@ -283,7 +282,7 @@ If you use this framework in your research, please cite:
 
 ### APA
 
-Goldman, O. (2025). *Hallucinations in Noisy Channels: A Unified Information-Theoretic and Thermodynamic Framework for Understanding LLM Hallucination Errors* (Version 1.2). Shogu Research Group @ Datamutant.ai. https://github.com/Gman-Superfly/Hallucinations_in_Noisy_Channels
+Goldman, O. (2025). *Hallucinations in Noisy Channels: An Information-Theoretic and Thermodynamic Framework for Understanding LLM Hallucination Errors* (Version 1.2). Shogu Research Group @ Datamutant.ai. https://github.com/Gman-Superfly/Hallucinations_in_Noisy_Channels
 
 ---
 

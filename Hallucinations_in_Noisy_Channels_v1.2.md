@@ -1,6 +1,6 @@
 # Hallucinations in Noisy Channels
 
-## An Information-Theoretic Framework for Understanding LLM Hallucination Errors
+## Information-Theoretic Framework for Understanding LLM Hallucination Errors
 
 **Authors**: Oscar Goldman - Shogu Research Group @ Datamutant.ai  
 **Date**: November 2025  
@@ -12,7 +12,7 @@
 
 ## Abstract
 
-We present a unified framework for understanding hallucinations in Large Language Models (LLMs) by recognizing that **LLMs are teachers, not just generators**. During training, models compress the world into weights (learning). During inference, they must reconstruct and transmit this knowledge—they teach. But teaching through a noisy channel requires building the correct internal representation first.
+We present An Information-Theoretic framework for understanding hallucinations in Large Language Models (LLMs) by recognizing that **LLMs are teachers, not just generators**. During training, models compress the world into weights (learning). During inference, they must reconstruct and transmit this knowledge—they teach. But teaching through a noisy channel requires building the correct internal representation first.
 
 Hallucinations emerge when this reconstruction fails. We identify six mechanisms: (1) **capacity violations**—asking about topics the model never learned; (2) **matching failures**—ambiguous prompts activate wrong or composite representations; (3) **decompression failures**—insufficient context room to unfold compressed knowledge; (4) **geometric distortion**—errors compound multiplicatively through the pipeline; (5) **thermodynamic equilibration**—when constraints fail, the system relaxes to maximum entropy (fluent but empty text); and (6) **the noise paradox**—systems need some stochasticity to self-correct, but too much causes hallucination.
 
@@ -2508,7 +2508,7 @@ If you use this framework in your research, please cite:
 
 ```bibtex
 @article{goldman2025hallucinations,
-  title={Hallucinations in Noisy Channels: A Unified Information-Theoretic and Thermodynamic Framework},
+  title={Hallucinations in Noisy Channels: An Information-Theoretic and Thermodynamic Framework},
   author={Goldman, Oscar},
   organization={Shogu Research Group @ Datamutant.ai subsidiary of 温心重工業},
   year={2025},
