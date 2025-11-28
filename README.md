@@ -1,21 +1,19 @@
 # Hallucinations in Noisy Channels
 
-**An Information-Theoretic and Thermodynamic Framework for Understanding LLM Hallucination Errors**
+**A Unified Information-Theoretic and Thermodynamic Framework for Understanding LLM Hallucination Errors**
+
+[![License: CC BY 4.0](https://img.shields.io/badge/License-CC%20BY%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by/4.0/)
+[![Status: Theoretical Framework](https://img.shields.io/badge/Status-Theoretical%20Framework-blue.svg)]()
+[![Version: 1.2](https://img.shields.io/badge/Version-1.2-green.svg)]()
 
 **Author:** Oscar Goldman - Shogu Research Group @ Datamutant.ai  
-**Version:** 1.1  
-**Date:** November 2025  
-**Status:** Theoretical Framework (Empirical Validation In Progress)
+**Date:** November 2025
 
 ---
 
 ## Read the Paper
 
-**Main Paper:** [Hallucinations in Noisy Channels v1.1 (Full Framework)](Hallucinations_in_Noisy_Channels_v1.1.md)
-
-**Supplementary Documents:**
-- [Core Framework: Signal Processing Perspective](CORE_FRAMEWORK_SIGNAL_PROCESSING.md)
-- [Hallucination and Noisy Channels: Extended Analysis](HALLUCINATION_AND_NOISY_CHANNELS.md)
+**→ [Hallucinations in Noisy Channels v1.2 (Full Framework)](Hallucinations_in_Noisy_Channels_v1.2.md)**
 
 ---
 
@@ -23,184 +21,116 @@
 
 LLMs are **teachers, not just generators**. During inference, they must first **reconstruct** knowledge from compressed weights, then **transmit** it reliably. Hallucinations occur when this reconstruction-transmission process fails through six mechanisms:
 
-1. **Capacity Violations** – Asking about topics never learned
-2. **Matching Failures** – Ambiguous prompts activate wrong representations
-3. **Decompression Failures** – Insufficient context to unfold compressed knowledge
-4. **Geometric Distortion** – Errors compound multiplicatively through the pipeline
-5. **Thermodynamic Equilibration** – System relaxes to maximum entropy (fluent noise)
-6. **The Noise Paradox** – Too little noise prevents self-correction; too much causes hallucination
+| # | Mechanism | Description |
+|---|-----------|-------------|
+| 1 | **Capacity Violations** | Asking about topics never learned |
+| 2 | **Matching Failures** | Ambiguous prompts activate wrong representations |
+| 3 | **Decompression Failures** | Insufficient context to unfold compressed knowledge |
+| 4 | **Geometric Distortion** | Errors compound multiplicatively through the pipeline |
+| 5 | **Thermodynamic Equilibration** | System relaxes to maximum entropy (fluent noise) |
+| 6 | **The Noise Paradox** | Too little noise prevents self-correction; too much causes hallucination |
 
-**The Unifying Principle:** Information cannot be created, only transmitted or lost. When output contains more information than was stored, the excess was hallucinated from the **form prior**—the model knows *how* to write but not *what* is true.
+### The Unifying Principle
+
+> **Information cannot be created, only transmitted or lost.**
+>
+> When output contains more information than was stored or provided, the excess was hallucinated from the **form prior**—the model knows *how* to write but not *what* is true.
 
 ---
 
 ## Key Contributions
 
-### 1. Unified Multi-Mechanism Framework
-
-Integrates six distinct failure modes under a single information-theoretic and thermodynamic foundation:
+### Unified Multi-Mechanism Framework
 
 ```
-Training (Compression) → Matching → Decompression → Transmission (Teaching)
-    ↓                      ↓            ↓               ↓
-Capacity               Retrieval    Context         Distortion
-Violation             Failure      Crowding        Accumulation
-    ↓                      ↓            ↓               ↓
-                 THERMALIZATION TO FORM PRIOR
-                          ↓
-                   HALLUCINATION
+Training (Compression) → Matching → Reconstruction (Context) → Transmission (Teaching)
+    ↓                         ↓                 ↓                         ↓
+Capacity Violation       Matching Failure   Decompression Failure    Geometric Distortion
+    └──────────────────────────────┬──────────────────────────────────────────────┘
+                          Constraints fail → THERMALIZATION TO FORM PRIOR
+                                           ↓
+           P(hallucination) ∝ Ω_form / Ω_knowledge = exp(ΔS);  F = E − T·S
+                                           ↓
+                                     HALLUCINATION
 ```
 
-### 2. Novel Theoretical Contributions
+### Seven Theorems
 
-**Theorem 3 (Information Conservation):** Output cannot contain more information about a topic than was stored. When K(output) > K(stored), the excess is definitionally hallucinated.
+| Theorem | Name | Key Result |
+|---------|------|------------|
+| **1** | Hallucination Threshold | R_T > C_T ⟹ hallucinations unavoidable (Shannon limit) |
+| **2** | Geometric Matching | P(correct) ∝ exp(-d_M) / Σexp(-d_M) in universal manifold |
+| **3** | Information Conservation | K(output) ≤ K(weights) + K(context); excess = hallucination |
+| **4** | Geometric Distortion | Fidelity = ∏(1 - εᵢ) — errors compound multiplicatively |
+| **5** | Thermodynamic Hallucination | P(hallucination) ∝ exp(ΔS) = Ω_form / Ω_knowledge |
+| **6** | Optimal Noise Principle | T* > 0 required for self-correction; greedy is suboptimal |
+| **7** | Nyquist–Shannon Analogy | s > 2·B_{M,T} for reliable reconstruction *(conjecture)* |
 
-**Theorem 4 (Geometric Distortion Accumulation):** Errors compound multiplicatively: Fidelity = ∏(1 - εᵢ), not additively. Each pipeline stage degrades truth exponentially.
-
-**Theorem 5 (Thermodynamic Hallucination):** Hallucination probability scales exponentially with entropy gap: P(hallucination) ∝ exp(ΔS) = Ωform / Ωknowledge.
-
-**Theorem 6 (Optimal Noise Principle):** Systems require optimal noise T* > 0 for self-correction. Greedy decoding (T=0) is suboptimal—cannot escape bad attractors.
-
-### 3. Twenty Testable Predictions
+### Twenty-One Testable Predictions
 
 Empirically falsifiable hypotheses spanning:
-- Capacity-accuracy correlations
-- Prompt specificity effects
-- Context crowding curves
-- Temperature-hallucination relationships
-- Multi-hop reasoning degradation
-- Optimal noise existence
-- Geometric alignment diagnostics
+- Capacity-accuracy correlations (Predictions 1-3)
+- Prompt specificity and matching effects (Prediction 4)
+- Context crowding curves (Predictions 5-6)
+- Information conservation violations (Predictions 7-8)
+- Geometric distortion accumulation (Predictions 9-11)
+- Temperature-hallucination relationships (Predictions 12-14)
+- Optimal noise existence (Predictions 15-17)
+- Goldilocks context window (Prediction 18)
+- Geometry-aligned training (Predictions 19-20)
+- Attention sink effects (Prediction 21)
 
-See [Section 9: Experimental Predictions](paper/Hallucinations_in_Noisy_Channels_v1.1.md#9-experimental-predictions) for full list.
-
-### 4. Practical Mitigation Strategies
-
-Principled techniques grounded in theory:
-- Unambiguous prompts (reduce matching failures)
-- Context budget management (avoid decompression crowding)
-- Chain-of-thought (distribute reconstruction load)
-- Optimal temperature calibration (enable self-correction)
-- Information accounting (detect conservation violations)
-- First-stage quality prioritization (training > prompting)
+See [Section 9: Experimental Predictions](Hallucinations_in_Noisy_Channels_v1.2.md#9-experimental-predictions) for full mathematical formulations.
 
 ---
 
 ## Repository Structure
 
 ```
-hallucinations-noisy-channels/
+Hallucinations_Noisy_Channels/
 │
-├── paper/
-│   ├── Hallucinations_in_Noisy_Channels_v1.1.md    # Main theoretical paper
-│   ├── Hallucinations_in_Noisy_Channels_v1.1.pdf   # PDF version
-│   └── draft.md                                     # Submission template
+├── Hallucinations_in_Noisy_Channels_v1.2.md   # Main theoretical paper
+├── README.md                                   # This file
+├── LICENSE                                     # MIT (code) + CC-BY-4.0 (paper)
+├── CITATION.cff                                # Citation metadata
 │
-├── experiments/                                     # Empirical validation (In Progress)
-│   ├── rope_accumulation.ipynb                      # RoPE drift experiments
-│   ├── sampling_reconstruction.ipynb                # Nyquist comparison
-│   ├── simpleLM_drift.ipynb                         # Latent drift analysis
-│   ├── prompt_ablation_threshold.ipynb              # Context threshold tests
-│   ├── cot_vs_direct_channel.ipynb                  # CoT redundancy coding
-│   ├── prompt_noise_tradeoff.ipynb                  # Semantic redundancy
-│   ├── semantic_redundancy_real_prompts.ipynb       # Real-world ρ estimation
-│   ├── geometric_alignment_metrics.ipynb            # Manifold alignment
-│   └── control_diagnostics.ipynb                    # Controllability analysis
+├── experiments/                                # Empirical validation notebooks
+│   ├── rope_accumulation.ipynb                 # RoPE drift experiments
+│   ├── sampling_reconstruction.ipynb           # Nyquist comparison
+│   ├── simpleLM_drift.ipynb                    # Latent drift analysis
+│   ├── prompt_ablation_threshold.ipynb         # Context threshold tests
+│   ├── cot_vs_direct_channel.ipynb             # CoT redundancy coding
+│   ├── prompt_noise_tradeoff.ipynb             # Noise/signal tradeoffs
+│   ├── semantic_redundancy_real_prompts.ipynb  # Real-world ρ estimation
+│   ├── geometric_alignment_metrics.ipynb       # Manifold alignment
+│   └── control_diagnostics.ipynb               # Controllability analysis
 │
 ├── scripts/
-│   ├── semantic_redundancy_metric.py                # Redundancy calculator
-│   └── ...                                          # Additional utilities
+│   ├── semantic_redundancy_metric.py           # Redundancy calculator
+│   └── generate_figures.py                     # Figure generation
 │
-├── docs/
-│   ├── GLOSSARY.md                                  # Term definitions
-│   ├── VALIDATION_CHECKLIST.md                      # Experiment checklist
-│   └── ...                                          # Additional documentation
-│
-├── figures/                                         # Generated visualizations
+├── figures/                                    # Generated visualizations
 │   ├── semantic_redundancy_heatmap.png
-│   ├── control_observability_scatter.png
+│   ├── nyquist_comparison.png
+│   ├── rope_drift.png
 │   └── ...
 │
-├── THX/                                             # Test harness & experiments
+├── docs/                                       # Supplementary documentation
+│   ├── GLOSSARY.md                             # Term definitions
+│   ├── VALIDATION_CHECKLIST.md                 # Experiment checklist
+│   └── ...                                     # Additional notes
 │
-├── CORE_FRAMEWORK_SIGNAL_PROCESSING.md              # Signal processing perspective
-├── HALLUCINATION_AND_NOISY_CHANNELS.md              # Extended analysis
-├── CITATION.cff                                     # Citation metadata
-├── CHANGELOG.md                                     # Version history
-├── LICENSE                                          # MIT (code)
-└── README.md                                        # This file
+├── working/                                    # Development files
+│   ├── CORE_FRAMEWORK_SIGNAL_PROCESSING.md     # Signal processing perspective
+│   ├── requirements.txt                        # Python dependencies
+│   └── ...
+│
+└── THX/                                        # Test harness & experiments
 ```
 
 ---
 
-## Experimental Status
-
-### Theory: Complete (v1.1)
-- Six-mechanism framework formalized
-- Four main theorems with proof sketches
-- Twenty testable predictions defined
-- Mitigation strategies derived
-
-### Experiments: In Progress
-
-**Validated Predictions:**
-- Prediction 1: Frequency-accuracy correlation (in progress)
-- Prediction 4: Prompt specificity effect (in progress)
-- Prediction 12: Temperature-hallucination relationship (in progress)
-
-**Upcoming:**
-- Predictions 5-6: Context crowding effects
-- Predictions 9-11: Geometric distortion accumulation
-- Predictions 15-17: Optimal noise existence
-
-**Notebooks Currently Functional:**
-1. `rope_accumulation.ipynb` – RoPE trajectory analysis
-2. `sampling_reconstruction.ipynb` – Nyquist baseline
-3. `simpleLM_drift.ipynb` – Latent drift t-tests
-4. Others under active development
-
----
-
-## Quick Start
-
-### Read the Theory
-
-```bash
-# Clone the repository
-git clone https://github.com/Gman-Superfly/Hallucinations_in_Noisy_Channels.git
-cd Hallucinations_in_Noisy_Channels
-
-# Read the main paper
-cat paper/Hallucinations_in_Noisy_Channels_v1.1.md
-# or open the PDF in paper/
-```
-
-### Run Experiments
-
-```bash
-# Install dependencies
-pip install -r requirements.txt
-
-# Run semantic redundancy analysis
-python scripts/semantic_redundancy_metric.py --backend tfidf
-
-# Launch Jupyter for notebooks
-jupyter notebook experiments/
-```
-
-### Generate Figures
-
-```bash
-# Run all experiments and generate figures
-make figures
-
-# Individual experiments
-jupyter nbconvert --execute experiments/rope_accumulation.ipynb
-```
-
----
-
-## Key Concepts
+## Core Concepts
 
 ### The Teaching Framework
 
@@ -223,7 +153,7 @@ jupyter nbconvert --execute experiments/rope_accumulation.ipynb
 ```
 Information cannot be created—only transmitted or lost.
 
-K(output | topic) ≤ K(stored | topic)
+K(output | topic) ≤ K(source | topic)
 
 When violated: Information was "created" from the form prior
                 → Definitional hallucination
@@ -240,7 +170,7 @@ Constrained                Unconstrained
 Grounded                   Hallucinated
 
 Hallucination = Thermalization to maximum entropy
-P(hallucination) ∝ exp(Sform - Sknowledge)
+P(hallucination) ∝ exp(S_form - S_knowledge)
 ```
 
 ### The Noise Paradox
@@ -253,47 +183,81 @@ T → ∞:   Pure entropy, complete hallucination
 Optimal noise T* > 0 is REQUIRED for error correction
 ```
 
----
+### Geometric Distortion Cascade
 
-## Testable Predictions (Sample)
+```
+Fidelity decays EXPONENTIALLY with chain length:
 
-**Prediction 1:** Hallucination rate inversely correlates with topic frequency in training.
+n=3 stages, ε=0.1:  (0.9)³  = 73% fidelity
+n=5 stages, ε=0.1:  (0.9)⁵  = 59% fidelity
+n=10 stages, ε=0.1: (0.9)¹⁰ = 35% fidelity
+n=20 stages, ε=0.1: (0.9)²⁰ = 12% fidelity
 
-**Prediction 4:** Hallucination rate decreases with prompt specificity: P(hallucination) ∝ 1/|K(prompt) - K(representation)|
-
-**Prediction 7:** Conservation violations are detectable: When K(output) > K(stored), hallucination occurred.
-
-**Prediction 12:** Hallucination rate follows Boltzmann statistics with temperature: P(hallucination|T) ∝ exp(ΔS/k) · f(T)
-
-**Prediction 15:** Optimal temperature exists: T* = argmax[P(correction) - P(hallucination)] > 0
-
-[See full list of 20 predictions in the paper](paper/Hallucinations_in_Noisy_Channels_v1.1.md#91-testable-hypotheses)
+This is why long reasoning chains and multi-hop retrieval degrade.
+```
 
 ---
 
-## Feedback and Contributions
+## Quick Start
 
-We welcome:
-- Theoretical critiques and proof improvements
-- Suggestions for experimental designs
-- Validation results on predictions
-- Related work citations
-- Clarity improvements to exposition
+### Read the Theory
 
-**How to contribute:**
-- Open an [Issue](https://github.com/Gman-Superfly/Hallucinations_in_Noisy_Channels/issues) for bugs or questions
-- Start a [Discussion](https://github.com/Gman-Superfly/Hallucinations_in_Noisy_Channels/discussions) for ideas
-- Submit a Pull Request with experiments or fixes
+```bash
+# Clone the repository
+git clone https://github.com/Gman-Superfly/Hallucinations_Noisy_Channels.git
+cd Hallucinations_Noisy_Channels
 
-### Collaboration Opportunities
+# Read the main paper (markdown)
+cat Hallucinations_in_Noisy_Channels_v1.2.md
+```
 
-Interested in:
-- Running experiments on the 20 predictions
-- Extending the framework to specific domains
-- Building practical hallucination detectors
-- Validating on large-scale models
+### Run Experiments
 
-Reach out via Issues or Discussions.
+```bash
+# Install dependencies
+pip install -r working/requirements.txt
+
+# Run semantic redundancy analysis
+python scripts/semantic_redundancy_metric.py --backend tfidf
+
+# Launch Jupyter for notebooks
+jupyter notebook experiments/
+```
+
+---
+
+## Practical Mitigation Strategies
+
+Principled techniques grounded in theory:
+
+| Strategy | Addresses | Section |
+|----------|-----------|---------|
+| **Unambiguous prompts** | Matching failures | §4.4 |
+| **Context budget management** | Decompression crowding | §4.5 |
+| **Chain-of-thought** | Distribute reconstruction load | §4.2 |
+| **Optimal temperature calibration** | Enable self-correction | §8.6 |
+| **Information accounting** | Detect conservation violations | §8.3 |
+| **First-stage quality** | Training > prompting (Friis analogy) | §8.4 |
+| **Semantic anchors** | Counter attention sink drift | §4.6 |
+
+---
+
+## Experimental Status
+
+### Theory: Complete (v1.2)
+- [x] Six-mechanism framework formalized
+- [x] Seven theorems with proof sketches (Theorem 7 = conjecture)
+- [x] Twenty-one testable predictions defined
+- [x] Mitigation strategies derived
+- [x] Thermodynamic unification complete
+
+### Experiments: In Progress
+- [ ] Prediction 1: Frequency-accuracy correlation (in progress)
+- [ ] Prediction 4: Prompt specificity effect (in progress)
+- [ ] Prediction 12: Temperature-hallucination relationship (in progress)
+- [ ] Predictions 5-6: Context crowding effects
+- [ ] Predictions 9-11: Geometric distortion accumulation
+- [ ] Predictions 15-17: Optimal noise existence
 
 ---
 
@@ -311,19 +275,15 @@ If you use this framework in your research, please cite:
   institution={Shogu Research Group @ Datamutant.ai, subsidiary of 温心重工業},
   year={2025},
   month={November},
-  version={1.1},
-  note={Available at \url{https://github.com/Gman-Superfly/Hallucinations_in_Noisy_Channels}},
+  version={1.2},
+  url={https://github.com/Gman-Superfly/Hallucinations_in_Noisy_Channels},
   license={CC-BY-4.0}
 }
 ```
 
 ### APA
 
-Goldman, O. (2025). *Hallucinations in Noisy Channels: A Unified Information-Theoretic and Thermodynamic Framework for Understanding LLM Hallucination Errors* (Version 1.1). Shogu Research Group @ Datamutant.ai. https://github.com/Gman-Superfly/Hallucinations_in_Noisy_Channels
-
-### Chicago
-
-Goldman, Oscar. "Hallucinations in Noisy Channels: A Unified Information-Theoretic and Thermodynamic Framework for Understanding LLM Hallucination Errors." Shogu Research Group @ Datamutant.ai, November 2025. https://github.com/Gman-Superfly/Hallucinations_in_Noisy_Channels.
+Goldman, O. (2025). *Hallucinations in Noisy Channels: A Unified Information-Theoretic and Thermodynamic Framework for Understanding LLM Hallucination Errors* (Version 1.2). Shogu Research Group @ Datamutant.ai. https://github.com/Gman-Superfly/Hallucinations_in_Noisy_Channels
 
 ---
 
@@ -331,93 +291,42 @@ Goldman, Oscar. "Hallucinations in Noisy Channels: A Unified Information-Theoret
 
 ### Paper (Theoretical Content)
 
-The theoretical framework, paper, and documentation in `paper/`, `docs/`, and markdown files are licensed under [Creative Commons Attribution 4.0 International (CC-BY-4.0)](https://creativecommons.org/licenses/by/4.0/).
+The theoretical framework and documentation are licensed under [**Creative Commons Attribution 4.0 International (CC-BY-4.0)**](https://creativecommons.org/licenses/by/4.0/).
 
-**You are free to:**
-- Share — copy and redistribute the material
-- Adapt — remix, transform, and build upon
-- Commercial use is permitted
-
-**Under these terms:**
-- **Attribution** — You must give appropriate credit, provide a link to the license, and indicate if changes were made.
+**You are free to:** Share, Adapt, use commercially  
+**Required:** Attribution
 
 ### Code (Experiments & Scripts)
 
-Code in `experiments/`, `scripts/`, and `THX/` is licensed under the [MIT License](LICENSE).
-
-```
-MIT License
-
-Copyright (c) 2025 Oscar Goldman
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-```
+Code in `experiments/`, `scripts/`, and `THX/` is licensed under the [**MIT License**](LICENSE).
 
 ---
 
-## Roadmap
+## Contributing
 
-### Phase 1: Theory (Complete)
-- [x] Six-mechanism framework
-- [x] Four main theorems
-- [x] Twenty testable predictions
-- [x] Mitigation strategies
+We welcome:
+- Theoretical critiques and proof improvements
+- Experimental validation results
+- Suggestions for additional predictions
+- Clarity improvements to exposition
 
-### Phase 2: Validation (In Progress)
-- [x] Experimental harness setup
-- [x] Baseline notebooks (Nyquist, RoPE)
-- [ ] Validate Predictions 1-5
-- [ ] Validate Predictions 12, 15-17
-- [ ] Full geometric alignment metrics
-
-### Phase 3: Publication (Upcoming)
-- [ ] Complete empirical validation
-- [ ] Submit to arXiv (cs.AI or cs.LG)
-- [ ] Workshop paper (ICML Theory, NeurIPS Workshop)
-- [ ] Journal submission (JMLR, Entropy)
-
-### Phase 4: Ecosystem (Future)
-- [ ] Hallucination detection toolkit
-- [ ] Prompt optimization library
-- [ ] Integration with RAG systems
-- [ ] Real-time monitoring dashboards
+**How to contribute:**
+- Open an [Issue](https://github.com/Gman-Superfly/Hallucinations_in_Noisy_Channels/issues) for bugs or questions
+- Start a [Discussion](https://github.com/Gman-Superfly/Hallucinations_in_Noisy_Channels/discussions) for ideas
+- Submit a Pull Request with experiments or fixes
 
 ---
 
 ## Related Work
 
-This framework builds on and extends:
+This framework builds on:
 
 - **Information Theory:** Shannon (1948), Kolmogorov (1965), Tishby (2000)
 - **Statistical Mechanics:** Boltzmann (1877), Jaynes (1957), Hopfield (1982)
-- **Hallucination Studies:** Ji et al. (2023), Huang et al. (2023), Manakul et al. (2023)
-- **In-Context Learning:** Xie et al. (2022), Akyürek et al. (2023), Olsson et al. (2022)
+- **Representation Learning:** Huh et al. (2024), Jha et al. (2025)
+- **Hallucination Studies:** Ji et al. (2023), Huang et al. (2023)
 
-See [Section 10: Related Work](paper/Hallucinations_in_Noisy_Channels_v1.1.md#10-related-work) for comprehensive citations.
-
----
-
-## Acknowledgments
-
-This work is part of a broader research program on information structures for reliable LLMs at the Shogu Research Group @ Datamutant.ai (subsidiary of 温心重工業).
-
-Special thanks to the open-source community for tools that made this research possible: Jupyter, NumPy, PyTorch, Transformers, and countless others.
+See [Section 10: Related Work](Hallucinations_in_Noisy_Channels_v1.2.md#10-related-work) for full citations.
 
 ---
 
@@ -425,21 +334,16 @@ Special thanks to the open-source community for tools that made this research po
 
 **Oscar Goldman**  
 Shogu Research Group @ Datamutant.ai  
-[GitHub Profile](https://github.com/Gman-Superfly)
-
-For questions, collaborations, or feedback:
-- [Issues](https://github.com/Gman-Superfly/Hallucinations_in_Noisy_Channels/issues)
-- [Discussions](https://github.com/Gman-Superfly/Hallucinations_in_Noisy_Channels/discussions)
+[GitHub](https://github.com/Gman-Superfly) · [Issues](https://github.com/Gman-Superfly/Hallucinations_in_Noisy_Channels/issues) · [Discussions](https://github.com/Gman-Superfly/Hallucinations_in_Noisy_Channels/discussions)
 
 ---
 
-**Hallucinations are not bugs—they are information-theoretic necessities when you transmit beyond capacity.**
-
-**When constraints fail, systems thermalize to maximum entropy: fluent form, empty content.**
-
-**Information cannot be created—only transmitted or lost. The excess is hallucination.**
+> **Hallucinations are not bugs—they are information-theoretic necessities when you transmit beyond capacity.**
+>
+> **When constraints fail, systems thermalize to maximum entropy: fluent form, empty content.**
+>
+> **Information cannot be created—only transmitted or lost. The excess is hallucination.**
 
 ---
 
 *Oscar Goldman - Shogu Research Group @ Datamutant.ai - November 2025*
-
