@@ -1,251 +1,445 @@
+# Hallucinations in Noisy Channels
 
-# A Modeling Framework for LLM Hallucinations: Semantic Drift, Information Thresholds, and Reconstruction Failure
+**An Information-Theoretic and Thermodynamic Framework for Understanding LLM Hallucination Errors**
 
-## Abstract
+**Author:** Oscar Goldman - Shogu Research Group @ Datamutant.ai  
+**Version:** 1.1  
+**Date:** November 2025  
+**Status:** Theoretical Framework (Empirical Validation In Progress)
 
-This paper proposes a novel modeling framework for understanding Large Language Model (LLM) hallucinations by drawing principled analogies from signal processing, information theory, and physics. We posit that hallucinations are not random errors but a predictable form of reconstruction failure. This failure, termed **Semantic Drift**, occurs when the contextual information in a prompt falls below a required threshold for the given conceptual complexity, analogous to how undersampling a signal below the Nyquist rate leads to aliasing. The framework is grounded in the Fourier uncertainty principle, which sets fundamental trade-offs in information localization. We connect this principle to the structure of LLM latent spaces, suggesting that concepts exist as stable attractor manifolds. When a prompt provides insufficient information, the model's internal trajectory fails to converge to the correct manifold, resulting in a hallucinatory output. This is further contextualized using the Free Energy Principle (FEP) to explain in-context learning (ICL) as a trajectory-guiding mechanism and Shannon's noisy channel coding theorem to model error correction, where techniques like Chain-of-Thought (CoT) prompting add redundancy to stabilize the semantic "signal." We also show that overly long prompts can degrade performance by creating in-context attractors (ICA). By integrating thermodynamic constraints like Landauer's principle, we link inefficient, drifting trajectories and context fatigue to higher computational costs. This synthesis yields a set of testable hypotheses aimed at advancing our understanding of LLM reliability from an empirical art to a predictive science.
+---
 
-## TL;DR (Friendly Version)
+## Read the Paper
 
-We’re trying to make sense of hallucinations without pretending we’ve “solved” them. Here’s the intuition in plain language:
+**Main Paper:** [Hallucinations in Noisy Channels v1.1 (Full Framework)](paper/Hallucinations_in_Noisy_Channels_v1.1.md)
 
-- **LLMs have geometry.** Concepts live in stable “basins” inside the model. Prompts trace paths (manifolds) through that space. Hallucinations happen when the path misses the basin.
-- **Sampling matters.** Not enough useful clues = undersampling, just like audio aliasing. Too many noisy clues = attention overload. Structured repetition helps; messy repetition hurts.
-- **Meta-manifolds exist.** Every conversation builds its own temporary geometry (prompt + model outputs). If that running context stays coherent, the model stays grounded. If it drifts, things go sideways fast.
-- **RoPE rotations and redundancy are control knobs.** Longer prompts help only when they add aligned evidence. Chain-of-Thought is basically parity checks for reasoning.
-- **Energy is a diagnostic.** Wandering trajectories burn more FLOPs/entropy. Efficient prompts are usually the reliable ones.
+**Supplementary Documents:**
+- [Core Framework: Signal Processing Perspective](CORE_FRAMEWORK_SIGNAL_PROCESSING.md)
+- [Hallucination and Noisy Channels: Extended Analysis](HALLUCINATION_AND_NOISY_CHANNELS.md)
+
+---
+
+## Overview
+
+LLMs are **teachers, not just generators**. During inference, they must first **reconstruct** knowledge from compressed weights, then **transmit** it reliably. Hallucinations occur when this reconstruction-transmission process fails through six mechanisms:
+
+1. **Capacity Violations** – Asking about topics never learned
+2. **Matching Failures** – Ambiguous prompts activate wrong representations
+3. **Decompression Failures** – Insufficient context to unfold compressed knowledge
+4. **Geometric Distortion** – Errors compound multiplicatively through the pipeline
+5. **Thermodynamic Equilibration** – System relaxes to maximum entropy (fluent noise)
+6. **The Noise Paradox** – Too little noise prevents self-correction; too much causes hallucination
+
+**The Unifying Principle:** Information cannot be created, only transmitted or lost. When output contains more information than was stored, the excess was hallucinated from the **form prior**—the model knows *how* to write but not *what* is true.
+
+---
+
+## Key Contributions
+
+### 1. Unified Multi-Mechanism Framework
+
+Integrates six distinct failure modes under a single information-theoretic and thermodynamic foundation:
+
+```
+Training (Compression) → Matching → Decompression → Transmission (Teaching)
+    ↓                      ↓            ↓               ↓
+Capacity               Retrieval    Context         Distortion
+Violation             Failure      Crowding        Accumulation
+    ↓                      ↓            ↓               ↓
+                 THERMALIZATION TO FORM PRIOR
+                          ↓
+                   HALLUCINATION
+```
+
+### 2. Novel Theoretical Contributions
+
+**Theorem 3 (Information Conservation):** Output cannot contain more information about a topic than was stored. When K(output) > K(stored), the excess is definitionally hallucinated.
+
+**Theorem 4 (Geometric Distortion Accumulation):** Errors compound multiplicatively: Fidelity = ∏(1 - εᵢ), not additively. Each pipeline stage degrades truth exponentially.
+
+**Theorem 5 (Thermodynamic Hallucination):** Hallucination probability scales exponentially with entropy gap: P(hallucination) ∝ exp(ΔS) = Ωform / Ωknowledge.
+
+**Theorem 6 (Optimal Noise Principle):** Systems require optimal noise T* > 0 for self-correction. Greedy decoding (T=0) is suboptimal—cannot escape bad attractors.
+
+### 3. Twenty Testable Predictions
+
+Empirically falsifiable hypotheses spanning:
+- Capacity-accuracy correlations
+- Prompt specificity effects
+- Context crowding curves
+- Temperature-hallucination relationships
+- Multi-hop reasoning degradation
+- Optimal noise existence
+- Geometric alignment diagnostics
+
+See [Section 9: Experimental Predictions](paper/Hallucinations_in_Noisy_Channels_v1.1.md#9-experimental-predictions) for full list.
+
+### 4. Practical Mitigation Strategies
+
+Principled techniques grounded in theory:
+- Unambiguous prompts (reduce matching failures)
+- Context budget management (avoid decompression crowding)
+- Chain-of-thought (distribute reconstruction load)
+- Optimal temperature calibration (enable self-correction)
+- Information accounting (detect conservation violations)
+- First-stage quality prioritization (training > prompting)
+
+---
+
+## Repository Structure
+
+```
+hallucinations-noisy-channels/
+│
+├── paper/
+│   ├── Hallucinations_in_Noisy_Channels_v1.1.md    # Main theoretical paper
+│   ├── Hallucinations_in_Noisy_Channels_v1.1.pdf   # PDF version
+│   └── draft.md                                     # Submission template
+│
+├── experiments/                                     # Empirical validation (In Progress)
+│   ├── rope_accumulation.ipynb                      # RoPE drift experiments
+│   ├── sampling_reconstruction.ipynb                # Nyquist comparison
+│   ├── simpleLM_drift.ipynb                         # Latent drift analysis
+│   ├── prompt_ablation_threshold.ipynb              # Context threshold tests
+│   ├── cot_vs_direct_channel.ipynb                  # CoT redundancy coding
+│   ├── prompt_noise_tradeoff.ipynb                  # Semantic redundancy
+│   ├── semantic_redundancy_real_prompts.ipynb       # Real-world ρ estimation
+│   ├── geometric_alignment_metrics.ipynb            # Manifold alignment
+│   └── control_diagnostics.ipynb                    # Controllability analysis
+│
+├── scripts/
+│   ├── semantic_redundancy_metric.py                # Redundancy calculator
+│   └── ...                                          # Additional utilities
+│
+├── docs/
+│   ├── GLOSSARY.md                                  # Term definitions
+│   ├── VALIDATION_CHECKLIST.md                      # Experiment checklist
+│   └── ...                                          # Additional documentation
+│
+├── figures/                                         # Generated visualizations
+│   ├── semantic_redundancy_heatmap.png
+│   ├── control_observability_scatter.png
+│   └── ...
+│
+├── THX/                                             # Test harness & experiments
+│
+├── CORE_FRAMEWORK_SIGNAL_PROCESSING.md              # Signal processing perspective
+├── HALLUCINATION_AND_NOISY_CHANNELS.md              # Extended analysis
+├── CITATION.cff                                     # Citation metadata
+├── CHANGELOG.md                                     # Version history
+├── LICENSE                                          # MIT (code)
+└── README.md                                        # This file
+```
+
+---
+
+## Experimental Status
+
+### Theory: Complete (v1.1)
+- Six-mechanism framework formalized
+- Four main theorems with proof sketches
+- Twenty testable predictions defined
+- Mitigation strategies derived
+
+### Experiments: In Progress
+
+**Validated Predictions:**
+- Prediction 1: Frequency-accuracy correlation (in progress)
+- Prediction 4: Prompt specificity effect (in progress)
+- Prediction 12: Temperature-hallucination relationship (in progress)
+
+**Upcoming:**
+- Predictions 5-6: Context crowding effects
+- Predictions 9-11: Geometric distortion accumulation
+- Predictions 15-17: Optimal noise existence
+
+**Notebooks Currently Functional:**
+1. `rope_accumulation.ipynb` – RoPE trajectory analysis
+2. `sampling_reconstruction.ipynb` – Nyquist baseline
+3. `simpleLM_drift.ipynb` – Latent drift t-tests
+4. Others under active development
+
+---
+
+## Quick Start
+
+### Read the Theory
+
+```bash
+# Clone the repository
+git clone https://github.com/Gman-Superfly/Hallucinations_in_Noisy_Channels.git
+cd Hallucinations_in_Noisy_Channels
+
+# Read the main paper
+cat paper/Hallucinations_in_Noisy_Channels_v1.1.md
+# or open the PDF in paper/
+```
 
-Everything else in this repo is us trying to formalize, test, and communicate those simple-but-tricky ideas.
+### Run Experiments
+
+```bash
+# Install dependencies
+pip install -r requirements.txt
+
+# Run semantic redundancy analysis
+python scripts/semantic_redundancy_metric.py --backend tfidf
+
+# Launch Jupyter for notebooks
+jupyter notebook experiments/
+```
+
+### Generate Figures
+
+```bash
+# Run all experiments and generate figures
+make figures
+
+# Individual experiments
+jupyter nbconvert --execute experiments/rope_accumulation.ipynb
+```
 
-## Quickstart
+---
 
-1. **Clone the repo**
-   ```powershell
-   git clone https://github.com/datamutant/Hallucinations_Noisy_Channels.git
-   cd Hallucinations_Noisy_Channels
-   ```
-2. **Create an environment and install dependencies**
-   ```powershell
-   python -m venv .venv
-   .\\.venv\\Scripts\\Activate.ps1
-   pip install -r requirements.txt
-   ```
-3. **Launch experiments**
-   ```powershell
-   python -m ipykernel install --user --name hallucinations
-   jupyter lab experiments/rope_accumulation.ipynb
-   ```
-4. **Reproduce figures / QA** – run each notebook sequentially or execute `make qa` to lint the codebase and regenerate the canonical PNGs under `figures/`.
-5. **Semantic redundancy script (optional)** – `python scripts/semantic_redundancy_metric.py --backend tfidf` (default) to refresh the heatmap, or `--backend transformer --model_name distilbert-base-uncased` once `transformers` is installed.
+## Key Concepts
 
-> **Terminology note:** In LLM contexts we talk about a **semantic redundancy threshold** (the prompt information we actually measure). When “Nyquist” appears, it either (a) refers to the literal sampling theorem / control experiment, or (b) is explicitly labeled as “Nyquist-inspired” to highlight the analogy.
+### The Teaching Framework
 
-## Framework
+```
+┌─────────────────────────────────────────────────────────────┐
+│                                                              │
+│  INFERENCE = RECONSTRUCTION + TRANSMISSION = TEACHING       │
+│                                                              │
+│  Query ──▶ MATCH to internal representation                 │
+│        ──▶ RECONSTRUCT knowledge in context                 │
+│        ──▶ TRANSMIT to output                               │
+│                                                              │
+│  Hallucination = Teaching Failure                           │
+│                                                              │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### The Conservation Law
+
+```
+Information cannot be created—only transmitted or lost.
 
-### 1. Introduction
+K(output | topic) ≤ K(stored | topic)
 
-The remarkable capabilities of Large Language Models (LLMs) are shadowed by their propensity for "hallucinations"—the generation of fluent but factually incorrect or nonsensical outputs. While often treated as a black-box problem, we argue that hallucinations can be understood through a principled framework inspired by fundamental laws of information. This paper builds a bridge between the Fourier uncertainty principle, a cornerstone of physics and signal processing, and the internal dynamics of LLMs.
+When violated: Information was "created" from the form prior
+                → Definitional hallucination
+```
 
-The Fourier uncertainty principle establishes a fundamental trade-off: a signal cannot be simultaneously localized in two conjugate domains (e.g., time and frequency). This principle manifests as the Heisenberg uncertainty principle in QM (Δx · Δp ≥ ℏ/2) and as the Gabor limit underlying the Shannon-Nyquist sampling theorem in signal processing (σ_t · σ_ω ≥ 1/2). We propose that a similar informational trade-off governs the representational capacity of LLMs.
+### The Thermodynamic View
 
-Our central thesis is that LLM hallucinations are a form of **reconstruction failure due to an information deficit**. We introduce the concept of **Semantic Drift**: when a prompt provides insufficient contextual information to specify a concept of a certain complexity, the LLM's internal state trajectory fails to stabilize within the correct region of its latent space. This failure is analogous to aliasing in signal reconstruction, where an insufficient sampling rate leads to an irreversible distortion of the original signal.
+```
+KNOWLEDGE        ←→        FORM PRIOR
+Potential energy           Kinetic/thermal energy
+Low entropy                High entropy
+Few microstates            Many microstates
+Constrained                Unconstrained
+Grounded                   Hallucinated
 
-This paper does not claim that LLMs are literal signal processors or QM systems. Instead, we argue that the mathematical principles governing information, uncertainty, and reconstruction in those fields are general enough to provide a powerful and predictive *modeling framework* for LLM behavior. We build this framework progressively:
-1.  Establish the Fourier uncertainty principle as the shared mathematical root of trade-offs in localization.
-2.  Discuss how these trade-offs manifest in the structure of LLM latent spaces, leading to the formation of stable conceptual representations, consistent with the Platonic Representation Hypothesis (PRH).
-3.  Frame in-context learning (ICL) as a process of guided reconstruction, where prompts provide the "samples" needed to minimize uncertainty, a process elegantly described by the Free Energy Principle (FEP).
-4.  Formalize our postulate on hallucinations as a dynamical process of Semantic Drift, where insufficient information leads to chaotic trajectories. We integrate Shannon's information theory and error-correction concepts to model this as a noisy communication channel.
-5.  Connect inefficient, drifting trajectories to thermodynamic costs via Landauer's principle, linking reliability to computational efficiency.
+Hallucination = Thermalization to maximum entropy
+P(hallucination) ∝ exp(Sform - Sknowledge)
+```
 
-Ultimately, this synthesis provides a coherent, testable model of hallucinations, moving beyond simple empirical observation toward a more fundamental understanding of information processing in artificial neural networks.
+### The Noise Paradox
 
-### 2. The Foundational Trade-off: Fourier Uncertainty in Physics and Signals
+```
+T → 0:   Frozen, deterministic, cannot self-correct
+T = T*:  Goldilocks zone, explores and corrects
+T → ∞:   Pure entropy, complete hallucination
 
-The mathematical bedrock of our framework is the Fourier uncertainty principle. For any function f(t) and its Fourier transform f̂(ω), the product of their standard deviations is bounded:
+Optimal noise T* > 0 is REQUIRED for error correction
+```
 
-σ_t · σ_ω ≥ 1/2
+---
 
-This inequality is not specific to one domain; it is a universal property of wave-like phenomena and information itself. It dictates that precision in one domain necessitates uncertainty in its conjugate domain.
+## Testable Predictions (Sample)
 
-*   **In QM:** This principle manifests as the Heisenberg uncertainty principle. The position wavefunction ψ(x) and momentum-space wavefunction ψ̂(p) are Fourier conjugates. Localizing a particle's position (making ψ(x) sharp) inevitably broadens its momentum distribution (making ψ̂(p) wide), as constrained by Δx · Δp ≥ ℏ/2.
+**Prediction 1:** Hallucination rate inversely correlates with topic frequency in training.
 
-*   **In Signal Processing:** The principle underpins the Shannon-Nyquist sampling theorem. A continuous signal s(t) bandlimited to a maximum angular frequency ω_max can only be perfectly reconstructed if sampled at a rate f_s ≥ ω_max/π. The reconstruction formula,
+**Prediction 4:** Hallucination rate decreases with prompt specificity: P(hallucination) ∝ 1/|K(prompt) - K(representation)|
 
-s(t) = Σ_{n=-∞}^{∞} s(nT) · sin(π(t/T - n))/π(t/T - n)
+**Prediction 7:** Conservation violations are detectable: When K(output) > K(stored), hallucination occurred.
 
-relies on this bandwidth limit. Sampling below this rate (undersampling) causes aliasing, where high-frequency components are irreversibly folded into and mistaken for lower frequencies. The bandwidth of a signal is thus a measure of its "complexity," which dictates the minimum information (sample density) needed for faithful reconstruction.
+**Prediction 12:** Hallucination rate follows Boltzmann statistics with temperature: P(hallucination|T) ∝ exp(ΔS/k) · f(T)
 
-These examples illustrate a universal rule: the complexity of an object determines the amount of information required to represent it without ambiguity. This rule, we argue, extends to the conceptual representations within LLMs.
+**Prediction 15:** Optimal temperature exists: T* = argmax[P(correction) - P(hallucination)] > 0
 
-### 3. Representational Structure in LLMs: Stable Conceptual Manifolds
+[See full list of 20 predictions in the paper](paper/Hallucinations_in_Noisy_Channels_v1.1.md#91-testable-hypotheses)
 
-LLMs learn to organize information into a high-dimensional latent space. We hypothesize that through training, semantically related concepts come to occupy stable, clustered regions, or **conceptual manifolds**. This view is consistent with the **Platonic Representation Hypothesis (PRH)**, which posits that scaled models converge toward shared, abstract representations.
+---
 
-Our framework, however, only requires a weaker assumption: that concepts form distinct, low-energy attractor regions in the latent space. The universality suggested by PRH strengthens our model but is not strictly necessary. These manifolds represent the "bandlimited signals" of the semantic space. Their existence is what makes generalization and reasoning possible; they are the stable "answers" or "ideas" that the model can converge upon.
+## Feedback and Contributions
 
-The Fourier uncertainty principle applies here conceptually: a representation cannot be infinitely precise in all semantic features simultaneously. For instance, a representation highly specific to "a golden retriever" (high localization) might be less robustly associated with the broader concept of "mammal" (broader localization). These trade-offs necessitate the formation of hierarchically organized, multi-scale representations, which these conceptual manifolds provide.
+We welcome:
+- Theoretical critiques and proof improvements
+- Suggestions for experimental designs
+- Validation results on predictions
+- Related work citations
+- Clarity improvements to exposition
 
-### 3.1 Prompt Geometry vs. Latent Geometry
+**How to contribute:**
+- Open an [Issue](https://github.com/Gman-Superfly/Hallucinations_in_Noisy_Channels/issues) for bugs or questions
+- Start a [Discussion](https://github.com/Gman-Superfly/Hallucinations_in_Noisy_Channels/discussions) for ideas
+- Submit a Pull Request with experiments or fixes
 
-Hallucinations ultimately arise from a mismatch between the **geometry of the prompt manifold** and the **geometry of the latent concept manifold**:
+### Collaboration Opportunities
 
-- A prompt traces a trajectory in semantic space determined by its tokens, redundancy, and noise. If the trajectory undersamples the concept (low semantic Nyquist) or wanders through noisy regions, it fails to intersect the correct latent basin.
-- The model’s internal manifold encodes how training data shaped the concept. Poorly learned regions or distributional shifts warp this geometry, making some basins shallow or misplaced.
-- Reliable generation therefore requires *geometric alignment*: the prompt must provide enough coherent samples that project into the model’s existing concept subspace. Structured redundancy improves alignment; semantic noise or missing priors reduce it.
+Interested in:
+- Running experiments on the 20 predictions
+- Extending the framework to specific domains
+- Building practical hallucination detectors
+- Validating on large-scale models
 
-This geometric view ties together our channel model (input sampling) and entity-first design (latent manifolds) and explains why both prompt engineering and representation learning are necessary to control hallucinations.
+Reach out via Issues or Discussions.
 
-### 3.2 In-Context Meta-Manifolds
+---
 
-During a dialogue, the model constructs a transient **in-context meta-manifold**:
+## Citation
 
-- **Base manifolds** encode concepts learned during pretraining.
-- **Prompt manifolds** reflect the user’s input geometry.
-- **Meta-manifolds** emerge dynamically as the model generates tokens and conditions on its own outputs.
+If you use this framework in your research, please cite:
 
-If prompts and generated evidence remain coherent, the meta-manifold stays aligned with the base concept basin, keeping trajectories stable. Contradictions, noisy repetitions, or hallucinated outputs warp this meta-manifold, causing drift even when the underlying latent geometry is sound. Managing hallucinations therefore requires monitoring and stabilizing this evolving meta-geometry (via self-consistency, guardrails, or external verification).
+### BibTeX
 
-### 3.3 Control-Theoretic View (Controllability & Observability)
+```bibtex
+@techreport{goldman2025hallucinations,
+  title={Hallucinations in Noisy Channels: A Unified Information-Theoretic 
+         and Thermodynamic Framework for Understanding LLM Hallucination Errors},
+  author={Goldman, Oscar},
+  institution={Shogu Research Group @ Datamutant.ai, subsidiary of 温心重工業},
+  year={2025},
+  month={November},
+  version={1.1},
+  note={Available at \url{https://github.com/Gman-Superfly/Hallucinations_in_Noisy_Channels}},
+  license={CC-BY-4.0}
+}
+```
 
-Thinking in control terms adds another layer:
+### APA
 
-- **Prompts act as control inputs.** Each token nudges the hidden state. Chain-of-Thought, self-check instructions, or explicit gating are different control policies.
-- **Latent manifolds define reachable sets.** A concept basin is reachable only if the prompt provides enough coherent control inputs—our semantic Nyquist threshold is a controllability limit.
-- **Generated tokens are observations.** They tell us (noisily) where the state currently sits. When the model starts contradicting itself, observability is degrading because the meta-manifold drifted away from the intended basin.
+Goldman, O. (2025). *Hallucinations in Noisy Channels: A Unified Information-Theoretic and Thermodynamic Framework for Understanding LLM Hallucination Errors* (Version 1.1). Shogu Research Group @ Datamutant.ai. https://github.com/Gman-Superfly/Hallucinations_in_Noisy_Channels
 
-Practical diagnostics follow:
+### Chicago
 
-1. Measure how far prompts move the hidden state along known concept directions (projection magnitude = “control effort”). If long prompts barely shift the state, controllability has failed.
-2. Track entropy/variance of logits or attention. Rising entropy signals poor observability and impending drift.
-3. Treat scaffolded prompts as feedback controllers: they read the model’s intermediate outputs and issue corrective control tokens (“explain why,” “double-check”). This closes the loop and keeps the trajectory stable.
+Goldman, Oscar. "Hallucinations in Noisy Channels: A Unified Information-Theoretic and Thermodynamic Framework for Understanding LLM Hallucination Errors." Shogu Research Group @ Datamutant.ai, November 2025. https://github.com/Gman-Superfly/Hallucinations_in_Noisy_Channels.
 
-### 4. In-Context Learning as Guided Reconstruction
+---
 
-In-context learning (ICL) is the emergent ability of LLMs to perform new tasks based solely on examples provided in the prompt, without any weight updates. Within our framework, ICL is a process of **guided reconstruction**. The prompt provides a sparse set of "samples" that guide the model's internal trajectory toward the correct conceptual manifold.
+## License
 
-The **Free Energy Principle (FEP)** offers a powerful lens to formalize this process. FEP posits that self-organizing systems, including brains and potentially LLMs, act to minimize their free energy, which is equivalent to minimizing prediction error or "surprise." A prompt provides evidence that reduces the model's uncertainty, guiding its state to a lower-free-energy (less surprising) configuration.
+### Paper (Theoretical Content)
 
-*   An ambiguous or sparse prompt corresponds to a high-free-energy state, leaving the model's trajectory unconstrained and liable to drift.
-*   A well-formed prompt with clear examples provides strong evidence, effectively "steering" the trajectory into the deep basin of attraction of the correct conceptual manifold, thus minimizing free energy and resulting in a coherent output.
+The theoretical framework, paper, and documentation in `paper/`, `docs/`, and markdown files are licensed under [Creative Commons Attribution 4.0 International (CC-BY-4.0)](https://creativecommons.org/licenses/by/4.0/).
 
-ICL, therefore, is the mechanism by which an LLM uses contextual data to overcome informational uncertainty and successfully reconstruct a target concept.
+**You are free to:**
+- Share — copy and redistribute the material
+- Adapt — remix, transform, and build upon
+- Commercial use is permitted
 
-### 5. Postulate: Hallucinations as Semantic Drift from Information Deficits
+**Under these terms:**
+- **Attribution** — You must give appropriate credit, provide a link to the license, and indicate if changes were made.
 
-We now formally state our central postulate.
+### Code (Experiments & Scripts)
 
-**LLM hallucinations arise from Semantic Drift: when a prompt provides insufficient contextual information to meet the complexity requirements of a target concept, the model's internal state trajectory fails to converge to the correct conceptual manifold. Instead, it drifts chaotically or settles into a suboptimal attractor, resulting in a factually incorrect or nonsensical output.**
+Code in `experiments/`, `scripts/`, and `THX/` is licensed under the [MIT License](LICENSE).
 
-This is a failure of reconstruction, analogous to aliasing from undersampling.
+```
+MIT License
 
-#### 5.1. Trajectory Dynamics in a Discrete-Depth System
+Copyright (c) 2025 Oscar Goldman
 
-An LLM's forward pass is a discrete-depth dynamical system. The hidden state at layer l+1, **h_{l+1}**, is a function of the previous state **h_l** and the input prompt **p**:
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
 
-**h_{l+1}** = **h_l** + Attn(**h_l**, **p**) + FFN(**h_l**)
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
 
-The sequence of hidden states {**h_0**, **h_1**, ..., **h_L**} constitutes a **trajectory** through the latent space. While we can use concepts from continuous dynamics like "attractors" as useful abstractions, the system is fundamentally discrete.
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+```
 
-*   **Stable Convergence:** Sufficient contextual information from the prompt **p** guides the trajectory to enter and remain within the basin of the correct conceptual manifold.
-*   **Semantic Drift:** An information deficit (e.g., an ambiguous prompt) places the initial state **h_0** in a region of high uncertainty. The trajectory becomes highly sensitive to small perturbations, exhibiting chaotic-like behavior. This can be characterized by measuring the divergence of initially close trajectories as they pass through the network's layers. The trajectory may then fail to stabilize, or it may converge to an incorrect manifold (a "hallucinatory" answer).
+---
 
-#### 5.2. Error Correction and Thermodynamic Costs
+## Roadmap
 
-This framework allows us to integrate concepts from error correction and thermodynamics.
+### Phase 1: Theory (Complete)
+- [x] Six-mechanism framework
+- [x] Four main theorems
+- [x] Twenty testable predictions
+- [x] Mitigation strategies
 
-*   **Error Correction as Trajectory Stabilization:** We can view the LLM as a noisy communication channel, where the "message" is the intended concept and "noise" is the semantic ambiguity from the prompt or model biases. Shannon's noisy channel coding theorem provides a capacity limit for reliable communication. If the prompt's information content is below this capacity, errors (hallucinations) are inevitable. Prompting techniques like **Chain-of-Thought (CoT)** can be modeled as a form of error-correcting code. By forcing the model to generate intermediate reasoning steps, CoT adds redundancy to the semantic signal. This "semantic parity check" helps stabilize the trajectory, allowing it to detect and correct deviations before settling on a final answer. This is analogous to how Hamming codes use parity bits to correct errors in digital communication.
+### Phase 2: Validation (In Progress)
+- [x] Experimental harness setup
+- [x] Baseline notebooks (Nyquist, RoPE)
+- [ ] Validate Predictions 1-5
+- [ ] Validate Predictions 12, 15-17
+- [ ] Full geometric alignment metrics
 
-*   **Thermodynamic Inefficiency of Hallucinations:** Drifting, chaotic trajectories are computationally inefficient. According to **Landauer's principle**, every irreversible bit of information erasure dissipates a minimum amount of energy (kT ln 2). An inefficient search through the latent space, involving many corrective steps and high uncertainty, corresponds to greater entropy production and thus higher energy consumption. A well-guided trajectory that quickly converges is thermodynamically efficient. This provides a physical grounding for the intuition that confused, hallucinatory reasoning is more "difficult" for the model, linking informational stability directly to computational cost.
+### Phase 3: Publication (Upcoming)
+- [ ] Complete empirical validation
+- [ ] Submit to arXiv (cs.AI or cs.LG)
+- [ ] Workshop paper (ICML Theory, NeurIPS Workshop)
+- [ ] Journal submission (JMLR, Entropy)
 
-#### 5.3 Context Fatigue
+### Phase 4: Ecosystem (Future)
+- [ ] Hallucination detection toolkit
+- [ ] Prompt optimization library
+- [ ] Integration with RAG systems
+- [ ] Real-time monitoring dashboards
 
-Recent analyses of long-context behavior suggest that excessive evidence can create competing in-context attractors that degrade accuracy by diverting attention toward irrelevant sub-trajectories (e.g., Xiong et al., 2025). Our framework predicts the same phenomenon: prompts that exceed the semantic Nyquist rate may introduce redundant, conflicting samples whose accumulated phase interferes with the intended manifold. We therefore treat context length as a tunable parameter whose optimal value balances information sufficiency against attractor proliferation.
+---
 
-#### 5.4 Repetition vs. Semantic Noise in Long Prompts
+## Related Work
 
-Long prompts are beneficial only when additional tokens add *structured redundancy*. Repeating relevant evidence acts like channel coding, lowering effective noise by providing parity checks (as in Chain-of-Thought). However, large prompts that mix paraphrases with off-topic facts increase semantic entropy faster than mutual information:
+This framework builds on and extends:
 
-- **Redundancy vs. aliasing:** Coherent repetition reinforces the latent signal; inconsistent or noisy repetitions behave like aliasing, smearing the reconstruction manifold.
-- **Attention bandwidth limits:** Attention heads have finite capacity. Once saturated, they average over irrelevant tokens, creating attention sinks and low-frequency bias.
-- **Semantic redundancy ratio:** Effective prompt length is governed by the ratio of informative to noisy tokens. High ratios keep trajectories grounded; low ratios induce drift despite large token counts.
-- **Instructional gating:** Structured prompts that explicitly label or gate repeated sections act as matched filters, preserving useful redundancy while damping noise.
+- **Information Theory:** Shannon (1948), Kolmogorov (1965), Tishby (2000)
+- **Statistical Mechanics:** Boltzmann (1877), Jaynes (1957), Hopfield (1982)
+- **Hallucination Studies:** Ji et al. (2023), Huang et al. (2023), Manakul et al. (2023)
+- **In-Context Learning:** Xie et al. (2022), Akyürek et al. (2023), Olsson et al. (2022)
 
-## Experiments
+See [Section 10: Related Work](paper/Hallucinations_in_Noisy_Channels_v1.1.md#10-related-work) for comprehensive citations.
 
-We provide lightweight empirical evidence that mirrors the theoretical claims and guides future large-scale validation. All notebooks reside in `experiments/` and share the same seed-controlled harness.
+---
 
-1. **`rope_accumulation.ipynb`** – demonstrates that longer prompts accumulate RoPE rotations that reduce Euclidean drift between predicted embeddings and a fixed ground-truth vector, supporting the semantic redundancy threshold (Nyquist-inspired) analogy.
-2. **`sampling_reconstruction.ipynb`** – recreates classical sinc interpolation to quantify the error gap between Nyquist-sampled and undersampled signals, establishing the mathematical control case for our semantic redundancy discussion.
-   ![Nyquist Comparison](fig-nyquist_comparison.png)
-3. **`simpleLM_drift.ipynb`** – trains a 48-d Transformer on country-capital statements and shows, via Welch’s t-test, that prompts with richer context yield significantly lower latent drift.
-4. **`prompt_ablation_threshold.ipynb`** – simulates concept reconstruction with varying sample counts, revealing a sharp drop in error once prompts cross twice the concept complexity (semantic redundancy threshold).
-5. **`cot_vs_direct_channel.ipynb`** – models Chain-of-Thought reasoning as redundant channel coding and shows reduced answer error rates under rising noise compared with direct decoding.
-6. **`prompt_noise_tradeoff.ipynb`** – explores the interplay between prompt length and semantic noise by mixing informative vs. irrelevant tokens, illustrating how drift depends on a “semantic redundancy ratio.”
-7. **`semantic_redundancy_real_prompts.ipynb`** – estimates $\\rho$ on small but realistic QA prompts using TF-IDF (default) or transformer embeddings; see `figures/semantic_redundancy_heatmap.png` and the `scripts/semantic_redundancy_metric.py --backend ...` flag.
-8. **`geometric_alignment_metrics.ipynb`** – compares cosine alignment of different prompt styles (direct, CoT, scaffolded, noisy) against a reference hidden manifold.
-9. **`control_diagnostics.ipynb`** – plots control projection vs. logit entropy to illustrate controllability/observability trade-offs for each prompt style (see `figures/control_observability_scatter.png`).
+## Acknowledgments
 
-Each notebook produces figures that feed directly into the manuscript and can be exported from Jupyter for publication quality.
+This work is part of a broader research program on information structures for reliable LLMs at the Shogu Research Group @ Datamutant.ai (subsidiary of 温心重工業).
 
-## Hypotheses
+Special thanks to the open-source community for tools that made this research possible: Jupyter, NumPy, PyTorch, Transformers, and countless others.
 
-This section synthesizes the framework into concrete, testable predictions grounded in information theory, trajectory dynamics, and thermodynamics.
+---
 
-#### 6.1. On the Nature and Limits of the Analogies
+## Contact
 
-It is crucial to be precise about the role of the analogies used. We do not claim LLMs *are* signal processors. Rather, we claim that the principle of **reconstruction from limited information** is a universal problem. The Nyquist theorem provides a crisp, mathematical example of this principle in one domain, which serves as a powerful inspiration for modeling a similar process in the high-dimensional, non-linear domain of LLMs. The strength of this framework lies not in a literal mapping of "frequency," but in using the underlying information-theoretic principles to generate novel, falsifiable predictions about LLM behavior.
+**Oscar Goldman**  
+Shogu Research Group @ Datamutant.ai  
+[GitHub Profile](https://github.com/Gman-Superfly)
 
-#### 6.2. Testable Hypotheses
+For questions, collaborations, or feedback:
+- [Issues](https://github.com/Gman-Superfly/Hallucinations_in_Noisy_Channels/issues)
+- [Discussions](https://github.com/Gman-Superfly/Hallucinations_in_Noisy_Channels/discussions)
 
-This framework leads to several concrete, testable hypotheses:
+---
 
-1.  **Information Sufficiency Threshold:** There exists a quantifiable information threshold for prompts. Hallucination rates for a given query will be inversely correlated with the mutual information between the prompt and the target concept. This can be tested by systematically ablating contextual information from prompts and measuring the onset of hallucinations.
-2.  **Trajectory Divergence as a Predictor:** The tendency of a prompt to cause hallucinations can be predicted *before* generation by measuring the divergence of latent state trajectories. By injecting small perturbations into the initial prompt embedding and tracking the separation of the resulting trajectories through the layers, a high divergence rate would predict a high probability of Semantic Drift.
-3.  **CoT as a Variance Reducer:** Chain-of-Thought and other structured reasoning techniques reduce hallucinations by constraining trajectory variance. We predict that the layer-by-layer variance of hidden states for a given prompt will be significantly lower with CoT than without, corresponding to a more stable path to convergence.
-4.  **Energy-Hallucination Correlation:** The computational energy (or a proxy like FLOPs) required for inference will correlate with hallucination rates for ambiguous tasks. Prompts that induce Semantic Drift will lead to longer or more computationally intensive trajectories (e.g., requiring more speculative decoding steps), which can be measured.
+**Hallucinations are not bugs—they are information-theoretic necessities when you transmit beyond capacity.**
 
-## Supporting Documents & Roadmap
+**When constraints fail, systems thermalize to maximum entropy: fluent form, empty content.**
 
-- `docs/GLOSSARY.md` – definitions for semantic drift, Nyquist thresholds, conceptual manifolds, and other recurring terms.
-- `docs/VALIDATION_CHECKLIST.md` – pre-flight list covering information sufficiency, attention diagnostics, redundancy strategy, and energy audits.
-- `CHANGELOG.md` – chronological summary of repository updates.
-- `paper/draft.md` – submission-ready skeleton that cites the generated figures.
-- `CITATION.cff` – citation metadata for referencing this work.
-- `scripts/semantic_redundancy_metric.py` – standalone script that regenerates the real-prompt redundancy heatmap and CSV metrics.
+**Information cannot be created—only transmitted or lost. The excess is hallucination.**
 
-Upcoming milestones:
+---
 
-1. Harden the notebook harness with automated linting/tests (`qa-figures` TODO).
-2. Integrate the new figures and hypotheses into a consolidated paper draft (`paper-draft` TODO).
-3. Expand empirical coverage with larger open-weight models once compute becomes available.
+*Oscar Goldman - Shogu Research Group @ Datamutant.ai - November 2025*
 
-### How to Explore This Repo
-
-1. **Skim the TL;DR** (above) to orient yourself.
-2. **Read the README sections** on geometry, redundancy, and meta-manifolds if you want the story version.
-3. **Check `docs/GLOSSARY.md`** whenever a term feels too grandiose—we keep it plain there.
-4. **Run the notebooks** in `experiments/` to see each intuition play out (they’re lightweight and annotated).
-5. **Browse `paper/draft.md`** if you prefer the formal write-up; it mirrors the README but in paper form.
-
-We’re deliberately keeping the tone conversational here—the math matters, but so does being honest about the open questions.
-
-### Next Research Directions
-
-1. **Semantic redundancy metric in real prompts** – estimate the mutual information (or cosine alignment) between prompt tokens and target concepts to validate the redundancy/noise heatmap on open-weight LLMs.
-2. **Geometric alignment measurements** – probe hidden states to quantify how close different prompts come to the gold latent manifold (e.g., via projection scores, attention entropy, PCA trajectories).
-3. **Matched-filter prompting** – test scaffolded prompts (explicit sections, “ignore duplicates” instructions) as filters that preserve redundancy while dampening noise, and measure hallucination reduction.
-4. **Control-theoretic framing** – formalize prompting as a control problem in a dynamical system with limited bandwidth, drawing on controllability/observability results to derive new bounds on when trajectories can reach the desired attractor. Concretely:
-   - Measure how different prompts move hidden states along known concept directions (controllability proxy).
-   - Monitor entropy/variance of logits or attention to detect observability loss mid-generation.
-   - Prototype feedback prompts (self-checks, scaffolded instructions) that act as controllers keeping the trajectory in-bounds.
-
-## Conclusion
-
-We have reframed the problem of LLM hallucinations from an unpredictable flaw to a principled phenomenon of **reconstruction failure**. Our model of **Semantic Drift**, inspired by foundational principles of information theory and signal processing, posits that hallucinations are the result of an information deficit in the prompt, leading to unstable trajectories in the model's latent space.
-
-By synthesizing concepts from Fourier uncertainty, the Free Energy Principle, and Shannon's noisy channel theorem, we have constructed a coherent and testable framework. This approach provides a new vocabulary for describing LLM failures and, more importantly, a clear research program for making them more reliable. The path to robust AI may lie not just in scaling data and parameters, but in a deeper understanding of the fundamental principles of information that govern them.
-
-
-### Project context
-
-This repository is one focused case study within a broader research program on information structures for reliable LLMs. The larger effort explores how explicit structures—grounding via retrieval/graphs with provenance, structured redundancy and prompt gating, lightweight verification/feedback, and selective accept/verify/abstain policies—reduce uncertainty and factual error across tasks. The experiments and metrics here (redundancy ρ, alignment a, drift Δ, entropy E, hallucination rate h) are designed to be reusable in that larger context and compatible with future modules (e.g., KG/RAG‑grounded QA and detection‑correction loops).
