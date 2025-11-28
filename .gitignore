@@ -22,5 +22,27 @@ figures/*.png
 
 
 Thoughts brainstroming files:
-THX/
+THX/*
+paper/*
+docs/*
+experiments/*
+scripts/*
+THX/*
+working/*
 
+shannon_entropy_tests.md
+shannon_entropy_tests_results.md
+Shannon_Sync_Evidence_TODO.md  
+simpleLM_drift.ipynb
+simpleLM_drift_results.md
+simpleLM_test.py
+sample_LLM_trajectories.ipynb
+sampling_reconstruction.ipynb
+sampling_reconstruction.py
+
+
+pyproject.toml
+Makefile
+fig-nyquist_comparison.png
+crosslinks.md
+CORE_FRAMEWORK_SIGNAL_PROCESSING.md

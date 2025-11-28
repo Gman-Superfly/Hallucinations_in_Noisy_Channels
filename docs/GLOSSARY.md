@@ -9,6 +9,6 @@
 | **In-Context Attractor (ICA)** | Spurious latent basin created by overly long or conflicting prompts, which can capture the trajectory and induce hallucinations. |
 | **Chain-of-Thought Parity** | Redundant reasoning tokens that act like parity checks, detecting or correcting semantic errors during generation. |
 | **Semantic Redundancy Ratio ($\\rho$)** | Fraction of prompt tokens that convey informative evidence; high $\\rho$ indicates redundancy helps, low $\\rho$ signals noise-dominated prompts. |
-| **Energy Drift** | Increase in computational free energy (e.g., FLOPs, entropy production) caused by unstable trajectories, linked to Landauer’s principle. |
+| **Energy Drift** | Increase?  in computational free energy, maybe shift of energy distribution (e.g., FLOPs, entropy production) caused by unstable trajectories, linked to Landauer’s principle. |
 | **Attention SNR** | Ratio between concept clarity and attention ambiguity; predicts whether the channel capacity is sufficient for faithful reconstruction. |
 
