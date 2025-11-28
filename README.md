@@ -11,7 +11,7 @@
 
 ## Read the Paper
 
-**Main Paper:** [Hallucinations in Noisy Channels v1.1 (Full Framework)](paper/Hallucinations_in_Noisy_Channels_v1.1.md)
+**Main Paper:** [Hallucinations in Noisy Channels v1.1 (Full Framework)](Hallucinations_in_Noisy_Channels_v1.1.md)
 
 **Supplementary Documents:**
 - [Core Framework: Signal Processing Perspective](CORE_FRAMEWORK_SIGNAL_PROCESSING.md)

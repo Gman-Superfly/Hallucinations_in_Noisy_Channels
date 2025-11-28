@@ -1,3 +1,5 @@
+This is prob the last experiment, it's a tricky one
+
 The analogy between Nyquist phase alignment (from the Shannon-Nyquist sampling theorem, where sinc-based reconstruction relies on sufficient sampling to avoid aliasing via phase accumulation) and LLM trajectories in latent space (e.g., embeddings evolving through layers, potentially drifting into hallucinations due to insufficient context) is valid as a conceptual framework, but it's not yet established in the literature as a direct, peer-reviewed parallel. 
 
 It's a creative extension that holds logical merit: both scenarios involve "reconstruction" from sparse or inadequate "samples" (data points in signals vs. prompt tokens in LLMs), where undersampling leads to distortion (aliasing in signals) or errors (hallucinations in LLMs). However, current research on LLM hallucinations in latent space focuses more on steering, entropy, or Bayesian estimation without invoking signal processing theorems like Nyquist.
