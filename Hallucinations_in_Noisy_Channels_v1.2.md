@@ -1,4 +1,4 @@
-# Hallucinations in Noisy Channels
+﻿# Hallucinations in Noisy Channels
 
 ## Information-Theoretic Framework for Understanding LLM Hallucination Errors
 
@@ -124,7 +124,7 @@ where $L(\theta)$ denotes the description length of parameters $\theta$. In the 
 This is the Kolmogorov-Chaitin view: the "concept" of cat is the shortest program that can recognize/generate cats. Training finds this program. The regularization terms in modern training (weight decay, dropout) serve as practical proxies for minimizing description length.
 
 **Proposition 1.**  
-*A model that has learned a concept has found a compressed representation. The compression ratio measures understanding: higher **useful** compression = deeper abstraction.*
+A model that has learned a concept has found a compressed representation. The compression ratio measures understanding: higher **useful** compression = deeper abstraction.
 
 *Qualification:* Not all compression yields abstraction—random projections compress without capturing structure. The key is **structure-preserving compression**: compression that maintains task-relevant distinctions while discarding irrelevant variation. A representation that compresses cats by preserving "cat-ness" while discarding lighting variations has learned; one that compresses via random hashing has not.
 
@@ -172,7 +172,7 @@ Generating output is a teaching process that transmits knowledge through a casca
 1. **Static Codebook**: The compressed concepts in weights (the "dictionary").
 2. **Dynamic Codebook**: The ephemeral in-context representation built for *this specific query*.
 
-*Crucially: The model must build the dynamic codebook from the static one before it can transmit. Hallucination is what happens when this construction fails.*
+Crucially: The model must build the dynamic codebook from the static one before it can transmit. Hallucination is what happens when this construction fails.
 
 ### 2.3 Channel Capacity: The Limit of Reliable Knowledge
 
@@ -257,22 +257,22 @@ $$
 ### 3.3 Formal Characterization
 
 **Proposition 2 (Hallucination as Entropy Maximization).**  
-*As mutual information between output and content constraints vanishes, the output distribution converges to the maximum-entropy distribution consistent with form:*
+As mutual information between output and content constraints vanishes, the output distribution converges to the maximum-entropy distribution consistent with form:
 
 $$
 \text{As } I(Y; \mathcal{C}_T) \to 0: \quad p(Y) \to \arg\max_{p \in \mathcal{F}} H(p) \tag{Approx}
 $$
 
-*Equivalently, the output entropy approaches its upper bound within the form-constrained space:*
+Equivalently, the output entropy approaches its upper bound within the form-constrained space:
 
 $$
 H(Y) \to H_{\max}(\mathcal{F}) \quad \text{where } H_{\max}(\mathcal{F}) = \max_{p \in \mathcal{F}} H(p) \tag{Approx}
 $$
 
-*When content constraints provide no information ($I(Y; \mathcal{C}_T) = 0$), the model generates the maximum-entropy distribution consistent with linguistic form—fluent noise. The form constraints $\mathcal{F}$ bound what is grammatically/stylistically valid; within that space, without content guidance, entropy is maximized*.
+When content constraints provide no information ($I(Y; \mathcal{C}_T) = 0$), the model generates the maximum-entropy distribution consistent with linguistic form—fluent noise. The form constraints $\mathcal{F}$ bound what is grammatically/stylistically valid; within that space, without content guidance, entropy is maximized.
 
 **Proposition 3 (Confidence-Accuracy Decoupling).**  
-*Hallucinations exhibit high confidence because form constraints remain strong. Confidence tracks form-constraint satisfaction, not content-constraint satisfaction.*
+Hallucinations exhibit high confidence because form constraints remain strong. Confidence tracks form-constraint satisfaction, not content-constraint satisfaction.
 
 $$
 \text{Confidence}(y) \propto p(y | \mathcal{F}), \quad \text{not} \quad p(y | \mathcal{C}_T) \tag{Approx}
@@ -311,13 +311,13 @@ Different prompting techniques map to error-correction strategies:
 | **Self-consistency** | Voting/ensemble | Multiple samples improve reliability |
 
 **Conjecture 1 (In-Context Capacity Scaling).**  
-*Let $k$ be the number of relevant in-context examples. Empirically, the effective capacity appears to increase logarithmically:*
+Let $k$ be the number of relevant in-context examples. Empirically, the effective capacity appears to increase logarithmically:
 
 $$
 C_T^{ICL}(k) \approx C_T + \alpha \log(1 + k) \tag{Conj}
 $$
 
-*where $\alpha$ depends on example quality and relevance.*
+where $\alpha$ depends on example quality and relevance.
 
 *Why logarithmic, not linear?* If examples were independent and context unlimited, capacity would scale linearly (each example adds ~constant bits). The sublinear (logarithmic) scaling reflects diminishing returns from three sources:
 1. **Redundancy between examples** — later examples overlap with earlier ones, adding less new information
@@ -444,29 +444,29 @@ where $d_{\mathcal{M}}(\cdot, \cdot)$ denotes distance in the universal embeddin
 3. **Compression proxies** — Normalized Compression Distance (NCD) on decoded text
 
 **Theorem 2 (Geometric Matching Theorem).**
-*Let $\phi_{\mathcal{M}}(p)$ be the projection of prompt $p$ onto the universal manifold $\mathcal{M}_{universal}$, and $\phi_{\mathcal{M}}(r_i)$ be the projection of internal representation $r_i$. Reconstruction accuracy depends on the geometric alignment:*
+Let $\phi_{\mathcal{M}}(p)$ be the projection of prompt $p$ onto the universal manifold $\mathcal{M}_{universal}$, and $\phi_{\mathcal{M}}(r_i)$ be the projection of internal representation $r_i$. Reconstruction accuracy depends on the geometric alignment:
 
 $$
 P(\text{correct retrieval}) \propto \frac{\exp(-d_{\mathcal{M}}(\phi_{\mathcal{M}}(p), \phi_{\mathcal{M}}(r_{target})))}{\sum_j \exp(-d_{\mathcal{M}}(\phi_{\mathcal{M}}(p), \phi_{\mathcal{M}}(r_j)))} \tag{Proxy}
 $$
 
-*where $d_{\mathcal{M}}(\cdot,\cdot)$ is distance in the universal embedding space—operationally, the translation infidelity when mapping between representation spaces.*
+where $d_{\mathcal{M}}(\cdot,\cdot)$ is distance in the universal embedding space—operationally, the translation infidelity when mapping between representation spaces.
 
 **Proposition 4 (Ambiguity-Induced Hallucination).**
-*When multiple representations have similar activation levels, the model enters a "superposition" state. The decoded output is a mixture that may not correspond to any single ground truth:*
+When multiple representations have similar activation levels, the model enters a "superposition" state. The decoded output is a mixture that may not correspond to any single ground truth:
 
 $$
 \text{output} = \sum_i \text{activation}(r_i | p) \cdot \text{decode}(r_i) \tag{Proxy}
 $$
 
-*This mixture can produce confident, fluent, but factually composite (hallucinatory) outputs.*
+This mixture can produce confident, fluent, but factually composite (hallucinatory) outputs.
 
 #### 4.4.5 The Kolmogorov Sweetspot
 
 Internal representations must balance compression and discriminability:
 
 **Corollary (The Sweetspot).**
-*Internal representations exist in a Kolmogorov sweetspot:*
+Internal representations exist in a Kolmogorov sweetspot:
 
 $$
 K_{optimal} = \arg\min_K \left[ \underbrace{E_{reconstruction}(K)}_{\text{too compressed}} + \underbrace{E_{storage}(K)}_{\text{too sparse}} \right] \tag{Def}
@@ -593,7 +593,7 @@ The context window operates as a bidirectional channel:
 **Definition 7 (Decompression Room).**
 Let $K_{latent}$ be the effective capacity of the latent space (constrained by context window and attention bandwidth). Let $K_{query}$ be the Kolmogorov complexity of the query, $K_{context}$ be the complexity of provided context, and $K_{reconstruct}(r)$ be the complexity required to decompress internal representation $r$.
 
-*Successful reconstruction requires:*
+Successful reconstruction requires:
 
 $$
 K_{query} + K_{context} + K_{reconstruct}(r) \leq K_{latent} \tag{Def}
@@ -602,16 +602,16 @@ $$
 *Note on subadditivity:* Kolmogorov complexity is not strictly additive—$K(A,B) \leq K(A) + K(B) + O(\log n)$ where the logarithmic term accounts for combining descriptions. The sum $K_{query} + K_{context} + K_{reconstruct}$ is thus an upper bound on the joint complexity $K(\text{query}, \text{context}, \text{reconstruction})$. For our purposes, this upper bound is the operationally relevant constraint: if even the upper bound exceeds capacity, reconstruction certainly fails.
 
 **Proposition 5 (Context Crowding).**
-*When context is over-filled, decompression room decreases:*
+When context is over-filled, decompression room decreases:
 
 $$
 K_{available} = K_{latent} - K_{query} - K_{context} \tag{Def}
 $$
 
-*If $K_{available} < K_{reconstruct}(r)$, reconstruction is truncated, producing structurally coherent but semantically fragmented output—Kolmogorov garbage.*
+If $K_{available} < K_{reconstruct}(r)$, reconstruction is truncated, producing structurally coherent but semantically fragmented output—Kolmogorov garbage.
 
 **Proposition 6 (Decompression-Compression Asymmetry).**
-*For most concepts, decompression complexity exceeds storage complexity:*
+For most concepts, decompression complexity exceeds storage complexity:
 
 $$
 K_{reconstruct}(r) > K_{storage}(r) \tag{Approx}
@@ -624,7 +624,7 @@ $$
 
 The same applies to LLMs: the concept "French Revolution" is stored compactly, but generating a coherent explanation requires unfolding dates, figures, causes, and consequences—all simultaneously active in the latent space.
 
-*This asymmetry means that context windows must be sized not for storage, but for the working memory required during generation.*
+This asymmetry means that context windows must be sized not for storage, but for the working memory required during generation.
 
 #### 4.5.5 Implications
 
@@ -689,13 +689,13 @@ where $A$ is the attention matrix with rows normalized to sum to 1 (i.e., $\sum_
 Sinks effectively reduce the "bandwidth" available for late-context tokens. If the model attends primarily to the BOS token or system prompt (the sink), it cannot effectively "read" retrieved context or recent tokens.
 
 **Proposition 7 (Sink-Limited Capacity).**
-*The effective context capacity $C_{ctx}$ is monotonically decreasing with sink severity $s$:*
+The effective context capacity $C_{ctx}$ is monotonically decreasing with sink severity $s$:
 
 $$
 \frac{\partial C_{ctx}}{\partial s} \le 0 \tag{Approx}
 $$
 
-*As $s \to 1$, the channel becomes dominated by the prefix, causing reconstruction failure (Kolmogorov garbage) even if relevant information is present in the context.*
+As $s \to 1$, the channel becomes dominated by the prefix, causing reconstruction failure (Kolmogorov garbage) even if relevant information is present in the context.
 
 #### 4.6.3 The Thermodynamic Consequence
 
@@ -705,7 +705,7 @@ Sinks create deep potential energy wells at the start of the sequence.
 - **Misaligned Sinks**: If sinks are generic (e.g., "The", BOS), the well is misaligned. Escaping this local minimum requires higher temperature $T$, which increases the entropy term $-TS$ and drives the system toward the form prior.
 
 **Prediction 21 (Position Primacy).**
-*Tasks requiring late-context evidence degrade as sink severity $s$ increases. Periodic repetition of anchors (counter-diffusion) is required to maintain effective capacity.*
+Tasks requiring late-context evidence degrade as sink severity $s$ increases. Periodic repetition of anchors (counter-diffusion) is required to maintain effective capacity.
 
 ---
 
@@ -723,7 +723,7 @@ Our framework reveals a fundamental duality:
 This duality has profound implications:
 
 **Proposition 8 (Compression-Transmission Trade-off).**  
-*Aggressive compression during training reduces capacity for out-of-distribution transmission during inference. There exists a Pareto frontier between compression efficiency and transmission reliability.*
+Aggressive compression during training reduces capacity for out-of-distribution transmission during inference. There exists a Pareto frontier between compression efficiency and transmission reliability.
 
 ### 5.2 LLMs Are Teachers: The Core Insight
 
@@ -846,7 +846,7 @@ This capacity is limited by:
 ### 6.2 Severity and Detection
 
 **Proposition 9 (Detectability).**  
-*Hallucinations are detectable to the extent that content constraints can be externally verified. Unverifiable claims are undetectable hallucinations.*
+Hallucinations are detectable to the extent that content constraints can be externally verified. Unverifiable claims are undetectable hallucinations.
 
 This suggests:
 - Factual claims → Checkable against knowledge bases
@@ -915,13 +915,13 @@ def capacity_aware_generate(query, model, threshold=0.8):
 The framework provides a **theoretical path to capacity estimation** through the universal manifold $\mathcal{M}_{universal}$ (Sec. 11.5). The key insight: capacity is inversely related to geometric distance from the manifold.
 
 **Definition 11 (Manifold-Based Capacity Estimator).**
-*For a query $q$ about topic $T$, the estimated capacity is:*
+For a query $q$ about topic $T$, the estimated capacity is:
 
 $$
 \hat{C}_T(q) = f\left( \rho_T, \; d_{\mathcal{M}}(\phi(q), \mathcal{M}_T), \; \text{conf}(q) \right) \tag{Proxy}
 $$
 
-*where:*
+where:
 - $\rho_T$ = **embedding density** around topic $T$ in the model's representation space (higher density → more training data → higher capacity)
 - $d_{\mathcal{M}}(\phi(q), \mathcal{M}_T)$ = **geometric distance** from the query embedding to the topic submanifold (smaller distance → better match → higher effective capacity)
 - $\text{conf}(q)$ = **calibrated confidence** from the model's own uncertainty estimates
@@ -1046,25 +1046,25 @@ A fundamental principle of information theory—the Data Processing Inequality�
 
 **Theorem 3 (Information Conservation / Data Processing Limit).**
 
-*Let $S = S_{weights} + S_{context}$ be the total available information source (weights + context). The key quantity is the **conditional entropy** $H(O \mid S, T)$—the entropy of the output that remains unexplained after conditioning on both the source and the topic.*
+Let $S = S_{weights} + S_{context}$ be the total available information source (weights + context). The key quantity is the **conditional entropy** $H(O \mid S, T)$—the entropy of the output that remains unexplained after conditioning on both the source and the topic.
 
-*For truthful generation:*
+For truthful generation:
 
 $$
 H(O \mid S, T) = 0 \tag{Def}
 $$
 
-*The output is fully determined by the source—there is no unexplained entropy. All structure in the output traces back to stored knowledge or provided context.*
+The output is fully determined by the source—there is no unexplained entropy. All structure in the output traces back to stored knowledge or provided context.
 
-*For hallucination:*
+For hallucination:
 
 $$
 H(O \mid S, T) > 0 \tag{Def}
 $$
 
-*The output contains entropy not explained by the source. This unexplained entropy—sampled from the form prior rather than grounded in knowledge—is the hallucinated component.*
+The output contains entropy not explained by the source. This unexplained entropy—sampled from the form prior rather than grounded in knowledge—is the hallucinated component.
 
-*Equivalently, via mutual information: $I(S; O \mid T) = H(O \mid T) - H(O \mid S, T)$. For truthful generation, $I(S; O \mid T) = H(O \mid T)$ (source explains all topic-relevant output entropy). For hallucination, $I(S; O \mid T) < H(O \mid T)$ (a gap exists—the form prior filled it).*
+Equivalently, via mutual information: $I(S; O \mid T) = H(O \mid T) - H(O \mid S, T)$. For truthful generation, $I(S; O \mid T) = H(O \mid T)$ (source explains all topic-relevant output entropy). For hallucination, $I(S; O \mid T) < H(O \mid T)$ (a gap exists—the form prior filled it).
 
 Equivalently, in complexity terms (weights + context as the source):
 
@@ -1078,13 +1078,13 @@ where the $O(\log n)$ term accounts for the overhead of combining two descriptio
 
 **Corollary (Information Accounting).**
 
-*The output decomposes as:*
+The output decomposes as:
 
 $$
 K(\text{output}) = \underbrace{K(\text{from weights} + \text{context})}_{\text{grounded}} + \underbrace{K(\text{from form prior})}_{\text{hallucinated filler}} \tag{Proxy}
 $$
 
-*For truthful generation, the second term is zero. Any contribution from the form prior that isn't constrained by content knowledge violates the conservation law.*
+For truthful generation, the second term is zero. Any contribution from the form prior that isn't constrained by content knowledge violates the conservation law.
 
 #### 8.3.1 The Hallucination Detector
 
@@ -1210,13 +1210,13 @@ $$
 
 **Theorem 4 (Geometric Distortion Accumulation).**
 
-*Let $\epsilon_i$ be the distortion introduced at stage $i$. The total fidelity is multiplicative:*
+Let $\epsilon_i$ be the distortion introduced at stage $i$. The total fidelity is multiplicative:
 
 $$
 \text{Fidelity} = \prod_i (1 - \epsilon_i) \geq 1 - \sum_i \epsilon_i \tag{Approx}
 $$
 
-*Equality holds exactly when at most one $\epsilon_i$ is non-zero (making all cross-product terms vanish), and approximately when all $\epsilon_i \ll 1$ (first-order Taylor expansion). The gap between the product and the linear approximation is $\sum_{i < j} \epsilon_i \epsilon_j + O(\epsilon^3)$—the sum of all pairwise products plus higher-order terms. When errors are correlated (aligned in representation space), the distortion compounds faster:*
+Equality holds exactly when at most one $\epsilon_i$ is non-zero (making all cross-product terms vanish), and approximately when all $\epsilon_i \ll 1$ (first-order Taylor expansion). The gap between the product and the linear approximation is $\sum_{i < j} \epsilon_i \epsilon_j + O(\epsilon^3)$—the sum of all pairwise products plus higher-order terms. When errors are correlated (aligned in representation space), the distortion compounds faster:
 
 $$
 \text{Fidelity}_{correlated} \ll \prod_i (1 - \epsilon_i) \tag{Approx}
@@ -1226,13 +1226,13 @@ $$
 
 **Proposition 10 (Manifold Departure).**
 
-*Representations lie on a truth manifold $\mathcal{M}$. Each distortion has two components:*
+Representations lie on a truth manifold $\mathcal{M}$. Each distortion has two components:
 
 $$
 \epsilon_i = \underbrace{\epsilon_i^{\parallel}}_{\text{along manifold}} + \underbrace{\epsilon_i^{\perp}}_{\text{off manifold}} \tag{Def}
 $$
 
-*The parallel component shifts within valid representations (may still be accurate). The perpendicular component pushes into hallucination space. Perpendicular errors compound faster because there's no truth-preserving structure to constrain them.*
+The parallel component shifts within valid representations (may still be accurate). The perpendicular component pushes into hallucination space. Perpendicular errors compound faster because there's no truth-preserving structure to constrain them.
 
 #### 8.4.4 The Chain Effect
 
@@ -1287,7 +1287,7 @@ $$
 K(\text{hallucinated}) \propto 1 - \prod_i (1 - \epsilon_i) = 1 - \text{Fidelity} \tag{Approx}
 $$
 
-*Assumption: Independent errors. When errors are correlated (e.g., systematic training bias pushing representations in a consistent off-manifold direction), degradation can be faster than the product formula predicts.*
+Assumption: Independent errors. When errors are correlated (e.g., systematic training bias pushing representations in a consistent off-manifold direction), degradation can be faster than the product formula predicts.
 
 #### 8.4.7 Implications
 
@@ -1428,13 +1428,13 @@ At high T: Entropy dominates → Thermalized, hallucinated
 
 **Theorem 5 (Thermodynamic Hallucination).**
 
-*Let $\Omega_{\text{knowledge}}$ be the number of outputs consistent with stored knowledge, and $\Omega_{\text{form}}$ be the number of outputs consistent only with form. The probability of hallucination follows:*
+Let $\Omega_{\text{knowledge}}$ be the number of outputs consistent with stored knowledge, and $\Omega_{\text{form}}$ be the number of outputs consistent only with form. The probability of hallucination follows:
 
 $$
 P(\text{hallucination}) \propto e^{S_{\text{form}} - S_{\text{knowledge}}} = \frac{\Omega_{\text{form}}}{\Omega_{\text{knowledge}}} \tag{Approx}
 $$
 
-*Hallucination probability increases exponentially with the entropy difference between form prior and knowledge constraints.*
+Hallucination probability increases exponentially with the entropy difference between form prior and knowledge constraints.
 
 **Proof sketch.** Under a maximum-entropy (Gibbs) ensemble with weak energy differences across admissible outputs and $k_B=1$, the probability mass assigned to each admissible set is proportional to its microstate count $\Omega$. When constraints fail, sampling transitions from the knowledge-constrained ensemble to the form-only ensemble; the relative likelihood scales as $\Omega_{\text{form}}/\Omega_{\text{knowledge}} = e^{\Delta S}$. If average energies differ non-negligibly between sets, an additional factor depending on those energies appears; we subsume this into temperature-dependent constants in the proportionality (Jaynes, 1957; Boltzmann, 1877).
 
@@ -1625,7 +1625,7 @@ During training, noise is essential for building error-correction capability:
 
 **Theorem 6 (Optimal Noise Principle).**
 
-*There exists an optimal noise level $\sigma^*$ that maximizes the trade-off between exploration benefit and thermalization cost:*
+There exists an optimal noise level $\sigma^*$ that maximizes the trade-off between exploration benefit and thermalization cost:
 
 $$
 \sigma^* = \arg\max_\sigma \left[ \underbrace{P(\text{correction} | \sigma)}_{\text{exploration benefit}} - \underbrace{P(\text{hallucination} | \sigma)}_{\text{thermalization cost}} \right] \tag{Conj}
@@ -1633,9 +1633,9 @@ $$
 
 *Note on objective:* This formulation highlights the two competing effects of noise. Equivalently, $\sigma^*$ maximizes overall accuracy: $\sigma^* = \arg\max_\sigma P(\text{correct output} \mid \sigma)$. The decomposition into correction and hallucination terms makes explicit *why* intermediate noise is optimal—it enables error recovery (correction) while limiting drift to the form prior (hallucination).
 
-*At $\sigma = 0$: No hallucination, but no error correction capability*
-*At $\sigma \to \infty$: Complete exploration, but pure hallucination*
-*At $\sigma = \sigma^*$: Optimal balance enabling self-correction while preserving signal*
+At $\sigma = 0$: No hallucination, but no error correction capability
+At $\sigma \to \infty$: Complete exploration, but pure hallucination
+At $\sigma = \sigma^*$: Optimal balance enabling self-correction while preserving signal
 
 **Proof sketch.** Let $f(\sigma) = P(\text{correction} \mid \sigma) - P(\text{hallucination} \mid \sigma)$. Empirically and in models of stochastic resonance, $f(0)$ is suboptimal due to lack of exploration, and $f(\sigma)\to -\infty$ as $\sigma\to\infty$ due to thermalization. Under continuity and mild unimodality, there exists $\sigma^*>0$ that maximizes $f$. This mirrors classical stochastic resonance and simulated annealing arguments where controlled noise enables escape from poor attractors before cooling (Gammaitoni et al., 1998; Kirkpatrick et al., 1983). Training-time noise mechanisms (dropout, SGLD) similarly improve generalization via noise-induced exploration (Srivastava et al., 2014; Welling & Teh, 2011).
 
@@ -1721,184 +1721,184 @@ All theorems and propositions in this work are intended as testable claims. We w
 Our framework generates specific predictions:
 
 **Prediction 1 (Frequency-Accuracy Correlation).**  
-*For topics $T_1, T_2$ with training frequencies $f_1 > f_2$, the hallucination rate satisfies:*
+For topics $T_1, T_2$ with training frequencies $f_1 > f_2$, the hallucination rate satisfies:
 
 $$
 P(\text{hallucination} | T_1) < P(\text{hallucination} | T_2) \tag{Approx}
 $$
 
 **Prediction 2 (Few-Shot Logarithmic Improvement).**  
-*Hallucination rate decreases logarithmically with number of relevant examples:*
+Hallucination rate decreases logarithmically with number of relevant examples:
 
 $$
 P(\text{hallucination} | k \text{ examples}) \propto \frac{1}{\log(1 + k)} \tag{Approx}
 $$
 
 **Prediction 3 (Confidence-Grounding Decoupling).**  
-*On out-of-distribution topics, confidence correlates with form quality, not content accuracy:*
+On out-of-distribution topics, confidence correlates with form quality, not content accuracy:
 
 $$
 \text{Corr}(\text{confidence}, \text{fluency}) > \text{Corr}(\text{confidence}, \text{accuracy}) \tag{Approx}
 $$
 
 **Prediction 4 (Prompt Specificity Effect).**  
-*Hallucination rate increases monotonically with geometric mismatch between prompt and target representation. From Theorem 2 (Gaussian kernel):*
+Hallucination rate increases monotonically with geometric mismatch between prompt and target representation. From Theorem 2 (Gaussian kernel):
 
 $$
 P(\text{hallucination}) \approx 1 - \exp\left(-\frac{d_{\mathcal{M}}(\phi(p), \phi(r_{target}))^2}{2\sigma^2}\right) \tag{Approx}
 $$
 
-*where $d_{\mathcal{M}}$ is distance in the universal embedding space. For small distances, this is approximately quadratic: $P(\text{hallucination}) \approx d_{\mathcal{M}}^2 / 2\sigma^2$. More specific prompts better match internal representation structure, reducing ambiguity-induced errors. When the prompt is maximally aligned with the target ($d_{\mathcal{M}} \to 0$), hallucination probability is minimized.*
+where $d_{\mathcal{M}}$ is distance in the universal embedding space. For small distances, this is approximately quadratic: $P(\text{hallucination}) \approx d_{\mathcal{M}}^2 / 2\sigma^2$. More specific prompts better match internal representation structure, reducing ambiguity-induced errors. When the prompt is maximally aligned with the target ($d_{\mathcal{M}} \to 0$), hallucination probability is minimized.
 
 **Prediction 5 (Context Crowding Effect).**  
-*In the crowding regime (high context utilization), hallucination rate increases non-linearly as available decompression room approaches zero:*
+In the crowding regime (high context utilization), hallucination rate increases non-linearly as available decompression room approaches zero:
 
 $$
 P(\text{hallucination}) \propto \frac{1}{K_{latent} - K_{query} - K_{context}} \quad \text{when } K_{context} \to K_{latent} - K_{query} \tag{Approx}
 $$
 
-*As decompression room decreases, reconstruction quality degrades, producing Kolmogorov garbage. Note: This describes the right side of the U-shaped curve in Prediction 18; the full relationship includes insufficient context effects (left side of U).*
+As decompression room decreases, reconstruction quality degrades, producing Kolmogorov garbage. Note: This describes the right side of the U-shaped curve in Prediction 18; the full relationship includes insufficient context effects (left side of U).
 
 **Prediction 6 (Decompression Asymmetry).**  
-*Complex topics require disproportionately more context room than simple topics, independent of query length:*
+Complex topics require disproportionately more context room than simple topics, independent of query length:
 
 $$
 K_{reconstruct}(\text{complex}) \gg K_{reconstruct}(\text{simple}) \tag{Approx}
 $$
 
-*This explains why long contexts hurt more on complex queries—the decompression room is consumed.*
+This explains why long contexts hurt more on complex queries—the decompression room is consumed.
 
 **Prediction 7 (Information Conservation Violation).**  
-*Hallucinations can be detected by information accounting. For truthful outputs:*
+Hallucinations can be detected by information accounting. For truthful outputs:
 
 $$
 K(\text{output} | \text{topic}) \leq K(\text{source} | \text{topic}) \tag{Proxy}
 $$
 
-*When this inequality is violated, information was created—the output contains more structure than was learned or provided. This excess necessarily came from the form prior and is definitionally hallucinated.*
+When this inequality is violated, information was created—the output contains more structure than was learned or provided. This excess necessarily came from the form prior and is definitionally hallucinated.
 
 **Prediction 8 (Excess Information Source).**  
-*The "extra" information in hallucinations correlates with high-frequency patterns in the training corpus (form prior), not with topic-specific facts:*
+The "extra" information in hallucinations correlates with high-frequency patterns in the training corpus (form prior), not with topic-specific facts:
 
 $$
 K(\text{hallucinated excess}) \sim K(\text{form prior}) \tag{Approx}
 $$
 
-*Hallucinations should statistically resemble generic fluent text, not domain-specific knowledge.*
+Hallucinations should statistically resemble generic fluent text, not domain-specific knowledge.
 
 **Prediction 9 (Geometric Distortion Accumulation).**  
-*Under the assumption of independent per-stage errors, hallucination rate increases geometrically with reasoning chain length:*
+Under the assumption of independent per-stage errors, hallucination rate increases geometrically with reasoning chain length:
 
 $$
 P(\text{hallucination after } n \text{ steps}) = 1 - \prod_{i=1}^{n} (1 - \epsilon_i) \tag{Approx}
 $$
 
-*For uniform per-step error $\epsilon$: $P(\text{hallucination}) \approx 1 - (1-\epsilon)^n$, which grows faster than $n\epsilon$ for non-trivial $\epsilon$. When errors are correlated (e.g., systematic bias), degradation can be faster.*
+For uniform per-step error $\epsilon$: $P(\text{hallucination}) \approx 1 - (1-\epsilon)^n$, which grows faster than $n\epsilon$ for non-trivial $\epsilon$. When errors are correlated (e.g., systematic bias), degradation can be faster.
 
 **Prediction 10 (First-Stage Dominance).**  
-*Training data quality (compression fidelity) has larger effect on hallucination rate than inference-time interventions:*
+Training data quality (compression fidelity) has larger effect on hallucination rate than inference-time interventions:
 
 $$
 \frac{\partial P(\text{hallucination})}{\partial \epsilon_1} > \frac{\partial P(\text{hallucination})}{\partial \epsilon_3} \tag{Approx}
 $$
 
-*Improving training beats improving prompting—you can't decompress what wasn't properly compressed.*
+Improving training beats improving prompting—you can't decompress what wasn't properly compressed.
 
 **Prediction 11 (Multi-Hop Degradation).**  
-*For n-hop reasoning tasks with independent per-hop errors, accuracy degrades as:*
+For n-hop reasoning tasks with independent per-hop errors, accuracy degrades as:
 
 $$
 \text{Accuracy}(n) \approx \text{Accuracy}(1)^n \tag{Approx}
 $$
 
-*Two-hop reasoning squares the error rate; three-hop cubes it. This assumes independent errors; correlated errors (e.g., consistent retrieval bias) can cause faster degradation.*
+Two-hop reasoning squares the error rate; three-hop cubes it. This assumes independent errors; correlated errors (e.g., consistent retrieval bias) can cause faster degradation.
 
 **Prediction 12 (Temperature-Hallucination Relationship).**  
-*Hallucination rate follows Boltzmann statistics with sampling temperature:*
+Hallucination rate follows Boltzmann statistics with sampling temperature:
 
 $$
 P(\text{hallucination} | T) \propto e^{\Delta S} \cdot f(T) \tag{Approx}
 $$
 
-*where $\Delta S = S_{\text{form}} - S_{\text{knowledge}}$ (with $k_B = 1$ per notation conventions) and $f(T)$ is monotonically increasing. Higher temperature → more thermalization → more hallucination.*
+where $\Delta S = S_{\text{form}} - S_{\text{knowledge}}$ (with $k_B = 1$ per notation conventions) and $f(T)$ is monotonically increasing. Higher temperature → more thermalization → more hallucination.
 
 **Prediction 13 (Entropy Ratio Prediction).**  
-*Hallucination probability scales with the ratio of microstate counts:*
+Hallucination probability scales with the ratio of microstate counts:
 
 $$
 P(\text{hallucination}) \propto \frac{\Omega_{\text{form}}}{\Omega_{\text{knowledge}}} = e^{S_{\text{form}} - S_{\text{knowledge}}} \tag{Approx}
 $$
 
-*Topics with larger form-to-knowledge entropy gaps hallucinate exponentially more often.*
+Topics with larger form-to-knowledge entropy gaps hallucinate exponentially more often.
 
 **Prediction 14 (Free Energy Minimization).**  
-*At fixed temperature, outputs minimize free energy $F = E - TS$. Hallucinations occur when the entropy term dominates:*
+At fixed temperature, outputs minimize free energy $F = E - TS$. Hallucinations occur when the entropy term dominates:
 
 $$
 \text{Hallucination when: } T \cdot S_{\text{form}} > E_{\text{grounding}} \tag{Approx}
 $$
 
-*This predicts a critical temperature above which thermalization dominates grounding.*
+This predicts a critical temperature above which thermalization dominates grounding.
 
 **Prediction 15 (Optimal Noise Existence).**  
-*There exists an optimal temperature $T^* > 0$ that maximizes accuracy via error correction:*
+There exists an optimal temperature $T^* > 0$ that maximizes accuracy via error correction:
 
 $$
 T^* = \arg\max_T \left[ P(\text{correction} | T) - P(\text{hallucination} | T) \right] \tag{Conj}
 $$
 
-*Greedy decoding ($T=0$) is suboptimal because it cannot self-correct.*
+Greedy decoding ($T=0$) is suboptimal because it cannot self-correct.
 
 **Prediction 16 (Stochastic Resonance).**  
-*For weakly stored knowledge, there exists a noise level that improves retrieval:*
+For weakly stored knowledge, there exists a noise level that improves retrieval:
 
 $$
 \exists \sigma^* > 0 : P(\text{correct} | \sigma^*) > P(\text{correct} | \sigma=0) \tag{Conj}
 $$
 
-*Adding noise can help retrieve weak memories that deterministic decoding misses.*
+Adding noise can help retrieve weak memories that deterministic decoding misses.
 
 **Prediction 17 (Self-Consistency Optimality).**  
-*Self-consistency (sampling + voting) achieves better accuracy than single-sample at any fixed temperature:*
+Self-consistency (sampling + voting) achieves better accuracy than single-sample at any fixed temperature:
 
 $$
 \text{Accuracy}(\text{vote}(T, n)) > \text{Accuracy}(\text{single}(T)) \quad \forall T > 0 \tag{Approx}
 $$
 
-*This is because voting exploits exploration while averaging reduces hallucination variance.*
+This is because voting exploits exploration while averaging reduces hallucination variance.
 
 **Prediction 18 (Goldilocks Context Window).**  
-*For fixed query complexity and topic, there exists an optimal context length $L^*$ that minimizes hallucination (maximizes accuracy). Hallucination is high when $L \ll L^*$ (insufficient constraints) and when $L \gg L^*$ (decompression crowding):*
+For fixed query complexity and topic, there exists an optimal context length $L^*$ that minimizes hallucination (maximizes accuracy). Hallucination is high when $L \ll L^*$ (insufficient constraints) and when $L \gg L^*$ (decompression crowding):
 
 $$
 L^* \;=\; \arg\min_L \left| \underbrace{K_{\text{latent}} - K_{\text{query}} - K_{\text{context}}(L)}_{K_{\text{available}}(L)} \;-\; K_{\text{reconstruct}}(r) \right| \tag{Approx}
 $$
 
-*Equivalently, $P(\text{hallucination} \mid L)$ is U-shaped in $L$, minimized when $K_{\text{available}}(L)\approx K_{\text{reconstruct}}(r)$ (Sec. 4.5).*
+Equivalently, $P(\text{hallucination} \mid L)$ is U-shaped in $L$, minimized when $K_{\text{available}}(L)\approx K_{\text{reconstruct}}(r)$ (Sec. 4.5).
 
-*Regime clarification: Prediction 5 describes the right branch of this U-curve (crowding regime, $L \gg L^*$). The left branch ($L \ll L^*$) reflects insufficient content constraints—the model lacks information to ground its output. This prediction unifies both failure modes.*
+Regime clarification: Prediction 5 describes the right branch of this U-curve (crowding regime, $L \gg L^*$). The left branch ($L \ll L^*$) reflects insufficient content constraints—the model lacks information to ground its output. This prediction unifies both failure modes.
 
 **Prediction 19 (Geometry‑Aligned Warm‑Start).**  
-*Pretraining or initialization that aligns internal representations to the universal manifold $\mathcal{M}_{\text{universal}}$ (via CCA/Procrustes losses or teacher features) reduces sample complexity and speeds convergence. Let $\tau$ be a target accuracy threshold and $t(\tau)$ be the number of training steps required to reach it:*
+Pretraining or initialization that aligns internal representations to the universal manifold $\mathcal{M}_{\text{universal}}$ (via CCA/Procrustes losses or teacher features) reduces sample complexity and speeds convergence. Let $\tau$ be a target accuracy threshold and $t(\tau)$ be the number of training steps required to reach it:
 
 $$
 t_{\text{geo}}(\tau) \;<\; t_{\text{base}}(\tau), \quad \text{and} \quad P_{\text{hallucination}}^{\text{geo}}(B) \;<\; P_{\text{hallucination}}^{\text{base}}(B) \tag{Approx}
 $$
 
-*where $B$ is a fixed training budget; geometry-aligned initialization reaches target accuracy $\tau$ faster and achieves lower hallucination at equal compute (Secs. 8.3, 11.5).*
+where $B$ is a fixed training budget; geometry-aligned initialization reaches target accuracy $\tau$ faster and achieves lower hallucination at equal compute (Secs. 8.3, 11.5).
 
 **Prediction 20 (Geometry‑Driven Training Diagnostics and Error Correction).**  
-*A representation‑alignment score $g(t)$ (distance to $\mathcal{M}_{\text{universal}}$) correlates with downstream accuracy and inversely with hallucination rate; using $g(t)$ for online monitoring/regularization reduces hallucination:*
+A representation‑alignment score $g(t)$ (distance to $\mathcal{M}_{\text{universal}}$) correlates with downstream accuracy and inversely with hallucination rate; using $g(t)$ for online monitoring/regularization reduces hallucination:
 
 $$
 \text{Corr}\big(g(t), \text{Accuracy}_{\text{val}}(t+\Delta)\big) > 0, \qquad 
 \text{Corr}\big(g(t), -P(\text{hallucination})\big) > 0 \tag{Approx}
 $$
 
-*Adding a penalty $\lambda \cdot d(\text{rep}(t), \mathcal{M}_{\text{universal}})$ during training improves grounding and stability (Secs. 8.3, 11.5).*
+Adding a penalty $\lambda \cdot d(\text{rep}(t), \mathcal{M}_{\text{universal}})$ during training improves grounding and stability (Secs. 8.3, 11.5).
 
 **Prediction 21 (Position Primacy).**
-*Tasks requiring late-context evidence degrade as sink severity $s$ increases. Periodic repetition of anchors (counter-diffusion) is required to maintain effective capacity.*
+Tasks requiring late-context evidence degrade as sink severity $s$ increases. Periodic repetition of anchors (counter-diffusion) is required to maintain effective capacity.
 
 ### 9.2 Capacity Estimation Experiments
 
@@ -2106,7 +2106,7 @@ We address this by leveraging the **Platonic Representation Hypothesis** (and re
 Research confirms that sufficiently capable models converge to the **same geometric shapes** for representing concepts. The internal geometry of "truth" is not an arbitrary choice of the model, but a discovered structure imposed by the reality being modeled.
 
 **Definition 10 (The Universal Manifold).**
-*There exists a shared, lower-dimensional manifold $\mathcal{M}_{universal}$ upon which all truthful representations lie. Different models merely learn different rotation/permutation projections of this same manifold.*
+There exists a shared, lower-dimensional manifold $\mathcal{M}_{universal}$ upon which all truthful representations lie. Different models merely learn different rotation/permutation projections of this same manifold.
 
 **Empirical Validation: Unsupervised Embedding Translation.**
 
@@ -2150,7 +2150,7 @@ Despite these limitations, the framework provides:
 ### 11.6 Open Theorem: Model-Specific Sampling Limit (Nyquist–Shannon Analogy)
 
 **Theorem 7 (Model-Specific Sampling Limit; Nyquist–Shannon Analogy).**  
-*Note: At this time, we classify this as a* ***conjecture*** *rather than a proven theorem. The "theorem" label reflects its structural role in the framework; formal proof remains future work.*
+Note: At this time, we classify this as a* ***conjecture*** *rather than a proven theorem. The "theorem" label reflects its structural role in the framework; formal proof remains future work.
 
 *Conjectural.* For each model $M$ and topic $T$, there exists a representation bandlimit $B_{M,T}$ (in an appropriate spectral parameterization of the model's internal manifold) such that reliable reconstruction of topic-consistent outputs requires an effective "constraint sampling rate" $s$ (from prompt specificity, retrieved context, and internal working memory) satisfying
 
