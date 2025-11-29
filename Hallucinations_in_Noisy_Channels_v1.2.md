@@ -76,13 +76,13 @@ Hallucinations occur when the model generates with **insufficient content constr
 
 - **K(x)**: Kolmogorov complexity measured in bits (log base 2). In practice we use compression-based proxies; equalities involving K(·) are to be read up to additive constants induced by compressor choice.
 - **H(X), I(X;Y)**: Shannon entropy and mutual information in bits (log base 2) unless noted otherwise.
-- **Ω**: Microstate count. Thermodynamic entropy is \(S = k_B \ln \Omega\) (nats). By default we set \(k_B = 1\) and measure S in nats; when comparing to bit-domain quantities we use \(S_{\text{bits}} = \log_2 \Omega = S / \ln 2\).
-- **Form vs. content constraints**: \(\mathcal{F}\) denotes form constraints; \(\mathcal{C}_T\) denotes content constraints for topic \(T\). Conditioning such as \(p(y \mid \mathcal{F}, \mathcal{C}_T)\) and \(H(Y \mid \mathcal{F})\) follows standard probability notation.
-- **Topic capacity \(C_T\)**: A rate in bits (per answer or per token) defined via mutual information, e.g., \(C_T \approx I(\text{Query}; \text{Accurate Answer} \mid T)\). Our predictions rely on relative comparisons, not absolute units.
-- **Latent capacity \(K_{\text{latent}}\)** and **reconstruction budget \(K_{\text{reconstruct}}(r)\)**: Effective working-memory budget and reconstruction complexity (bits-equivalent). Inequalities using these are comparative and hold up to monotone rescalings.
-- **Energy \(E(x)\)** and **temperature \(T\)**: \(E(x) = -\log P(\text{correct}\mid x)\) (nats). Thermodynamic equations use natural logs; when mixing with bit-based quantities, conversion factors are constant and do not affect proportional statements (\(\propto\)). \(Z\) denotes the partition function.
-- **Units and logs**: Unless explicitly stated, \(H\) and \(I\) use \(\log_2\); thermodynamic \(S\) and \(E\) use natural logs with \(k_B=1\). Any appearances of \(k\) without subscript should be read as \(k_B\).
-- **Conditioning convention**: "topic \(T\)" is held fixed when writing expressions like \(H(O \mid \text{topic } T)\); when \(T\) is omitted it is implied by context.
+- **Ω**: Microstate count. Thermodynamic entropy is $S = k_B \ln \Omega$ (nats). By default we set $k_B = 1$ and measure S in nats; when comparing to bit-domain quantities we use $S_{\text{bits}} = \log_2 \Omega = S / \ln 2$.
+- **Form vs. content constraints**: $\mathcal{F}$ denotes form constraints; $\mathcal{C}_T$ denotes content constraints for topic $T$. Conditioning such as $p(y \mid \mathcal{F}, \mathcal{C}_T)$ and $H(Y \mid \mathcal{F})$ follows standard probability notation.
+- **Topic capacity $C_T$**: A rate in bits (per answer or per token) defined via mutual information, e.g., $C_T \approx I(\text{Query}; \text{Accurate Answer} \mid T)$. Our predictions rely on relative comparisons, not absolute units.
+- **Latent capacity $K_{\text{latent}}$** and **reconstruction budget $K_{\text{reconstruct}}(r)$**: Effective working-memory budget and reconstruction complexity (bits-equivalent). Inequalities using these are comparative and hold up to monotone rescalings.
+- **Energy $E(x)$** and **temperature $T$**: $E(x) = -\log P(\text{correct}\mid x)$ (nats). Thermodynamic equations use natural logs; when mixing with bit-based quantities, conversion factors are constant and do not affect proportional statements ($\propto$). $Z$ denotes the partition function.
+- **Units and logs**: Unless explicitly stated, $H$ and $I$ use $\log_2$; thermodynamic $S$ and $E$ use natural logs with $k_B=1$. Any appearances of $k$ without subscript should be read as $k_B$.
+- **Conditioning convention**: "topic $T$" is held fixed when writing expressions like $H(O \mid \text{topic } T)$; when $T$ is omitted it is implied by context.
 
 ### 1.5 Glossary of Key Terms
 
@@ -1074,7 +1074,7 @@ $$
 
 where the $O(\log n)$ term accounts for the overhead of combining two descriptions (see Kolmogorov, 1965). Since Kolmogorov complexities are not strictly additive—$K(A,B) \le K(A) + K(B) + O(\log(K(A) + K(B)))$—this inequality holds up to logarithmic factors. For our purposes, these constants are negligible compared to the main terms, and we write the simplified form in subsequent equations.
 
-**Proof sketch.** Consider the Markov chain \(S \to R \to O\), where \(S\) is the available source (weights + context), \(R\) any intermediate reconstruction, and \(O\) the output. By the data processing inequality, \(I(S;O) \le I(S;R)\). In the idealized truthful case, the output is a deterministic function of the source given the topic: \(H(O \mid S, T) = 0\). When the source is insufficient or incorrectly reconstructed, \(H(O \mid S, T) > 0\)—the output contains entropy unexplained by the source. This unexplained entropy must come from somewhere; in LLMs, it is sampled from the form prior (the distribution over fluent text). The gap \(H(O \mid S, T)\) quantifies the hallucinated component (see Cover & Thomas, Elements of Information Theory, Ch. 2).
+**Proof sketch.** Consider the Markov chain $S \to R \to O$, where $S$ is the available source (weights + context), $R$ any intermediate reconstruction, and $O$ the output. By the data processing inequality, $I(S;O) \le I(S;R)$. In the idealized truthful case, the output is a deterministic function of the source given the topic: $H(O \mid S, T) = 0$. When the source is insufficient or incorrectly reconstructed, $H(O \mid S, T) > 0$—the output contains entropy unexplained by the source. This unexplained entropy must come from somewhere; in LLMs, it is sampled from the form prior (the distribution over fluent text). The gap $H(O \mid S, T)$ quantifies the hallucinated component (see Cover & Thomas, Elements of Information Theory, Ch. 2).
 
 **Corollary (Information Accounting).**
 
@@ -1222,7 +1222,7 @@ $$
 \text{Fidelity}_{correlated} \ll \prod_i (1 - \epsilon_i) \tag{Approx}
 $$
 
-**Proof sketch.** Model each stage \(i\) as a contraction \(T_i\) on the topic-aligned signal subspace with operator norm \(\lVert T_i \rVert \le 1-\epsilon_i\). By submultiplicativity, \(\lVert T_n \cdots T_1 \rVert \le \prod_i (1-\epsilon_i)\). Under independence and small \(\epsilon_i\), expected fidelity matches the product. When distortions are correlated (aligned off-manifold), the effective contraction is stricter, yielding a smaller bound than the independent-case product (cf. Horn & Johnson, Matrix Analysis; Friis, 1944).
+**Proof sketch.** Model each stage $i$ as a contraction $T_i$ on the topic-aligned signal subspace with operator norm $\lVert T_i \rVert \le 1-\epsilon_i$. By submultiplicativity, $\lVert T_n \cdots T_1 \rVert \le \prod_i (1-\epsilon_i)$. Under independence and small $\epsilon_i$, expected fidelity matches the product. When distortions are correlated (aligned off-manifold), the effective contraction is stricter, yielding a smaller bound than the independent-case product (cf. Horn & Johnson, Matrix Analysis; Friis, 1944).
 
 **Proposition 10 (Manifold Departure).**
 
@@ -1436,7 +1436,7 @@ $$
 
 *Hallucination probability increases exponentially with the entropy difference between form prior and knowledge constraints.*
 
-**Proof sketch.** Under a maximum-entropy (Gibbs) ensemble with weak energy differences across admissible outputs and \(k_B=1\), the probability mass assigned to each admissible set is proportional to its microstate count \(\Omega\). When constraints fail, sampling transitions from the knowledge-constrained ensemble to the form-only ensemble; the relative likelihood scales as \(\Omega_{\text{form}}/\Omega_{\text{knowledge}} = e^{\Delta S}\). If average energies differ non-negligibly between sets, an additional factor depending on those energies appears; we subsume this into temperature-dependent constants in the proportionality (Jaynes, 1957; Boltzmann, 1877).
+**Proof sketch.** Under a maximum-entropy (Gibbs) ensemble with weak energy differences across admissible outputs and $k_B=1$, the probability mass assigned to each admissible set is proportional to its microstate count $\Omega$. When constraints fail, sampling transitions from the knowledge-constrained ensemble to the form-only ensemble; the relative likelihood scales as $\Omega_{\text{form}}/\Omega_{\text{knowledge}} = e^{\Delta S}$. If average energies differ non-negligibly between sets, an additional factor depending on those energies appears; we subsume this into temperature-dependent constants in the proportionality (Jaynes, 1957; Boltzmann, 1877).
 
 #### 8.5.6 The Complete Thermodynamic Picture
 
@@ -1637,7 +1637,7 @@ $$
 *At $\sigma \to \infty$: Complete exploration, but pure hallucination*
 *At $\sigma = \sigma^*$: Optimal balance enabling self-correction while preserving signal*
 
-**Proof sketch.** Let \(f(\sigma) = P(\text{correction} \mid \sigma) - P(\text{hallucination} \mid \sigma)\). Empirically and in models of stochastic resonance, \(f(0)\) is suboptimal due to lack of exploration, and \(f(\sigma)\to -\infty\) as \(\sigma\to\infty\) due to thermalization. Under continuity and mild unimodality, there exists \(\sigma^*>0\) that maximizes \(f\). This mirrors classical stochastic resonance and simulated annealing arguments where controlled noise enables escape from poor attractors before cooling (Gammaitoni et al., 1998; Kirkpatrick et al., 1983). Training-time noise mechanisms (dropout, SGLD) similarly improve generalization via noise-induced exploration (Srivastava et al., 2014; Welling & Teh, 2011).
+**Proof sketch.** Let $f(\sigma) = P(\text{correction} \mid \sigma) - P(\text{hallucination} \mid \sigma)$. Empirically and in models of stochastic resonance, $f(0)$ is suboptimal due to lack of exploration, and $f(\sigma)\to -\infty$ as $\sigma\to\infty$ due to thermalization. Under continuity and mild unimodality, there exists $\sigma^*>0$ that maximizes $f$. This mirrors classical stochastic resonance and simulated annealing arguments where controlled noise enables escape from poor attractors before cooling (Gammaitoni et al., 1998; Kirkpatrick et al., 1983). Training-time noise mechanisms (dropout, SGLD) similarly improve generalization via noise-induced exploration (Srivastava et al., 2014; Welling & Teh, 2011).
 
 **Corollary (Temperature Regimes).**
 
@@ -1868,34 +1868,34 @@ $$
 *This is because voting exploits exploration while averaging reduces hallucination variance.*
 
 **Prediction 18 (Goldilocks Context Window).**  
-*For fixed query complexity and topic, there exists an optimal context length \(L^*\) that minimizes hallucination (maximizes accuracy). Hallucination is high when \(L \ll L^*\) (insufficient constraints) and when \(L \gg L^*\) (decompression crowding):*
+*For fixed query complexity and topic, there exists an optimal context length $L^*$ that minimizes hallucination (maximizes accuracy). Hallucination is high when $L \ll L^*$ (insufficient constraints) and when $L \gg L^*$ (decompression crowding):*
 
 $$
 L^* \;=\; \arg\min_L \left| \underbrace{K_{\text{latent}} - K_{\text{query}} - K_{\text{context}}(L)}_{K_{\text{available}}(L)} \;-\; K_{\text{reconstruct}}(r) \right| \tag{Approx}
 $$
 
-*Equivalently, \(P(\text{hallucination} \mid L)\) is U-shaped in \(L\), minimized when \(K_{\text{available}}(L)\approx K_{\text{reconstruct}}(r)\) (Sec. 4.5).*
+*Equivalently, $P(\text{hallucination} \mid L)$ is U-shaped in $L$, minimized when $K_{\text{available}}(L)\approx K_{\text{reconstruct}}(r)$ (Sec. 4.5).*
 
 *Regime clarification: Prediction 5 describes the right branch of this U-curve (crowding regime, $L \gg L^*$). The left branch ($L \ll L^*$) reflects insufficient content constraints—the model lacks information to ground its output. This prediction unifies both failure modes.*
 
 **Prediction 19 (Geometry‑Aligned Warm‑Start).**  
-*Pretraining or initialization that aligns internal representations to the universal manifold \(\mathcal{M}_{\text{universal}}\) (via CCA/Procrustes losses or teacher features) reduces sample complexity and speeds convergence. Let \(\tau\) be a target accuracy threshold and \(t(\tau)\) be the number of training steps required to reach it:*
+*Pretraining or initialization that aligns internal representations to the universal manifold $\mathcal{M}_{\text{universal}}$ (via CCA/Procrustes losses or teacher features) reduces sample complexity and speeds convergence. Let $\tau$ be a target accuracy threshold and $t(\tau)$ be the number of training steps required to reach it:*
 
 $$
 t_{\text{geo}}(\tau) \;<\; t_{\text{base}}(\tau), \quad \text{and} \quad P_{\text{hallucination}}^{\text{geo}}(B) \;<\; P_{\text{hallucination}}^{\text{base}}(B) \tag{Approx}
 $$
 
-*where \(B\) is a fixed training budget; geometry-aligned initialization reaches target accuracy \(\tau\) faster and achieves lower hallucination at equal compute (Secs. 8.3, 11.5).*
+*where $B$ is a fixed training budget; geometry-aligned initialization reaches target accuracy $\tau$ faster and achieves lower hallucination at equal compute (Secs. 8.3, 11.5).*
 
 **Prediction 20 (Geometry‑Driven Training Diagnostics and Error Correction).**  
-*A representation‑alignment score \(g(t)\) (distance to \(\mathcal{M}_{\text{universal}}\)) correlates with downstream accuracy and inversely with hallucination rate; using \(g(t)\) for online monitoring/regularization reduces hallucination:*
+*A representation‑alignment score $g(t)$ (distance to $\mathcal{M}_{\text{universal}}$) correlates with downstream accuracy and inversely with hallucination rate; using $g(t)$ for online monitoring/regularization reduces hallucination:*
 
 $$
 \text{Corr}\big(g(t), \text{Accuracy}_{\text{val}}(t+\Delta)\big) > 0, \qquad 
 \text{Corr}\big(g(t), -P(\text{hallucination})\big) > 0 \tag{Approx}
 $$
 
-*Adding a penalty \(\lambda \cdot d(\text{rep}(t), \mathcal{M}_{\text{universal}})\) during training improves grounding and stability (Secs. 8.3, 11.5).*
+*Adding a penalty $\lambda \cdot d(\text{rep}(t), \mathcal{M}_{\text{universal}})$ during training improves grounding and stability (Secs. 8.3, 11.5).*
 
 **Prediction 21 (Position Primacy).**
 *Tasks requiring late-context evidence degrade as sink severity $s$ increases. Periodic repetition of anchors (counter-diffusion) is required to maintain effective capacity.*
@@ -2152,13 +2152,13 @@ Despite these limitations, the framework provides:
 **Theorem 7 (Model-Specific Sampling Limit; Nyquist–Shannon Analogy).**  
 *Note: At this time, we classify this as a* ***conjecture*** *rather than a proven theorem. The "theorem" label reflects its structural role in the framework; formal proof remains future work.*
 
-*Conjectural.* For each model \(M\) and topic \(T\), there exists a representation bandlimit \(B_{M,T}\) (in an appropriate spectral parameterization of the model's internal manifold) such that reliable reconstruction of topic-consistent outputs requires an effective "constraint sampling rate" \(s\) (from prompt specificity, retrieved context, and internal working memory) satisfying
+*Conjectural.* For each model $M$ and topic $T$, there exists a representation bandlimit $B_{M,T}$ (in an appropriate spectral parameterization of the model's internal manifold) such that reliable reconstruction of topic-consistent outputs requires an effective "constraint sampling rate" $s$ (from prompt specificity, retrieved context, and internal working memory) satisfying
 
 $$
 s \;>\; 2\, B_{M,T} \tag{Conj}
 $$
 
-Equivalently, when the information-bearing structure of the input constraints is under‑sampled relative to the model's topic bandlimit, aliasing manifests as matching errors and Kolmogorov garbage; when severely over‑sampled, decompression room can be crowded (Sec. 4.5). The quantities \(B_{M,T}\) and \(s\) are model‑ and topic‑specific and depend on architecture and training; we do not yet have operational estimators.
+Equivalently, when the information-bearing structure of the input constraints is under‑sampled relative to the model's topic bandlimit, aliasing manifests as matching errors and Kolmogorov garbage; when severely over‑sampled, decompression room can be crowded (Sec. 4.5). The quantities $B_{M,T}$ and $s$ are model‑ and topic‑specific and depend on architecture and training; we do not yet have operational estimators.
 
 *Proof status:* Open. The claim is motivated by classical sampling theory (Sec. 10.1) and observed spectral structure in learned representations, but precise definitions of bandlimits on nonlinear manifolds and their relation to attention/activation spectra are model‑dependent. We plan to investigate empirical estimators via frequency‑domain probes of attention/feature spectra vs. error curves under prompt/context resolution sweeps.
 
