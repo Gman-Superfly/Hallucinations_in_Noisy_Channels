@@ -84,49 +84,6 @@ See [Section 9: Experimental Predictions](Hallucinations_in_Noisy_Channels_v1.2.
 
 ---
 
-## Repository Structure
-
-```
-Hallucinations_Noisy_Channels/
-│
-├── Hallucinations_in_Noisy_Channels_v1.2.md   # Main theoretical paper
-├── README.md                                   # This file
-├── LICENSE                                     # MIT (code) + CC-BY-4.0 (paper)
-├── CITATION.cff                                # Citation metadata
-│
-├── experiments/                                # Empirical validation notebooks
-│   ├── rope_accumulation.ipynb                 # RoPE drift experiments
-│   ├── sampling_reconstruction.ipynb           # Nyquist comparison
-│   ├── simpleLM_drift.ipynb                    # Latent drift analysis
-│   ├── prompt_ablation_threshold.ipynb         # Context threshold tests
-│   ├── cot_vs_direct_channel.ipynb             # CoT redundancy coding
-│   ├── prompt_noise_tradeoff.ipynb             # Noise/signal tradeoffs
-│   ├── semantic_redundancy_real_prompts.ipynb  # Real-world ρ estimation
-│   ├── geometric_alignment_metrics.ipynb       # Manifold alignment
-│   └── control_diagnostics.ipynb               # Controllability analysis
-│
-├── scripts/
-│   ├── semantic_redundancy_metric.py           # Redundancy calculator
-│   └── generate_figures.py                     # Figure generation
-│
-├── figures/                                    # Generated visualizations
-│   ├── semantic_redundancy_heatmap.png
-│   ├── nyquist_comparison.png
-│   ├── rope_drift.png
-│   └── ...
-│
-├── docs/                                       # Supplementary documentation
-│   ├── GLOSSARY.md                             # Term definitions
-│   ├── VALIDATION_CHECKLIST.md                 # Experiment checklist
-│   └── ...                                     # Additional notes
-│
-├── working/                                    # Development files
-│   ├── CORE_FRAMEWORK_SIGNAL_PROCESSING.md     # Signal processing perspective
-│   ├── requirements.txt                        # Python dependencies
-│   └── ...
-│
-└── THX/                                        # Test harness & experiments
-```
 
 ---
 
@@ -198,31 +155,6 @@ This is why long reasoning chains and multi-hop retrieval degrade.
 
 ---
 
-## Quick Start
-
-### Read the Theory
-
-```bash
-# Clone the repository
-git clone https://github.com/Gman-Superfly/Hallucinations_Noisy_Channels.git
-cd Hallucinations_Noisy_Channels
-
-# Read the main paper (markdown)
-cat Hallucinations_in_Noisy_Channels_v1.2.md
-```
-
-### Run Experiments
-
-```bash
-# Install dependencies
-pip install -r working/requirements.txt
-
-# Run semantic redundancy analysis
-python scripts/semantic_redundancy_metric.py --backend tfidf
-
-# Launch Jupyter for notebooks
-jupyter notebook experiments/
-```
 
 ---
 
@@ -249,7 +181,7 @@ Principled techniques grounded in theory:
 - [x] Seven theorems with proof sketches (Theorem 7 = conjecture)
 - [x] Twenty-one testable predictions defined
 - [x] Mitigation strategies derived
-- [x] Thermodynamic unification complete
+
 
 ### Experiments: In Progress
 - [ ] Prediction 1: Frequency-accuracy correlation (in progress)
@@ -301,18 +233,6 @@ Code in `experiments/`, `scripts/`, and `THX/` is licensed under the [**MIT Lice
 
 ---
 
-## Contributing
-
-We welcome:
-- Theoretical critiques and proof improvements
-- Experimental validation results
-- Suggestions for additional predictions
-- Clarity improvements to exposition
-
-**How to contribute:**
-- Open an [Issue](https://github.com/Gman-Superfly/Hallucinations_in_Noisy_Channels/issues) for bugs or questions
-- Start a [Discussion](https://github.com/Gman-Superfly/Hallucinations_in_Noisy_Channels/discussions) for ideas
-- Submit a Pull Request with experiments or fixes
 
 ---
 
