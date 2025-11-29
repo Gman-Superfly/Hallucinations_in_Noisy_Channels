@@ -12,7 +12,7 @@
 
 ## Abstract
 
-We present An Information-Theoretic framework for understanding hallucinations in Large Language Models (LLMs) by recognizing that **LLMs are teachers, not just generators**. During training, models compress the world into weights (learning). During inference, they must reconstruct and transmit this knowledge—they teach. But teaching through a noisy channel requires building the correct internal representation first.
+We present an Information-Theoretic framework for understanding hallucinations in Large Language Models (LLMs) by recognizing that **LLMs are teachers, not just generators**. During training, models compress the world into weights (learning). During inference, they must reconstruct and transmit this knowledge—they teach. But teaching through a noisy channel requires building the correct internal representation first.
 
 Hallucinations emerge when this reconstruction fails. We identify six mechanisms: (1) **capacity violations**—asking about topics the model never learned; (2) **matching failures**—ambiguous prompts activate wrong or composite representations; (3) **decompression failures**—insufficient context room to unfold compressed knowledge; (4) **geometric distortion**—errors compound multiplicatively through the pipeline; (5) **thermodynamic equilibration**—when constraints fail, the system relaxes to maximum entropy (fluent but empty text); and (6) **the noise paradox**—systems need some stochasticity to self-correct, but too much causes hallucination.
 
@@ -82,6 +82,8 @@ Hallucinations occur when the model generates with **insufficient content constr
 - **Latent capacity $K_{\text{latent}}$** and **reconstruction budget $K_{\text{reconstruct}}(r)$**: Effective working-memory budget and reconstruction complexity (bits-equivalent). Inequalities using these are comparative and hold up to monotone rescalings.
 - **Energy $E(x)$** and **temperature $T$**: $E(x) = -\log P(\text{correct}\mid x)$ (nats). Thermodynamic equations use natural logs; when mixing with bit-based quantities, conversion factors are constant and do not affect proportional statements ($\propto$). $Z$ denotes the partition function.
 - **Units and logs**: Unless explicitly stated, $H$ and $I$ use $\log_2$; thermodynamic $S$ and $E$ use natural logs with $k_B=1$. Any appearances of $k$ without subscript should be read as $k_B$.
+- **K(weights) — operational proxy**: Throughout, $K(\text{weights})$ denotes a topic‑conditioned representation‑capacity proxy $K_{\text{rep}}(\text{weights} \mid T)$, not a literal program length. $K_{\text{rep}}$ is estimated via manifold‑alignment and capacity signals (Sec. 7.4): embedding density $\rho_T$, translation fidelity, and calibrated confidence. All statements involving $K(\cdot)$ are to be read up to monotone rescalings induced by proxy choice.
+- **K(context) — operational proxy**: The complexity of in‑context constraints and reconstruction scaffolding supplied by the prompt/RAG/system prompt. Measured via compression/entropy proxies and structural specificity (anchors, examples), up to monotone rescalings.
 - **Conditioning convention**: "topic $T$" is held fixed when writing expressions like $H(O \mid \text{topic } T)$; when $T$ is omitted it is implied by context.
 
 ### 1.5 Glossary of Key Terms
@@ -1043,6 +1045,8 @@ A fundamental principle of information theory—the Data Processing Inequality�
 │                                                                          │
 └─────────────────────────────────────────────────────────────────────────┘
 ```
+
+**Operational convention (proxies).** In all uses of the conservation law here, $K(\text{weights})$ abbreviates the topic‑conditioned representation‑capacity proxy $K_{\text{rep}}(\text{weights} \mid T)$ defined via manifold geometry (Sec. 7.4). $K(\text{context})$ counts the in‑context constraints and reconstruction structure provided by the prompt/RAG/system prompt. Both quantities are computable proxies; inequalities using $K(\cdot)$ hold up to monotone rescalings induced by the chosen proxies.
 
 **Theorem 3 (Information Conservation / Data Processing Limit).**
 
