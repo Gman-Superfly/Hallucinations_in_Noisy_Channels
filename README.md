@@ -4,7 +4,7 @@
 
 [![License: CC BY 4.0](https://img.shields.io/badge/License-CC%20BY%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by/4.0/)
 [![Status: Theoretical Framework](https://img.shields.io/badge/Status-Theoretical%20Framework-blue.svg)]()
-[![Version: 1.2](https://img.shields.io/badge/Version-1.2-green.svg)]()
+[![Version: 1.2.1](https://img.shields.io/badge/Version-1.2.1-green.svg)]()
 
 **Author:** Oscar Goldman - Shogu Research Group @ Datamutant.ai  
 **Date:** November 2025
@@ -13,13 +13,23 @@
 
 ## Read the Paper
 
-**→ [Hallucinations in Noisy Channels v1.2 (Full Framework)](Hallucinations_in_Noisy_Channels_v1.2.md)**
+**→ [Hallucinations in Noisy Channels v1.2.1 (Full Framework)](Hallucinations_in_Noisy_Channels_v1.2.1.md)**
 
 ---
 
 ## Overview
 
-LLMs are **teachers, not just generators**. During inference, they must first **reconstruct** knowledge from compressed weights, then **transmit** it reliably. Hallucinations occur when this reconstruction-transmission process fails through six mechanisms:
+This is a generalized framework that attempts to understand and explain the idea of LLMs as **teachers, not just generators**. During inference, they must first **reconstruct** knowledge from compressed weights, then **transmit** it reliably. 
+
+The framework establishes a fundamental duality:
+- **Training = Compression = Learning** (source coding)
+- **Inference = Transmission = Teaching** (channel coding)
+
+Hallucinations emerge when the teaching process fails—when the model cannot correctly reconstruct and transmit stored knowledge.
+
+Currently identified process failures through six mechanisms:
+
+
 
 | # | Mechanism | Description |
 |---|-----------|-------------|
@@ -174,10 +184,19 @@ Principled techniques grounded in theory:
 
 ---
 
+We hypothesize that > "Hallucination is thermalization to the form prior bath. 
+When knowledge constraints fail, the system equilibrates to maximum entropy—fluent text, empty content."
+The temperature parameter in LLM sampling IS analogous to the Boltzmann temperature. 
+The framework tries to reveal that hallucination control is fundamentally about managing the balance between:
+Potential energy (stored knowledge, constraints)
+Kinetic energy (form prior, entropy)
+Temperature (exploration vs. exploitation)
+
 ## Experimental Status
 
-### Theory: Complete (v1.2)
+### Theory: Complete Working document (v1.2.1)
 - [x] Six-mechanism framework formalized
+- [x] Eleven intuition blocks added (Analogies + ASCII diagrams)
 - [x] Seven theorems with proof sketches (Theorem 7 = conjecture)
 - [x] Twenty-one testable predictions defined
 - [x] Mitigation strategies derived
@@ -206,7 +225,7 @@ If you use this framework in your research, please cite:
   institution={Shogu Research Group @ Datamutant.ai, subsidiary of 温心重工業},
   year={2025},
   month={November},
-  version={1.2},
+  version={1.2.1},
   url={https://github.com/Gman-Superfly/Hallucinations_in_Noisy_Channels},
   license={CC-BY-4.0}
 }
@@ -214,7 +233,7 @@ If you use this framework in your research, please cite:
 
 ### APA
 
-Goldman, O. (2025). *Hallucinations in Noisy Channels: An Information-Theoretic and Thermodynamic Framework for Understanding LLM Hallucination Errors* (Version 1.2). Shogu Research Group @ Datamutant.ai. https://github.com/Gman-Superfly/Hallucinations_in_Noisy_Channels
+Goldman, O. (2025). *Hallucinations in Noisy Channels: An Information-Theoretic and Thermodynamic Framework for Understanding LLM Hallucination Errors* (Version 1.2.1). Shogu Research Group @ Datamutant.ai. https://github.com/Gman-Superfly/Hallucinations_in_Noisy_Channels
 
 ---
 
