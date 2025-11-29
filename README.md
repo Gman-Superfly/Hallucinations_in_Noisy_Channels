@@ -13,7 +13,7 @@
 
 ## Read the Paper
 
-**→ [Hallucinations in Noisy Channels v1.2.1 (Full Framework)](Hallucinations_in_Noisy_Channels_v1.2.1.md)**
+**→ [Hallucinations in Noisy Channels v1.2.1 (Working Document)](Hallucinations_in_Noisy_Channels_v1.2.1.md)**
 
 ---
 
@@ -90,7 +90,7 @@ Empirically falsifiable hypotheses spanning:
 - Geometry-aligned training (Predictions 19-20)
 - Attention sink effects (Prediction 21)
 
-See [Section 9: Experimental Predictions](Hallucinations_in_Noisy_Channels_v1.2.md#9-experimental-predictions) for full mathematical formulations.
+See [Section 9: Experimental Predictions](Hallucinations_in_Noisy_Channels_v1.2.1.md#9-experimental-predictions) for full mathematical formulations.
 
 ---
 
@@ -264,11 +264,11 @@ This framework builds on:
 - **Representation Learning:** Huh et al. (2024), Jha et al. (2025)
 - **Hallucination Studies:** Ji et al. (2023), Huang et al. (2023)
 
-See [Section 10: Related Work](Hallucinations_in_Noisy_Channels_v1.2.md#10-related-work) for full citations.
+See [Section 10: Related Work](Hallucinations_in_Noisy_Channels_v1.2.1.md#10-related-work) for full citations.
 
 ---
 
-## Contact
+## More
 
 **Oscar Goldman**  
 Shogu Research Group @ Datamutant.ai  
