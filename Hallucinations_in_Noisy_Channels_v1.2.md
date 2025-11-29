@@ -196,7 +196,7 @@ where $Q$ is a query drawn from distribution $p(q \mid T)$ over topic-relevant q
 *Note:* In practice, $C_T$ is not directly computable but can be estimated via probing accuracy on held-out facts, or by measuring the model's ability to distinguish true from false statements about $T$.
 
 **Theorem 1 (Hallucination Threshold).**  
-*Let $R_T$ be the rate at which information about topic $T$ is requested. If $R_T > C_T$, hallucinations are unavoidable regardless of decoding strategy.*
+**Let $R_T$ be the rate at which information about topic $T$ is requested. If $R_T > C_T$, hallucinations are unavoidable regardless of decoding strategy.**
 
 This is the information-theoretic impossibility result: you cannot reliably transmit beyond capacity. Theorem 1 is an equivalence—a direct application of Shannon's noisy channel coding theorem (1948) to the LLM-as-channel setting. The result was inevitable once the correspondence between inference and channel coding was recognized; we formalize it here as the foundational limit of truthful generation.
 
