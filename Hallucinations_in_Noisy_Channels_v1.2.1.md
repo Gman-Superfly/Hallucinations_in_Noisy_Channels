@@ -1413,6 +1413,38 @@ def estimate_capacity(query, model, reference_manifold):
 
 Addresses: Capacity violation (Sec. 3); secondarily reduces geometric distortion (Sec. 8.4) by refusing generation when fidelity is low.
 
+### 7.5 Verification-First and Reverse Reasoning
+
+Recent work (Wu & Yao, 2025) demonstrates that asking LLMs to "verify first"—even against a random or wrong answer—significantly improves reasoning accuracy. This phenomenon is fully explained by our framework:
+
+1.  **Reverse Reasoning breaks Geometric Distortion**: Forward reasoning ($A \to B \to C$) accumulates error geometrically (Theorem 4). Verification is a reverse check ($C \to? A$). If the forward path has drifted off the Truth Manifold, the reverse path is unlikely to map back to the origin, exposing the hallucination.
+2.  **Verification is Compression, not Generation**: Verifying a candidate answer requires less channel capacity than generating it from scratch. It is a discrimination task (low entropy) rather than a generation task (high entropy).
+3.  **Random Answers as Stochastic Resonance**: The finding that even *random* answers improve performance validates our **Optimal Noise Principle** (Theorem 6). A random answer provides a "structural scaffold" (form constraint) that forces the model to engage its critical faculties. It kicks the system out of the local minimum of "fluent but wrong" (form prior) and forces it to traverse the energy landscape to verify the candidate.
+
+**Algorithm 3: Verification-First Generation**
+
+```python
+def verify_then_generate(query, model):
+    """
+    Leverages reverse reasoning and stochastic resonance.
+    """
+    # 1. Propose (or sample random) candidate
+    # High temp/randomness provides the 'noise' for stochastic resonance
+    candidate = model.generate(query, temperature=1.0) 
+    
+    # 2. Verify (Reverse Reasoning)
+    # Checks consistency: Does Candidate implies Query?
+    verification = model.generate(
+        f"Question: {query}\nProposed Answer: {candidate}\nIs this correct? explain."
+    )
+    
+    # 3. Final Generation (conditioned on verification)
+    final_answer = model.generate(
+        f"Question: {query}\nAnalysis: {verification}\nTherefore, the correct answer is:"
+    )
+    return final_answer
+```
+
 ---
 
 ## 8. Connection to Complexity from Constraints
@@ -2223,6 +2255,15 @@ At $\sigma = 0$: No hallucination, but no error correction capability
 At $\sigma \to \infty$: Complete exploration, but pure hallucination
 At $\sigma = \sigma^*$: Optimal balance enabling self-correction while preserving signal
 
+**Physical Basis: The Three Ingredients.**
+Stochastic Resonance is defined physically by three ingredients (Gammaitoni et al., 1998) which map directly to the LLM generation process:
+
+1.  **An Energetic Barrier (Threshold):** In physics, the potential barrier between bistable states. In LLMs, the **logit threshold** or attention score required to select a specific, low-probability content token over the high-probability form prior.
+2.  **A Weak Coherent Input (Signal):** In physics, the periodic force. In LLMs, the **weakly stored knowledge** or ambiguous prompt that biases the distribution but is insufficient to cross the threshold deterministically.
+3.  **A Source of Noise:** In physics, the heat bath. In LLMs, the **sampling temperature (T)** or random seed variation.
+
+*The Mechanism:* Without noise ($T=0$), the weak signal (knowledge) never crosses the threshold; the system defaults to the global attractor (form prior). With optimal noise ($T^*$), the fluctuations sum with the weak signal to cross the threshold intermittently, "amplifying" the knowledge. With too much noise, the signal is swamped.
+
 **Proof sketch.** Let $f(\sigma) = P(\text{correction} \mid \sigma) - P(\text{hallucination} \mid \sigma)$. Empirically and in models of stochastic resonance, $f(0)$ is suboptimal due to lack of exploration, and $f(\sigma)\to -\infty$ as $\sigma\to\infty$ due to thermalization. Under continuity and mild unimodality, there exists $\sigma^*>0$ that maximizes $f$. This mirrors classical stochastic resonance (Gammaitoni et al., 1998) and simulated annealing (Kirkpatrick et al., 1983) arguments where controlled noise enables escape from poor attractors before cooling. Training-time noise mechanisms (dropout, SGLD) similarly improve generalization via noise-induced exploration (Srivastava et al., 2014; Welling & Teh, 2011).
 
 **Corollary (Temperature Regimes).**
@@ -2816,6 +2857,22 @@ Strong empirical support for the universal manifold comes from recent work on un
 
 This works because all models converge to the same underlying geometric structure. The translation succeeds not by learning a model-specific mapping, but by learning the **shared latent representation** that all models approximate.
 
+**Foundational Result: LMs Are Provably Injective.**
+
+A critical foundational result establishes that language models **preserve information** (Nikolaou et al., 2025):
+
+- **Mathematical proof**: Transformer LMs mapping discrete sequences to continuous representations are injective
+- **Empirical confirmation**: Billions of collision tests across six state-of-the-art models → zero collisions
+- **Robustness**: Property established at initialization AND preserved during training
+
+This means **information preservation is not the question**—LMs do not lose information through their forward pass. The question is entirely about **organization**: whether the preserved information is structured usefully for downstream tasks.
+
+This distinction is critical:
+- **Proven**: LMs are injective (no information loss) (Nikolaou et al., 2025)
+- **Proven**: Training creates organization—latents converge to belief states (Teoh et al., 2025)
+
+Hallucination is therefore not a failure of information storage, but a failure of **information access**—the knowledge may be present but inaccessible due to matching failures, decompression failures, or geometric misalignment with the universal manifold.
+
 This solves the uncomputability problem for our purposes:
 1.  We do not need to calculate absolute Kolmogorov complexity $K(x)$.
 2.  We only need to measure **Geometric Alignment** with $\mathcal{M}_{universal}$.
@@ -3055,7 +3112,7 @@ The optimal memory architecture for minimizing hallucination maintains distinct 
 
 ---
 
-## References
+## References (currently adding links for easy access)
 
 1. Shannon, C. E. (1948). A Mathematical Theory of Communication. Bell System Technical Journal. \url{https://ieeexplore.ieee.org/document/6773024}
 
@@ -3079,21 +3136,42 @@ Analysis of Boltzmann [Published: March 1990] Alexander Bach . URL: https://link
 10. Jaynes, E. T. (1957). Information Theory and Statistical Mechanics. Physical Review. DOI: 10.1103/PhysRev.106.620. \url{https://journals.aps.org/pr/abstract/10.1103/PhysRev.106.620}
 
 11. Hopfield, J. J. (1982). Neural Networks and Physical Systems with Emergent Collective Computational Abilities. PNAS. DOI: 10.1073/pnas.79.8.2554. \url{https://www.pnas.org/doi/10.1073/pnas.79.8.2554}
+
 12. Cover, T. M., & Thomas, J. A. (2005). Elements of Information Theory (2nd ed.). Wiley. \url{https://onlinelibrary.wiley.com/doi/book/10.1002/047174882X}
+
+
+
+
 13. Friis, H. T. (1944). Noise Figures of Radio Receivers. Proceedings of the IRE. \url{https://ieeexplore.ieee.org/document/1695024}
-14. Gammaitoni, L., Hänggi, P., Jung, P., & Marchesoni, F. (1998). Stochastic Resonance. Reviews of Modern Physics.
+
+14. Gammaitoni, L., Hänggi, P., Jung, P., & Marchesoni, F. (1998). Stochastic Resonance. Reviews of Modern Physics, 70(1), 223–287. \url{https://journals.aps.org/rmp/abstract/10.1103/RevModPhys.70.223}
+
 15. Grossberg, S. (1976). Adaptive Pattern Classification and Universal Recoding: I. Parallel Development and Coding of Neural Feature Detectors. Biological Cybernetics.
+
 16. Kirkpatrick, S., Gelatt, C. D., & Vecchi, M. P. (1983). Optimization by Simulated Annealing. Science.
+
 17. Srivastava, N., Hinton, G., Krizhevsky, A., Sutskever, I., & Salakhutdinov, R. (2014). Dropout: A Simple Way to Prevent Neural Networks from Overfitting. JMLR.
 18. Welling, M., & Teh, Y. W. (2011). Bayesian Learning via Stochastic Gradient Langevin Dynamics. ICML.
+
 19. Kornblith, S., Norouzi, M., Lee, H., & Hinton, G. (2019). Similarity of Neural Network Representations Revisited. ICML.
+
 20. Liu, N. F., et al. (2023). Lost in the Middle: How Language Models Use Long Context. arXiv:2307.03172.
+
 21. Goldman, O. (2025). Complexity from Constraints: The Neuro-Symbolic Homeostat. Shogu Research Group @ Datamutant.ai.
+
 22. Jha, R., Zhang, C., Shmatikov, V., & Morris, J. X. (2025). Harnessing the Universal Geometry of Embeddings. arXiv:2505.12540. \url{https://arxiv.org/abs/2505.12540}
+
 23. Huh, M., Cheung, B., Wang, T., & Isola, P. (2024). The Platonic Representation Hypothesis. arXiv:2405.07987.
+
 24. Behrouz, A., Zhong, P., & Mirrokni, V. (2025). Titans: Learning to Memorize at Test Time. arXiv:2501.00663. \url{https://arxiv.org/abs/2501.00663}
+
 25. Fischbacher, T., Comsa, I. M., Potempa, K., Firsching, M., Versari, L., & Alakuijala, J. (2020). Intelligent Matrix Exponentiation. arXiv:2008.03936. \url{https://arxiv.org/abs/2008.03936}
 
+26. Wu, S., & Yao, Q. (2025). Asking LLMs to Verify First is Almost Free Lunch. arXiv:2511.21734. \url{https://arxiv.org/abs/2511.21734}
+
+27. Teoh, J., Tomar, M., Ahn, K., Hu, E. S., Sharma, P., Islam, R., Lamb, A., & Langford, J. (2025). Next-Latent Prediction Transformers Learn Compact World Models. arXiv:2511.05963. \url{https://arxiv.org/abs/2511.05963}
+
+28. Nikolaou, G., Mencattini, T., Crisostomi, D., Santilli, A., Panagakis, Y., & Rodolà, E. (2025). Language Models are Injective and Hence Invertible. arXiv:2510.15511. \url{https://arxiv.org/abs/2510.15511}
 
 ---
 
@@ -3476,39 +3554,17 @@ Analysis of Boltzmann [Published: March 1990] Alexander Bach . URL: https://link
 
 ## Citation
 
-If you use this framework in your research, please cite:
+If you use this repository in your research, please cite it, this is ongoing work we would like to know your opions and experiments, thank you.
 
-```bibtex
-@article{goldman2025hallucinations,
-  title={Hallucinations in Noisy Channels: An Information-Theoretic and Thermodynamic Framework},
-  author={Goldman, Oscar},
-  organization={Shogu Research Group @ Datamutant.ai subsidiary of 温心重工業},
-  year={2025},
-  note={LLMs as teachers: compression, matching, decompression, distortion, thermodynamics, and optimal noise}
-}
-```
+Oscar Goldman - Shogu research Group @ Datamutant.ai subsidiary of 温心重工業
 
 ### Key Supporting References
 
 The universal manifold hypothesis central to our operationalization is empirically supported by:
 
-```bibtex
-@article{jha2025vec2vec,
-  title={Harnessing the Universal Geometry of Embeddings},
-  author={Jha, Rishi and Zhang, Collin and Shmatikov, Vitaly and Morris, John X.},
-  journal={arXiv preprint arXiv:2505.12540},
-  year={2025},
-  note={Demonstrates unsupervised embedding translation with >0.92 cosine similarity across model architectures}
-}
+Jha, R., Zhang, C., Shmatikov, V., & Morris, J. X. (2025). Harnessing the Universal Geometry of Embeddings. *arXiv preprint arXiv:2505.12540*. (Demonstrates unsupervised embedding translation with >0.92 cosine similarity across model architectures)
 
-@article{huh2024platonic,
-  title={The Platonic Representation Hypothesis},
-  author={Huh, Minyoung and Cheung, Brian and Wang, Tongzhou and Isola, Phillip},
-  journal={arXiv preprint arXiv:2405.07987},
-  year={2024},
-  note={Theoretical foundation for universal representation convergence}
-}
-```
+Huh, M., Cheung, B., Wang, T., & Isola, P. (2024). The Platonic Representation Hypothesis. *arXiv preprint arXiv:2405.07987*. (Theoretical foundation for universal representation convergence)
 
 **Note**: All references should be expanded and inline. References are cited in shortform for transparency during development.
 
@@ -3525,7 +3581,7 @@ This work is licensed under a [Creative Commons Attribution 4.0 International Li
 - **Adapt** — remix, transform, and build upon the material for any purpose, even commercially
 
 **Under the following terms:**
-- **Attribution** — You must give appropriate credit, provide a link to the license, and indicate if changes were made. You may do so in any reasonable manner, but not in any way that suggests the licensor endorses you or your use.
+- **Attribution but I don't really mind, just use the stuff LFG** — You must give appropriate credit, provide a link to the license, and indicate if changes were made. You may do so in any reasonable manner, but not in any way that suggests the licensor endorses you or your use.
 
 **No additional restrictions** — You may not apply legal terms or technological measures that legally restrict others from doing anything the license permits.
 

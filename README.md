@@ -90,7 +90,7 @@ Empirically falsifiable hypotheses spanning:
 - Geometry-aligned training (Predictions 19-20)
 - Attention sink effects (Prediction 21)
 
-See [Section 9: Experimental Predictions](Hallucinations_in_Noisy_Channels_v1.2.1.md#9-experimental-predictions) for full mathematical formulations.
+See [Section 9: Experimental Predictions](Hallucinations_in_Noisy_Channels_v1.2.md#9-experimental-predictions) for full mathematical formulations.
 
 ---
 
@@ -218,20 +218,11 @@ If you use this framework in your research, please cite:
 
 ### BibTeX
 
-```bibtex
-@techreport{goldman2025hallucinations,
-  title={Hallucinations in Noisy Channels: An Information-Theoretic and Thermodynamic Framework for Understanding LLM Hallucination Errors},
-  author={Goldman, Oscar},
-  institution={Shogu Research Group @ Datamutant.ai, subsidiary of 温心重工業},
-  year={2025},
-  month={November},
-  version={1.2.1},
-  url={https://github.com/Gman-Superfly/Hallucinations_in_Noisy_Channels},
-  license={CC-BY-4.0}
-}
-```
+### Citation
 
-### APA
+If you use this repository in your research, please cite it, this is ongoing work we would like to know your opions and experiments, thank you.
+
+Oscar Goldman - Shogu research Group @ Datamutant.ai subsidiary of 温心重工業
 
 Goldman, O. (2025). *Hallucinations in Noisy Channels: An Information-Theoretic and Thermodynamic Framework for Understanding LLM Hallucination Errors* (Version 1.2.1). Shogu Research Group @ Datamutant.ai. https://github.com/Gman-Superfly/Hallucinations_in_Noisy_Channels
 
@@ -264,11 +255,11 @@ This framework builds on:
 - **Representation Learning:** Huh et al. (2024), Jha et al. (2025)
 - **Hallucination Studies:** Ji et al. (2023), Huang et al. (2023)
 
-See [Section 10: Related Work](Hallucinations_in_Noisy_Channels_v1.2.1.md#10-related-work) for full citations.
+See [Section 10: Related Work](Hallucinations_in_Noisy_Channels_v1.2.md#10-related-work) for full citations.
 
 ---
 
-## More
+## Contact
 
 **Oscar Goldman**  
 Shogu Research Group @ Datamutant.ai  
