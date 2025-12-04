@@ -1,6 +1,6 @@
 # Hallucinations in Noisy Channels
 
-**Information-Theoretic and Thermodynamic Framework for Understanding LLM Hallucination Errors**
+**Information-Theoretic and Thermodynamic Informed Framework for Understanding LLM Hallucination Errors**
 
 [![License: CC BY 4.0](https://img.shields.io/badge/License-CC%20BY%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by/4.0/)
 [![Status: Theoretical Framework](https://img.shields.io/badge/Status-Theoretical%20Framework-blue.svg)]()
@@ -207,16 +207,12 @@ Temperature (exploration vs. exploitation)
 - [ ] Prediction 4: Prompt specificity effect (in progress)
 - [ ] Prediction 12: Temperature-hallucination relationship (in progress)
 - [ ] Predictions 5-6: Context crowding effects
-- [ ] Predictions 9-11: Geometric distortion accumulation
+- [ ] Predictions 9-11: Geometric distortion accumulation (in progress)
 - [ ] Predictions 15-17: Optimal noise existence
 
 ---
 
-## Citation
 
-If you use this framework in your research, please cite:
-
-### BibTeX
 
 ### Citation
 
@@ -224,7 +220,7 @@ If you use this repository in your research, please cite it, this is ongoing wor
 
 Oscar Goldman - Shogu research Group @ Datamutant.ai subsidiary of 温心重工業
 
-Goldman, O. (2025). *Hallucinations in Noisy Channels: An Information-Theoretic and Thermodynamic Framework for Understanding LLM Hallucination Errors* (Version 1.2.1). Shogu Research Group @ Datamutant.ai. https://github.com/Gman-Superfly/Hallucinations_in_Noisy_Channels
+Goldman, O. (2025). *Hallucinations in Noisy Channels: An Information-Theoretic and Thermodynamic Informed Framework for Understanding LLM Hallucination Errors* (Version 1.2.1). Shogu Research Group @ Datamutant.ai. https://github.com/Gman-Superfly/Hallucinations_in_Noisy_Channels
 
 ---
 

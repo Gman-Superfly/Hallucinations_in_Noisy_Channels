@@ -1,10 +1,10 @@
 ﻿# Hallucinations in Noisy Channels
 
-## Information-Theoretic Framework for Understanding LLM Hallucination Errors
+## Information-Theoretic and Thermodynamic Informed Framework for Understanding LLM Hallucination Errors
 
 **Authors**: Oscar Goldman - Shogu Research Group @ Datamutant.ai  
 **Date**: November 2025  
-**Status**: Theoretical Framework
+**Status**: Theoretical Framework (working document)
 
 [![License: CC BY 4.0](https://img.shields.io/badge/License-CC%20BY%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by/4.0/)
 
@@ -541,7 +541,7 @@ The examples act as a **temporary codebook** for the specific topic.
 
 ### 4.4 Hallucinations as Reconstruction Failures
 
-Beyond channel capacity limits, hallucinations emerge from **Kolmogorov complexity mismatch** between prompts and internal representations. This provides a complementary mechanism to capacity violations.
+Beyond channel capacity limits, hallucinations emerge from **Complexity mismatch** between prompts and internal representations. This provides a complementary mechanism to capacity violations.
 
 #### 4.4.0 Intuition: The Effective Query (Context + Prompt)
 
@@ -587,7 +587,7 @@ When we speak of "Matching Failures," we mean failure of this **Combined Effecti
 
 When you say "do it", the model doesn't process "do it" in isolation. It processes:
 
-$$ \text{Attn}(\text{"do it"} \mid \text{entire\_history}) $$
+$$ \text{Attn}(\text{"do it"} \mid \text{entire history}) $$
 
 The effective query is not the string "do it". The effective query is the **entire accumulated state** of the key-value (KV) cache plus the new tokens. The "Prompt" is just the latest perturbation to the existing context state.
 
@@ -821,6 +821,8 @@ This is analogous to **asking someone to do long division in their head** when t
 
 Kolmogorov garbage is distinct from random noise: it consists of **structurally valid fragments** that fail to cohere into a truthful whole. The model produces pieces that individually look correct but collectively hallucinate.
 
+*Terminological note:* Kolmogorov garbage (decompression failure) differs from **form prior sampling** (thermalization, Sec. 8.5). Kolmogorov garbage occurs when you *have* the knowledge but lack room to reconstruct it—truncated process, fragmented output. Form prior sampling occurs when you *lack* the knowledge entirely—the system thermalizes to maximum entropy, producing fluent text with no content grounding. Both produce hallucinations, but through different mechanisms.
+
 #### 4.5.3 Bidirectional Bandwidth: The Context-Decompression Trade-off
 
 The context window is not a passive bucket; it is an active component of the model's cognitive machinery. It plays two opposing roles simultaneously:
@@ -867,7 +869,7 @@ $$
 K_{query} + K_{context} + K_{reconstruct}(r) \leq K_{latent} \tag{Def}
 $$
 
-*Note on subadditivity:* Kolmogorov complexity is not strictly additive—$K(A,B) \leq K(A) + K(B) + O(\log n)$ where the logarithmic term accounts for combining descriptions. The sum $K_{query} + K_{context} + K_{reconstruct}$ is thus an upper bound on the joint complexity $K(\text{query}, \text{context}, \text{reconstruction})$. For our purposes, this upper bound is the operationally relevant constraint: if even the upper bound exceeds capacity, reconstruction certainly fails.
+*Note on subadditivity:* Kolmogorov complexity is uncomputable and to be consistent with our description herein not strictly additive—$K(A,B) \leq K(A) + K(B) + O(\log n)$ where the logarithmic term accounts for combining descriptions. The sum $K_{query} + K_{context} + K_{reconstruct}$ is thus an upper bound on the joint complexity $K(\text{query}, \text{context}, \text{reconstruction})$. For our purposes, this upper bound is the operationally relevant constraint: if even the upper bound exceeds capacity, reconstruction certainly fails.
 
 **Proposition 5 (Context Crowding).**
 When context is over-filled, decompression room decreases:
@@ -876,7 +878,7 @@ $$
 K_{available} = K_{latent} - K_{query} - K_{context} \tag{Def}
 $$
 
-If $K_{available} < K_{reconstruct}(r)$, reconstruction is truncated, producing structurally coherent but semantically fragmented output—Kolmogorov garbage.
+If $K_{available} < K_{reconstruct}(r)$, reconstruction is truncated, producing structurally coherent but semantically fragmented outputs or unwanted noise that can effect in a cascading failure all the next outputs.
 
 **Proposition 6 (Decompression-Compression Asymmetry).**
 For most concepts, decompression complexity exceeds storage complexity:
@@ -1890,6 +1892,8 @@ In thermodynamics, a **thermal bath** (or heat reservoir) is the environment tha
 ```
 
 This explains why hallucinations are so hard to prevent: the form prior is where the system *wants* to be. Maintaining grounded output requires constant "energy" (constraints, context, knowledge) to keep the system from relaxing to its comfortable equilibrium of fluent-but-empty text.
+
+*Terminological note:* Form prior sampling (thermalization) differs from **Kolmogorov garbage** (decompression failure, Sec. 4.5.2). Form prior sampling occurs when knowledge constraints are *absent*—the system has nothing to reconstruct and thermalizes to maximum entropy. Kolmogorov garbage occurs when knowledge is *present but inaccessible*—insufficient room to unfold the compressed representation produces fragmented output. Both are hallucinations; only the mechanism differs.
 
 #### 8.5.1 The Thermodynamic Duality
 
@@ -3558,6 +3562,15 @@ Analysis of Boltzmann [Published: March 1990] Alexander Bach . URL: https://link
 If you use this repository in your research, please cite it, this is ongoing work we would like to know your opions and experiments, thank you.
 
 Oscar Goldman - Shogu research Group @ Datamutant.ai subsidiary of 温心重工業
+
+
+
+
+
+
+EXTRA:
+
+
 
 ### Key Supporting References
 

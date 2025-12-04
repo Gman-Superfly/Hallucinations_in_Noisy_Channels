@@ -1,9 +1,0 @@
-cff-version: 1.2.0
-title: A Modeling Framework for LLM Hallucinations
-message: "If you use this repository in your research, please cite it as below."
-authors:
-  - name: Oscar Goldman - Shogu research Group @ Datamutant.ai subsidiary of 温心重工業
-date-released: 2025-07-30
-repository-code: https://github.com/gman-superfly/Hallucinations_Noisy_Channels
-license: MIT
-
