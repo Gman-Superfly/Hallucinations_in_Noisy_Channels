@@ -90,7 +90,7 @@ Hallucinations occur when the model generates with **insufficient content constr
 
 | Term | Definition |
 |------|------------|
-| **Form prior** | The high-entropy distribution over all linguistically valid (fluent, grammatical, stylistically appropriate) outputs, learned from all training text. When content constraints fail, generation samples from this distribution—producing text that *looks* right but isn't grounded in truth. The form prior is the "thermal bath" to which the system thermalizes when knowledge constraints are absent. |
+| **Form prior** | The high-entropy distribution over all linguistically valid (fluent, grammatical, stylistically appropriate) outputs, learned from all training text. When content constraints fail, generation samples from this distribution—producing text that *looks* right but isn't grounded in truth. The form prior is the "thermal bath" to which the system thermalizes when knowledge constraints are absent. Independent work confirms this structure exists prior to any semantic content: Zipf distributions in both natural language and LLM token statistics arise purely from combinatorics and segmentation, without optimization or linguistic organization (Berman, 2025a, 2025b). This provides a "null model" for which phenomena require deeper explanation beyond random-text structure. |
 | **Truth manifold** / **Universal manifold** | The shared geometric structure $\mathcal{M}_{universal}$ upon which all truthful representations lie. Different models learn different projections of this same manifold. Representations *on* the manifold are grounded; representations *off* the manifold are hallucinated. Empirically validated by unsupervised embedding translation achieving >0.92 cosine similarity across architectures (Jha et al., 2025). |
 | **Kolmogorov garbage** | Structurally valid but semantically incoherent output produced when decompression room is insufficient. Unlike random noise, Kolmogorov garbage consists of *plausible fragments* that individually look correct but fail to cohere into a truthful whole. Caused by context crowding (Sec. 4.5) where $K_{available} < K_{reconstruct}(r)$. |
 | **Capacity violation** | Attempting to generate information about a topic $T$ at a rate $R_T$ exceeding the model's topic-specific capacity $C_T$. When $R_T > C_T$, hallucination is unavoidable regardless of decoding strategy (Theorem 1). |
@@ -3139,9 +3139,6 @@ Analysis of Boltzmann [Published: March 1990] Alexander Bach . URL: https://link
 
 12. Cover, T. M., & Thomas, J. A. (2005). Elements of Information Theory (2nd ed.). Wiley. \url{https://onlinelibrary.wiley.com/doi/book/10.1002/047174882X}
 
-
-
-
 13. Friis, H. T. (1944). Noise Figures of Radio Receivers. Proceedings of the IRE. \url{https://ieeexplore.ieee.org/document/1695024}
 
 14. Gammaitoni, L., Hänggi, P., Jung, P., & Marchesoni, F. (1998). Stochastic Resonance. Reviews of Modern Physics, 70(1), 223–287. \url{https://journals.aps.org/rmp/abstract/10.1103/RevModPhys.70.223}
@@ -3172,6 +3169,10 @@ Analysis of Boltzmann [Published: March 1990] Alexander Bach . URL: https://link
 27. Teoh, J., Tomar, M., Ahn, K., Hu, E. S., Sharma, P., Islam, R., Lamb, A., & Langford, J. (2025). Next-Latent Prediction Transformers Learn Compact World Models. arXiv:2511.05963. \url{https://arxiv.org/abs/2511.05963}
 
 28. Nikolaou, G., Mencattini, T., Crisostomi, D., Santilli, A., Panagakis, Y., & Rodolà, E. (2025). Language Models are Injective and Hence Invertible. arXiv:2510.15511. \url{https://arxiv.org/abs/2510.15511}
+
+29. Berman, V. (2025). Random Text, Zipf's Law, Critical Length, and Implications for Large Language Models. arXiv:2511.17575. \url{https://arxiv.org/abs/2511.17575}
+
+30. Berman, V. (2025). Zipf Distributions from Two-Stage Symbolic Processes: Stability Under Stochastic Lexical Filtering. arXiv:2511.21060. \url{https://arxiv.org/abs/2511.21060}
 
 ---
 
