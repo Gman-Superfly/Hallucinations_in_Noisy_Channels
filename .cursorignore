@@ -5,3 +5,5 @@
 .env
 .vscode
 
+/Referenced in study keep off git/*
+

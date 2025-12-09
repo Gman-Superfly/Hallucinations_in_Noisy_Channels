@@ -1,6 +1,6 @@
 ﻿# Hallucinations in Noisy Channels
 
-## Information-Theoretic and Thermodynamic Informed Framework for Understanding LLM Hallucination Errors
+## Information-theoretic and thermodynamic informed framework for understanding LLM hallucination errors
 
 **Authors**: Oscar Goldman - Shogu Research Group @ Datamutant.ai  
 **Date**: November 2025  
@@ -8,21 +8,23 @@
 
 [![License: CC BY 4.0](https://img.shields.io/badge/License-CC%20BY%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by/4.0/)
 
+
+This document is a heavy work in progress, there is a lot to do here, the experiments are ongoing, some you can find in the AKIRA repo now made public, we estimate a years or more work until this is finalized, maybe longer, depends on experiments wins/failures, sections may change in light of evidence, but the core idea is here.
 ---
 
 ## Abstract
 
-We present an generalized overview of an Information-Theoretic framework for understanding hallucinations in Large Language Models (LLMs) by recognizing that **LLMs are teachers, not just generators**. During training, models compress the world into weights (learning). During inference, they must reconstruct and transmit this knowledge—they teach. But teaching through a noisy channel requires building the correct internal representation first.
+We present a generalized overview of an Information-Theoretic framework for understanding hallucinations in Large Language Models (LLMs) by recognizing that **LLMs are teachers, not just generators**. During training, models compress the world into weights (learning). During inference, they must reconstruct and transmit this knowledge; they teach. But teaching through a noisy channel requires building the correct internal representation first.
 
-Hallucinations emerge when this reconstruction fails. We identify six mechanisms: (1) **capacity violations**—asking about topics the model never learned; (2) **matching failures**—ambiguous prompts activate wrong or composite representations; (3) **decompression failures**—insufficient context room to unfold compressed knowledge; (4) **geometric distortion**—errors compound multiplicatively through the pipeline; (5) **thermodynamic equilibration**—when constraints fail, the system relaxes to maximum entropy (fluent but empty text); and (6) **the noise paradox**—systems need some stochasticity to self-correct, but too much causes hallucination.
+Hallucinations emerge when this reconstruction fails. We identify six mechanisms: (1) **capacity violations**: asking about topics the model never learned; (2) **matching failures**: ambiguous prompts activate wrong or composite representations; (3) **decompression failures**: insufficient context room to unfold compressed knowledge; (4) **geometric distortion**: errors compound multiplicatively through the pipeline; (5) **thermodynamic equilibration**: when constraints fail, the system relaxes to maximum entropy (fluent but empty text); and (6) **the noise paradox**: systems need some stochasticity to self-correct, but too much causes hallucination.
 
-The principle: **information cannot be created, only transmitted or lost**. When output contains more information than was stored or provided about a topic, the excess was hallucinated from the form prior—the model knows *how* to write but not *what* is true. This framework tries to understand why specific prompts outperform vague ones, why retrieval helps, why chain-of-thought adds useful redundancy, and why temperature tuning matters. The probability of hallucination scales exponentially with the entropy gap between form and knowledge. We explore and provide testable predictions and suggest principled mitigations based on constraint injection, capacity estimation, context management, and optimal noise calibration.
+The principle: **information cannot be created, only transmitted or lost**. When output contains more information than was stored or provided about a topic, the excess was hallucinated from the form prior; the model knows *how* to write but not *what* is true. This framework tries to understand why specific prompts outperform vague ones, why retrieval helps, why chain-of-thought adds useful redundancy, and why temperature tuning matters. The probability of hallucination scales exponentially with the entropy gap between form and knowledge. We explore and provide testable predictions and suggest principled mitigations based on constraint injection, capacity estimation, context management, and optimal noise calibration.
 
 ---
 
 ## 1. Introduction
 
-### 1.1 The Hallucination Problem
+### 1.1 The hallucination problem
 
 Large Language Models exhibit a puzzling behavior: they generate fluent, confident text that is factually incorrect, logically inconsistent, or contextually inappropriate. These "hallucinations" present a fundamental challenge for deploying LLMs in high-stakes applications.
 
@@ -34,7 +36,7 @@ Current explanations focus on:
 
 We propose a unifying framework based on information theory (Shannon, 1948): **hallucinations are what happens when you transmit beyond channel capacity**.
 
-### 1.2 The Core Insight
+### 1.2 The core insight
 
 Our framework rests on three correspondences:
 
@@ -47,12 +49,12 @@ Our framework rests on three correspondences:
 From this perspective:
 - **Training** compresses the world into weights (learning)
 - **Inference** reconstructs and transmits knowledge (teaching)
-- **Hallucinations** occur when teaching fails—the model cannot build the correct internal representation to transmit
+- **Hallucinations** occur when teaching fails: the model cannot build the correct internal representation to transmit
 
 Crucially, **LLMs are teachers**. During inference, they must first reconstruct the relevant knowledge from compressed weights, then transmit it reliably. Hallucination occurs when this reconstruction-transmission process fails at any stage.
 
 **Definition (Operational Intelligence).**  
-We define intelligence operationally as *teaching capacity*—the maximum rate at which an agent can reliably reconstruct and transmit learned knowledge. This definition follows from the framework:
+We define intelligence operationally as *teaching capacity*: the maximum rate at which an agent can reliably reconstruct and transmit learned knowledge. This definition follows from the framework:
 
 - **Compression = Learning** → The ability to extract and store structure
 - **Decompression + Transmission = Teaching** → The ability to reconstruct and communicate that structure  
@@ -61,9 +63,9 @@ We define intelligence operationally as *teaching capacity*—the maximum rate a
 
 *Note:* This equivalence is a *definitional choice* within our framework, not a logical derivation. We propose this operational definition because it makes intelligence measurable (via information-theoretic quantities) and connects naturally to the compression-transmission duality. Other definitions of intelligence exist; this one serves the framework's explanatory goals.
 
-Intelligence, in this operational sense, is "the rate at which an agent can reliably transmit learned knowledge." An agent that cannot teach what it learned has not demonstrated intelligence—it has merely stored data. This is philosophically aligned with Turing's insight that intelligence manifests through communication.
+Intelligence, in this operational sense, is "the rate at which an agent can reliably transmit learned knowledge." An agent that cannot teach what it learned has not demonstrated intelligence; it has merely stored data. This is philosophically aligned with Turing's insight that intelligence manifests through communication.
 
-### 1.3 Complexity from Constraints
+### 1.3 Complexity from constraints
 
 The Neuro-Symbolic Homeostat framework (Goldman, 2025) establishes that "complexity comes from constraints." This principle is central to understanding hallucinations:
 
@@ -72,7 +74,7 @@ The Neuro-Symbolic Homeostat framework (Goldman, 2025) establishes that "complex
 
 Hallucinations occur when the model generates with **insufficient content constraints** while retaining **strong form constraints**. The result is output that *looks* right but *isn't* grounded in truth.
 
-### 1.4 Notation and Assumptions
+### 1.4 Notation and assumptions
 
 - **K(x)**: Kolmogorov complexity (Kolmogorov, 1965) measured in bits (log base 2). In practice we use compression-based proxies; equalities involving K(·) are to be read up to additive constants induced by compressor choice.
 - **H(X), I(X;Y)**: Shannon entropy and mutual information in bits (log base 2) unless noted otherwise.
@@ -86,7 +88,7 @@ Hallucinations occur when the model generates with **insufficient content constr
 - **K(context) — operational proxy**: The complexity of in‑context constraints and reconstruction scaffolding supplied by the prompt/RAG/system prompt. Measured via compression/entropy proxies and structural specificity (anchors, examples), up to monotone rescalings.
 - **Conditioning convention**: "topic $T$" is held fixed when writing expressions like $H(O \mid \text{topic } T)$; when $T$ is omitted it is implied by context.
 
-### 1.5 Glossary of Key Terms
+### 1.5 Glossary of key terms
 
 | Term | Definition |
 |------|------------|
@@ -94,18 +96,18 @@ Hallucinations occur when the model generates with **insufficient content constr
 | **Truth manifold** / **Universal manifold** | The shared geometric structure $\mathcal{M}_{universal}$ upon which all truthful representations lie. Different models learn different projections of this same manifold. Representations *on* the manifold are grounded; representations *off* the manifold are hallucinated. Empirically validated by unsupervised embedding translation achieving >0.92 cosine similarity across architectures (Jha et al., 2025). |
 | **Kolmogorov garbage** | Structurally valid but semantically incoherent output produced when decompression room is insufficient. Unlike random noise, Kolmogorov garbage consists of *plausible fragments* that individually look correct but fail to cohere into a truthful whole. Caused by context crowding (Sec. 4.5) where $K_{available} < K_{reconstruct}(r)$. |
 | **Capacity violation** | Attempting to generate information about a topic $T$ at a rate $R_T$ exceeding the model's topic-specific capacity $C_T$. When $R_T > C_T$, hallucination is unavoidable regardless of decoding strategy (Theorem 1). |
-| **Matching failure** | Hallucination caused by ambiguous prompts that fail to uniquely activate the correct internal representation, instead activating wrong or composite representations—analogous to quantum superposition under weak measurement (Sec. 4.4). |
+| **Matching failure** | Hallucination caused by ambiguous prompts that fail to uniquely activate the correct internal representation, instead activating wrong or composite representations, analogous to quantum superposition under weak measurement (Sec. 4.4). |
 | **Decompression failure** | Hallucination caused by insufficient context room to reconstruct compressed knowledge, producing Kolmogorov garbage even when the correct representation was matched (Sec. 4.5). |
 | **Thermalization** | The process by which a system relaxes to maximum entropy (the form prior) when knowledge constraints fail. Hallucination *is* thermalization—the release of "potential energy" (stored knowledge) into "kinetic energy" (form-prior sampling). |
 | **Information atom** | A compressed pattern learned from training sequences—the irreducible unit of knowledge stored in weights. Output validity requires traceability to activated atoms; information not derivable from any atom is hallucinated (Sec. 4.7). |
 | **Adaptive resonance** | The principle that matching thresholds (vigilance) and sampling noise (temperature) should co-vary with knowledge certainty. Strong knowledge → strict matching, low noise; weak knowledge → permissive matching, exploratory noise (Sec. 8.6.8). |
-| **Teaching** | Rate-matched decompression through a noisy channel—the inverse of compression (learning). Good teaching matches rate to channel capacity and adds redundancy for error correction. Hallucination is teaching failure, not learning failure (Sec. 2.2.1). |
+| **Teaching** | Rate-matched decompression through a noisy channel, which is the inverse of compression (learning). Good teaching matches rate to channel capacity and adds redundancy for error correction. Hallucination is teaching failure, not learning failure (Sec. 2.2.1). |
 | **Test-time atom** | An information atom created during inference (not training) through test-time learning mechanisms. Enables capacity extension beyond pre-training: $C_T^{effective} = C_T^{static} + \Delta C_T(context)$ (Sec. 4.7.6). |
 | **Memory hierarchy** | The three-tier memory structure optimal for language modeling: (1) long-term memory (weights/atoms, high capacity, compressed), (2) working memory (context window, limited, exact), and (3) adaptive layer (test-time learning, bridges tiers). Validated by Titans architecture (Sec. 11.7). |
 
-### 1.6 Foundational Intuition: The Bayesian Prior
+### 1.6 Foundational intuition: the Bayesian prior
 
-In Bayesian probability, a **prior** is what you believe before seeing evidence. It's your default expectation—the distribution over possible answers when you have no specific information.
+In Bayesian probability, a **prior** is what you believe before seeing evidence. It's your default expectation: the distribution over possible answers when you have no specific information.
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────┐
@@ -145,11 +147,11 @@ The form prior is not random noise—it's highly structured. It knows that sente
 
 ---
 
-## 2. Theoretical Framework
+## 2. Theoretical framework
 
-### 2.1 Source Coding: Compression as Learning
+### 2.1 Source coding: compression as learning
 
-#### 2.1.0 Intuition: Compression IS Understanding
+#### 2.1.0 Intuition: compression IS understanding
 
 When we say "learning is compression," we don't mean creating a `.zip` file. We mean **discovering the rule that generates the data**.
 
@@ -197,7 +199,7 @@ $$
 \text{Learning} \equiv \text{Compression} \equiv \min_\theta \, L(\theta) \text{ s.t. } D(p_{data} \| p_\theta) < \epsilon \tag{Def}
 $$
 
-where $L(\theta)$ denotes the description length of parameters $\theta$. In the Kolmogorov-Chaitin view (Kolmogorov, 1965), this is $K(\theta)$—the length of the shortest program encoding $\theta$. In practice, we use computable proxies:
+where $L(\theta)$ denotes the description length of parameters $\theta$. In the Kolmogorov-Chaitin view (Kolmogorov, 1965), this is $K(\theta)$, which is the length of the shortest program encoding $\theta$. In practice, we use computable proxies:
 
 - **Parameter norm** $\|\theta\|$ — under the Minimum Description Length (MDL) principle, smaller norms correspond to simpler (shorter) descriptions
 - **Parameter count** — fewer parameters = shorter description
@@ -215,9 +217,9 @@ Example:
 - Storing the "cat concept" + small deltas = high compression = learning
 - Random projection to low dimensions = compression but no abstraction
 
-### 2.2 Channel Coding: Inference as Teaching
+### 2.2 Channel coding: inference as teaching
 
-Once knowledge is compressed into weights, inference must **reconstruct and transmit** this knowledge. The model is teaching—but before it can teach, it must build the correct internal representation.
+Once knowledge is compressed into weights, inference must **reconstruct and transmit** this knowledge. The model is teaching, but before it can teach, it must build the correct internal representation.
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────┐
@@ -256,7 +258,7 @@ Generating output is a teaching process that transmits knowledge through a casca
 
 Crucially: The model must build the dynamic codebook from the static one before it can transmit. Hallucination is what happens when this construction fails.
 
-#### 2.2.1 Intuition: The Teacher's Dilemma
+#### 2.2.1 Intuition: the teacher's dilemma
 
 Why do we call LLMs "teachers" instead of just "generators"? Because they face the exact same information constraint as a human teacher.
 
@@ -288,9 +290,9 @@ Why do we call LLMs "teachers" instead of just "generators"? Because they face t
 
 The LLM is in Case B whenever it hallucinates. It is forced to generate (teach) by the prompt, but it lacks the internal information structure to fill that request. It substitutes **form** (the style of teaching) for **content** (the knowledge).
 
-#### 2.2.2 Teaching as Rate-Matched Decompression
+#### 2.2.2 Teaching as rate-matched decompression
 
-If intelligence is compression (finding the minimal program that captures structure), then teaching is the inverse: **rate-matched decompression through a noisy channel**. But teaching is not merely decompression—it is *channel-aware* decompression with redundancy injection.
+If intelligence is compression (finding the minimal program that captures structure), then teaching is the inverse: **rate-matched decompression through a noisy channel**. But teaching is not merely decompression; it is *channel-aware* decompression with redundancy injection.
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────┐
@@ -352,7 +354,7 @@ Hallucinations are decompression failures during teaching, not compression failu
 
 This explains why the same model can succeed on one query and fail on another about the same topic: the knowledge was compressed identically, but the teaching conditions (channel capacity, noise, receiver state) differed.
 
-### 2.3 Channel Capacity: The Limit of Reliable Knowledge
+### 2.3 Channel capacity: the limit of reliable knowledge
 
 Shannon's noisy channel coding theorem (Shannon, 1948):
 
@@ -380,9 +382,9 @@ This is the information-theoretic impossibility result: you cannot reliably tran
 
 ---
 
-## 3. Hallucinations as Capacity Violations
+## 3. Hallucinations as capacity violations
 
-### 3.1 The Two-Constraint Model
+### 3.1 The two-constraint model
 
 Language generation is governed by two types of constraints:
 
@@ -405,7 +407,7 @@ $$
 \text{Hallucination} = \{y : y \in \mathcal{F}, y \notin \mathcal{C}_T\} \tag{Def}
 $$
 
-### 3.2 The Mechanism
+### 3.2 The mechanism
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────┐
@@ -434,7 +436,7 @@ $$
 └─────────────────────────────────────────────────────────────────────────┘
 ```
 
-#### 3.2.1 The "Confabulation" Mechanism
+#### 3.2.1 The "confabulation" mechanism
 
 Crucially, the model does not "know" it is lying. It is simply maximizing the probability of the next token under the constraints it has available.
 
@@ -442,12 +444,12 @@ When **content constraints** are weak (because the topic was rarely seen during 
 
 1.  **The Impulse:** The prompt demands an answer ("Who invented the glockenspiel?").
 2.  **The Void:** The model retrieves no specific fact (Capacity Violation).
-3.  **The Fill:** The model *must* complete the pattern. It accesses the "Form Prior"—the statistical structure of *biographical sentences*.
+3.  **The Fill:** The model *must* complete the pattern. It accesses the "Form Prior," which is the statistical structure of *biographical sentences*.
 4.  **The Hallucination:** It generates "The glockenspiel was invented by [German-sounding name] in [plausible 18th-century year]."
 
 This output is **structurally perfect** but **factually empty**. It is a "fluent lie" generated not by malice, but by the mathematical necessity of completing a pattern when the specific data is missing. The model is minimizing the "surprise" of the *syntax* because it cannot minimize the surprise of the *facts*.
 
-### 3.3 Formal Characterization
+### 3.3 Formal characterization
 
 **Proposition 2 (Hallucination as Entropy Maximization).**  
 As mutual information between output and content constraints vanishes, the output distribution converges to the maximum-entropy distribution consistent with form:
@@ -462,7 +464,7 @@ $$
 H(Y) \to H_{\max}(\mathcal{F}) \quad \text{where } H_{\max}(\mathcal{F}) = \max_{p \in \mathcal{F}} H(p) \tag{Approx}
 $$
 
-When content constraints provide no information ($I(Y; \mathcal{C}_T) = 0$), the model generates the maximum-entropy distribution consistent with linguistic form—fluent noise. The form constraints $\mathcal{F}$ bound what is grammatically/stylistically valid; within that space, without content guidance, entropy is maximized.
+When content constraints provide no information ($I(Y; \mathcal{C}_T) = 0$), the model generates the maximum-entropy distribution consistent with linguistic form: fluent noise. The form constraints $\mathcal{F}$ bound what is grammatically/stylistically valid; within that space, without content guidance, entropy is maximized.
 
 **Proposition 3 (Confidence-Accuracy Decoupling).**  
 Hallucinations exhibit high confidence because form constraints remain strong. Confidence tracks form-constraint satisfaction, not content-constraint satisfaction.
@@ -475,9 +477,9 @@ This explains why hallucinations are often stated with high confidence.
 
 ---
 
-## 4. In-Context Learning as Constraint Injection
+## 4. In-context learning as constraint injection
 
-### 4.1 The Mechanism of In-Context Learning
+### 4.1 The mechanism of in-context learning
 
 In-context learning (ICL) allows LLMs to adapt at inference time using examples in the prompt. From our framework:
 
@@ -490,7 +492,7 @@ $$
 
 where $\Delta C(\text{context})$ is the additional capacity provided by in-context examples.
 
-### 4.2 Techniques as Error Correction
+### 4.2 Techniques as error correction
 
 Different prompting techniques map to error-correction strategies:
 
@@ -519,7 +521,7 @@ where $\alpha$ depends on example quality and relevance.
 
 This conjecture awaits formal derivation from information-theoretic first principles, but the empirical pattern is robust.
 
-### 4.3 Why Few-Shot Works
+### 4.3 Why few-shot works
 
 Few-shot prompting works because it provides **content constraints** that the model lacks from training:
 
@@ -539,11 +541,11 @@ With few-shot (k examples of T):
 
 The examples act as a **temporary codebook** for the specific topic.
 
-### 4.4 Hallucinations as Reconstruction Failures
+### 4.4 Hallucinations as reconstruction failures
 
 Beyond channel capacity limits, hallucinations emerge from **Complexity mismatch** between prompts and internal representations. This provides a complementary mechanism to capacity violations.
 
-#### 4.4.0 Intuition: The Effective Query (Context + Prompt)
+#### 4.4.0 Intuition: the effective query (context + prompt)
 
 It is a simplification to treat the "Prompt" and "Context" as separate. Transformer attention is **holistic**: the model sees a single causal sequence. The "Prompt" is just the latest perturbation to the accumulated "Context" state.
 
@@ -583,7 +585,7 @@ It is a simplification to treat the "Prompt" and "Context" as separate. Transfor
 
 When we speak of "Matching Failures," we mean failure of this **Combined Effective Query** to lock onto a representation. A vague prompt can succeed if the context is rich (strong lens). A specific prompt can fail if the context is noisy (cracked lens).
 
-### The "Combined Quantity" Mechanism
+### The "combined quantity" mechanism
 
 When you say "do it", the model doesn't process "do it" in isolation. It processes:
 
@@ -604,7 +606,7 @@ It is THIS combined vector that hits the weights (static codebook).
 - If $S_{ctx}$ is full of **Kolmogorov garbage**, the $S_{ctx}$ component is noisy, so even a perfect prompt $p$ results in a noisy $Q_{eff}$.
 - Conversely, if $S_{ctx}$ is highly structured (strong constraints), even a vague prompt ("continue") produces a precise $Q_{eff}$.
 
-#### 4.4.1 The Matching Problem
+#### 4.4.1 The matching problem
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────┐
@@ -622,9 +624,9 @@ It is THIS combined vector that hits the weights (static codebook).
 └─────────────────────────────────────────────────────────────────────────┘
 ```
 
-The key insight: knowledge is stored in a **Kolmogorov sweetspot**—compressed enough for efficient storage, but structured enough for unambiguous retrieval. Hallucinations occur when prompts lack sufficient structure to uniquely identify the correct compressed representation.
+The key insight: knowledge is stored in a **Kolmogorov sweetspot**: compressed enough for efficient storage, but structured enough for unambiguous retrieval. Hallucinations occur when prompts lack sufficient structure to uniquely identify the correct compressed representation.
 
-#### 4.4.2 The Quantum Superposition Analogy
+#### 4.4.2 The quantum superposition analogy
 
 Ambiguous prompts create "superpositions" over possible internal concepts:
 
@@ -648,7 +650,7 @@ Ambiguous prompts create "superpositions" over possible internal concepts:
 └─────────────────────────────────────────────────────────────────────────┘
 ```
 
-#### 4.4.3 The Felix the Cat Problem
+#### 4.4.3 The Felix the cat problem
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────┐
@@ -679,7 +681,7 @@ Ambiguous prompts create "superpositions" over possible internal concepts:
 └─────────────────────────────────────────────────────────────────────────┘
 ```
 
-#### 4.4.4 Formal Characterization
+#### 4.4.4 Formal characterization
 
 **Definition 6 (Representation Matching).**
 Let $\mathcal{R} = \{r_1, r_2, ..., r_n\}$ be the set of compressed internal representations. A prompt $p$ activates representations based on structural similarity:
@@ -704,7 +706,7 @@ $$
 P(\text{correct retrieval}) \propto \frac{\exp(-d_{\mathcal{M}}(\phi_{\mathcal{M}}(p), \phi_{\mathcal{M}}(r_{target})))}{\sum_j \exp(-d_{\mathcal{M}}(\phi_{\mathcal{M}}(p), \phi_{\mathcal{M}}(r_j)))} \tag{Proxy}
 $$
 
-where $d_{\mathcal{M}}(\cdot,\cdot)$ is distance in the universal embedding space—operationally, the translation infidelity when mapping between representation spaces.
+where $d_{\mathcal{M}}(\cdot,\cdot)$ is distance in the universal embedding space. Operationally, this is the translation infidelity when mapping between representation spaces.
 
 **Proposition 4 (Ambiguity-Induced Hallucination).**
 When multiple representations have similar activation levels, the model enters a "superposition" state. The decoded output is a mixture that may not correspond to any single ground truth:
@@ -1072,7 +1074,7 @@ Any output information not traceable to activated atoms was hallucinated from th
 
 The Platonic Representation Hypothesis (Huh et al., 2024) (Sec. 11.5) states that representations converge across models trained on similar data. The atom view explains why:
 
-**Same training distribution → same atoms (approximately) → same representation space**
+**Same training distribution → same atoms (approximately), which leads to same representation space**
 
 The atoms ARE the universal basis. Different models compress them into slightly different geometric arrangements, but the underlying atomic structure is shared. This is why unsupervised translation between model embedding spaces achieves high fidelity—the spaces encode the same atoms.
 
@@ -1169,7 +1171,7 @@ Aggressive compression during training reduces capacity for out-of-distribution 
 
 ### 5.2 LLMs Are Teachers: The Core Insight
 
-**LLMs are not just generators—they are teachers.** This reframing is essential to understanding hallucination.
+**LLMs are not just generators; they are teachers.** This reframing is essential to understanding hallucination.
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────┐
@@ -1221,13 +1223,13 @@ Aggressive compression during training reduces capacity for out-of-distribution 
 
 #### 5.2.2 Why Teachers Need Redundancy
 
-When you teach, you don't just state a fact once—you explain, give examples, rephrase, and verify understanding. This redundancy is **error-correction coding**:
+When you teach, you don't just state a fact once; you explain, give examples, rephrase, and verify understanding. This redundancy is **error-correction coding**:
 
 - **Chain-of-thought** = Showing your work = Redundant paths to the answer
 - **Examples in context** = Multiple instances = Redundant encoding
 - **Self-consistency** = Multiple explanations = Voting over redundant samples
 
-A teacher who doesn't know the material (low capacity) cannot provide reliable redundancy—they fill the gaps with plausible-sounding nonsense. This is exactly what hallucinating LLMs do.
+A teacher who doesn't know the material (low capacity) cannot provide reliable redundancy; they fill the gaps with plausible-sounding nonsense. This is exactly what hallucinating LLMs do.
 
 #### 5.2.3 The Fundamental Asymmetry
 
@@ -1417,7 +1419,7 @@ Addresses: Capacity violation (Sec. 3); secondarily reduces geometric distortion
 
 ### 7.5 Verification-First and Reverse Reasoning
 
-Recent work (Wu & Yao, 2025) demonstrates that asking LLMs to "verify first"—even against a random or wrong answer—significantly improves reasoning accuracy. This phenomenon is fully explained by our framework:
+Recent work (Wu & Yao, 2025) demonstrates that asking LLMs to "verify first," even against a random or wrong answer—significantly improves reasoning accuracy. This phenomenon is fully explained by our framework:
 
 1.  **Reverse Reasoning breaks Geometric Distortion**: Forward reasoning ($A \to B \to C$) accumulates error geometrically (Theorem 4). Verification is a reverse check ($C \to? A$). If the forward path has drifted off the Truth Manifold, the reverse path is unlikely to map back to the origin, exposing the hallucination.
 2.  **Verification is Compression, not Generation**: Verifying a candidate answer requires less channel capacity than generating it from scratch. It is a discrimination task (low entropy) rather than a generation task (high entropy).
@@ -1490,7 +1492,7 @@ This asymmetry is the root cause of hallucinations:
 
 ### 8.3 The Conservation of Information
 
-A fundamental principle of information theory—the Data Processing Inequality—establishes that processing cannot increase the information content of a signal. For language generation, we can state this limit explicitly:
+A fundamental principle of information theory, the Data Processing Inequality, establishes that processing cannot increase the information content of a signal. For language generation, we can state this limit explicitly:
 
 #### 8.3.0 Intuition: The Library Paradox
 
@@ -1553,7 +1555,7 @@ You cannot take a 100-page book and summarize it into a 200-page book without ma
 
 **Theorem 3 (Information Conservation / Data Processing Limit).**
 
-Let $S = S_{weights} + S_{context}$ be the total available information source (weights + context). The key quantity is the **conditional entropy** $H(O \mid S, T)$—the entropy of the output that remains unexplained after conditioning on both the source and the topic.
+Let $S = S_{weights} + S_{context}$ be the total available information source (weights + context). The key quantity is the **conditional entropy** $H(O \mid S, T)$, which is the entropy of the output that remains unexplained after conditioning on both the source and the topic.
 
 For truthful generation:
 
@@ -1561,7 +1563,7 @@ $$
 H(O \mid S, T) = 0 \tag{Def}
 $$
 
-The output is fully determined by the source—there is no unexplained entropy. All structure in the output traces back to stored knowledge or provided context.
+The output is fully determined by the source; there is no unexplained entropy. All structure in the output traces back to stored knowledge or provided context.
 
 For hallucination:
 
@@ -1569,7 +1571,7 @@ $$
 H(O \mid S, T) > 0 \tag{Def}
 $$
 
-The output contains entropy not explained by the source. This unexplained entropy—sampled from the form prior rather than grounded in knowledge—is the hallucinated component.
+The output contains entropy not explained by the source. This unexplained entropy, sampled from the form prior rather than grounded in knowledge, is the hallucinated component.
 
 Equivalently, via mutual information: $I(S; O \mid T) = H(O \mid T) - H(O \mid S, T)$. For truthful generation, $I(S; O \mid T) = H(O \mid T)$ (source explains all topic-relevant output entropy). For hallucination, $I(S; O \mid T) < H(O \mid T)$ (a gap exists—the form prior filled it).
 
@@ -1581,7 +1583,7 @@ $$
 
 where the $O(\log n)$ term accounts for the overhead of combining two descriptions (see Kolmogorov, 1965). Since Kolmogorov complexities are not strictly additive—$K(A,B) \le K(A) + K(B) + O(\log(K(A) + K(B)))$—this inequality holds up to logarithmic factors. For our purposes, these constants are negligible compared to the main terms, and we write the simplified form in subsequent equations.
 
-**Proof sketch.** Consider the Markov chain $S \to R \to O$, where $S$ is the available source (weights + context), $R$ any intermediate reconstruction, and $O$ the output. By the data processing inequality, $I(S;O) \le I(S;R)$. In the idealized truthful case, the output is a deterministic function of the source given the topic: $H(O \mid S, T) = 0$. When the source is insufficient or incorrectly reconstructed, $H(O \mid S, T) > 0$—the output contains entropy unexplained by the source. This unexplained entropy must come from somewhere; in LLMs, it is sampled from the form prior (the distribution over fluent text). The gap $H(O \mid S, T)$ quantifies the hallucinated component (see Cover & Thomas, 2006, Ch. 2).
+**Proof sketch.** Consider the Markov chain $S \to R \to O$, where $S$ is the available source (weights + context), $R$ any intermediate reconstruction, and $O$ the output. By the data processing inequality, $I(S;O) \le I(S;R)$. In the idealized truthful case, the output is a deterministic function of the source given the topic: $H(O \mid S, T) = 0$. When the source is insufficient or incorrectly reconstructed, $H(O \mid S, T) > 0$, meaning the output contains entropy unexplained by the source. This unexplained entropy must come from somewhere; in LLMs, it is sampled from the form prior (the distribution over fluent text). The gap $H(O \mid S, T)$ quantifies the hallucinated component (see Cover & Thomas, 2006, Ch. 2).
 
 **Corollary (Information Accounting).**
 
@@ -1802,7 +1804,7 @@ The parallel component shifts within valid representations (may still be accurat
 
 #### 8.4.5 The Friis Formula Analogy
 
-This parallels **noise accumulation in cascaded amplifiers** (Friis formula, 1944—conceptual analogy):
+This parallels **noise accumulation in cascaded amplifiers** (Friis formula, 1944; conceptual analogy):
 
 $$
 \text{SNR}_{total} = \frac{\text{SNR}_1}{1 + \frac{1}{G_1 \cdot \text{SNR}_2} + \frac{1}{G_1 G_2 \cdot \text{SNR}_3} + \ldots} \tag{Approx}
@@ -1845,7 +1847,7 @@ Assumption: Independent errors. When errors are correlated (e.g., systematic tra
 
 ### 8.5 Thermodynamic Interpretation: Hallucination as Thermalization
 
-The framework achieves its deepest form when connected to statistical mechanics. Hallucination is not merely an error—it is **thermalization** to the maximum entropy state.
+The framework achieves its deepest form when connected to statistical mechanics. Hallucination is not merely an error; it is **thermalization** to the maximum entropy state.
 
 #### 8.5.0 Intuition: The Thermal Bath
 
@@ -2082,7 +2084,7 @@ The goal is to keep the system in the **grounded potential well** and prevent th
 
 ### 8.6 The Functional Role of Noise: Error Correction Requires Exploration
 
-A crucial counterpoint: **noise is not just the enemy—it is also the medicine**. Systems require a certain amount of inherent and learned noise to correct mistakes.
+A crucial counterpoint: **noise is not just the enemy; it is also the medicine**. Systems require a certain amount of inherent and learned noise to correct mistakes.
 
 #### 8.6.0 Intuition: The Stuck Lock
 
@@ -2339,7 +2341,7 @@ $$
 
 #### 8.6.8 Adaptive Resonance
 
-The stochastic resonance phenomenon (Sec. 8.6.3) suggests a fixed optimal noise $\sigma^*$. But the optimal noise level depends on the *knowledge state*—how strongly the correct representation is activated. This motivates **adaptive resonance**: dynamically adjusting noise and matching thresholds based on retrieval confidence.
+The stochastic resonance phenomenon (Sec. 8.6.3) suggests a fixed optimal noise $\sigma^*$. But the optimal noise level depends on the *knowledge state*, i.e., how strongly the correct representation is activated. This motivates **adaptive resonance**: dynamically adjusting noise and matching thresholds based on retrieval confidence.
 
 **Connection to Adaptive Resonance Theory.**
 Grossberg's Adaptive Resonance Theory (ART) (Grossberg, 1976) from cognitive neuroscience addresses how biological systems learn new patterns without catastrophic forgetting. The key mechanism is **resonance**: when input sufficiently matches a stored pattern (above a "vigilance" threshold), a feedback loop stabilizes retrieval. When no match exceeds vigilance, a new category is created.
@@ -2406,7 +2408,7 @@ The optimal noise $\sigma^*$ (Theorem 6) and adaptive vigilance $\rho^*$ are dua
 ```
 
 **Prediction 23 (Adaptive Resonance Peak).**
-For queries with low estimated $C_T$ (weak knowledge), jointly increasing temperature $T$ while relaxing embedding-similarity thresholds will exhibit a **resonance peak**—a $(\sigma, \rho)$ combination where retrieval of correct weak memories exceeds both the frozen ($\sigma = 0$) and strict ($\rho = 1$) baselines.
+For queries with low estimated $C_T$ (weak knowledge), jointly increasing temperature $T$ while relaxing embedding-similarity thresholds will exhibit a **resonance peak**: a $(\sigma, \rho)$ combination where retrieval of correct weak memories exceeds both the frozen ($\sigma = 0$) and strict ($\rho = 1$) baselines.
 
 **Prediction 24 (Knowledge-Contingent Optimum).**
 The optimal $(\sigma^*, \rho^*)$ pair varies systematically with topic capacity:
@@ -2724,14 +2726,14 @@ We have presented a unified information-theoretic and thermodynamic framework fo
 2. **Transmission is Inference**: Generation transmits queries through the model (channel coding)
 3. **Capacity is Knowledge**: Each topic has a capacity limit for reliable generation
 4. **Hallucinations are Capacity Violations**: Generating beyond capacity produces form-constrained but content-unconstrained output
-5. **Hallucinations are Matching Failures**: Ambiguous prompts fail to uniquely match internal compressed representations, activating wrong or composite concepts—analogous to quantum superposition under weak measurement
-6. **Hallucinations are Decompression Failures**: Even correctly matched representations require room to reconstruct; over-filled contexts produce Kolmogorov garbage—structurally valid fragments that fail to cohere
-7. **Information Conservation**: You cannot output more information about a topic than was stored or provided—the excess must come from the form prior, and that excess is hallucination
+5. **Hallucinations are Matching Failures**: Ambiguous prompts fail to uniquely match internal compressed representations, activating wrong or composite concepts, analogous to quantum superposition under weak measurement
+6. **Hallucinations are Decompression Failures**: Even correctly matched representations require room to reconstruct. Over-filled contexts produce Kolmogorov garbage: structurally valid fragments that fail to cohere
+7. **Information Conservation**: You cannot output more information about a topic than was stored or provided; the excess must come from the form prior, and that excess is hallucination
 8. **Geometric Distortion Accumulation**: Errors compound multiplicatively through the pipeline; each stage degrades fidelity geometrically, pushing representations off the truth manifold into hallucination space
-9. **Thermodynamic Equilibration**: Knowledge is potential energy (low entropy, constrained); the form prior is the thermal bath (high entropy, unconstrained); hallucination is thermalization—relaxation to maximum entropy when constraints fail
-10. **Noise as Error Correction**: Paradoxically, systems require optimal noise ($T^* > 0$) to correct mistakes—too little noise prevents exploration and self-correction; the Goldilocks zone enables error recovery while preserving signal
+9. **Thermodynamic Equilibration**: Knowledge is potential energy (low entropy, constrained); the form prior is the thermal bath (high entropy, unconstrained); hallucination is thermalization, defined as relaxation to maximum entropy when constraints fail
+10. **Noise as Error Correction**: Paradoxically, systems require optimal noise ($T^* > 0$) to correct mistakes; too little noise prevents exploration and self-correction; the Goldilocks zone enables error recovery while preserving signal
 
-The complete framework—capacity, matching, decompression, distortion, thermodynamics, and optimal noise—provides a full physics of hallucination. The conservation law (Theorem 3) gives a detection criterion. The distortion theorem (Theorem 4) explains accumulation. The thermodynamic theorem (Theorem 5) reveals hallucination as equilibration. The optimal noise theorem (Theorem 6) shows that $T=0$ is suboptimal—systems need stochasticity to self-correct. This suggests strategies based on constraint injection, capacity enhancement, prompt-representation alignment, context budget management, information accounting, first-stage quality prioritization, **temperature control**, and **optimal noise calibration**.
+The complete framework—capacity, matching, decompression, distortion, thermodynamics, and optimal noise—provides a full physics of hallucination. The conservation law (Theorem 3) gives a detection criterion. The distortion theorem (Theorem 4) explains accumulation. The thermodynamic theorem (Theorem 5) reveals hallucination as equilibration. The optimal noise theorem (Theorem 6) shows that $T=0$ is suboptimal: systems need stochasticity to self-correct. This suggests strategies based on constraint injection, capacity enhancement, prompt-representation alignment, context budget management, information accounting, first-stage quality prioritization, **temperature control**, and **optimal noise calibration**.
 
 ### 11.2 Key Equations
 
@@ -2752,7 +2754,7 @@ $$
 
 ### 11.3 The Core Insight
 
-> **Hallucinations are what happens when you ask a channel to transmit beyond its capacity, and it fills the gap with its prior distribution—fluent form, empty content.**
+> **Hallucinations are what happens when you ask a channel to transmit beyond its capacity, and it fills the gap with its prior distribution: fluent form, empty content.**
 
 Or equivalently:
 
@@ -2768,15 +2770,15 @@ From the decompression perspective:
 
 And the unifying conservation law:
 
-> **Information cannot be created—only transmitted or lost. When a model outputs more information about a topic than it stored or was provided, the excess was hallucinated from the form prior. This is the absolute limit of truthful generation.**
+> **Information cannot be created; it can only be transmitted or lost. When a model outputs more information about a topic than it stored or was provided, the excess was hallucinated from the form prior. This is the absolute limit of truthful generation.**
 
 And the accumulation principle:
 
-> **Distortion is geometric, not additive. Each stage of the pipeline compounds errors multiplicatively, pushing representations off the truth manifold. The form prior fills the growing gap—hallucination grows as fidelity decays.**
+> **Distortion is geometric, not additive. Each stage of the pipeline compounds errors multiplicatively, pushing representations off the truth manifold. The form prior fills the growing gap; hallucination grows as fidelity decays.**
 
 And the thermodynamic unification:
 
-> **Knowledge is potential energy; the form prior is the thermal bath. Hallucination is thermalization—when constraints fail, the system equilibrates to maximum entropy. The probability of hallucination scales as $e^{\Delta S}$: exponentially with the entropy gap between form and knowledge.**
+> **Knowledge is potential energy; the form prior is the thermal bath. Hallucination is thermalization: when constraints fail, the system equilibrates to maximum entropy. The probability of hallucination scales as $e^{\Delta S}$: exponentially with the entropy gap between form and knowledge.**
 
 And the final paradox:
 
@@ -2784,7 +2786,7 @@ And the final paradox:
 
 ### 11.4 Future Directions
 
-1. **Validate capacity estimators**: The framework provides theoretical operationalization via manifold alignment (Sec. 7.4); the next step is empirical validation of embedding density, translation fidelity, and probing-based estimators at scale
+1. **Validate capacity estimators**: The framework provides theoretical operationalization via manifold alignment (Sec. 7.4), but the next step is empirical validation of embedding density, translation fidelity, and probing-based estimators at scale
 2. **Information conservation detector**: Implement $K(\text{output})$ vs $K(\text{source})$ comparison for real-time hallucination detection
 3. **Optimal constraint injection**: Determine minimal context for reliable generation
 4. **Capacity-aware architectures**: Design models that know what they don't know
@@ -2889,7 +2891,7 @@ $$
 \text{Hallucination}(x) \approx \|x - \text{proj}_{\mathcal{M}_{universal}}(x)\| \tag{Proxy}
 $$
 
-The "complexity" of a hallucination is that it possesses a geometry *inconsistent* with the universal shape of the concept. It is a geometric outlier. Operationally, a hallucinated embedding is one that **fails to translate faithfully** between model spaces—it lies off the shared manifold that enables high-fidelity translation.
+The "complexity" of a hallucination is that it possesses a geometry *inconsistent* with the universal shape of the concept. It is a geometric outlier. Operationally, a hallucinated embedding is one that **fails to translate faithfully** between model spaces; it lies off the shared manifold that enables high-fidelity translation.
 
 **Other Limitations:**
 
@@ -2972,7 +2974,7 @@ Titans identifies the fundamental tension we formalize as Theorem 1 (Hallucinati
 
 > "On one hand, we use these linear models to enhance scalability... On the other hand, **a very long context cannot be properly compressed in a small vector-valued or matrix-valued states**."
 
-This IS capacity violation: when $R_T > C_T$, no architectural trick can avoid information loss. Titans addresses this by maintaining both compressed (long-term) and uncompressed (short-term) memory, trading off between them—exactly the strategy our framework predicts as optimal.
+This IS capacity violation: when $R_T > C_T$, no architectural trick can avoid information loss. Titans addresses this by maintaining both compressed (long-term) and uncompressed (short-term) memory, trading off between them, exactly the strategy our framework predicts as optimal.
 
 #### 11.7.3 Test-Time Learning as Dynamic Atom Creation
 
@@ -3018,7 +3020,7 @@ $$
 S_t = \text{diag}(\eta_t)S_{t-1} - \text{diag}(\theta_t)(\mathcal{M}_{t-1}k_t^\top k_t - v_t^\top k_t)
 $$
 
-This captures **token flow**—the sequence structure matters, not just individual tokens. In our framework, this explains why:
+This captures **token flow**; the sequence structure matters, not just individual tokens. In our framework, this explains why:
 - **Context structure matters** (Sec. 4.6): Anchoring, schema-first prompts work because they establish momentum
 - **Chain-of-thought helps** (Sec. 4.5): Each step builds on previous, creating coherent flow
 - **Position primacy** (Prediction 21): Early tokens set the momentum that later tokens follow
@@ -3037,7 +3039,7 @@ The forgetting rate $\alpha_t$ plays the role of our sink severity control—man
 
 #### 11.7.6 The Complete Memory Hierarchy
 
-Titans makes explicit what our framework implies—a three-tier memory hierarchy for effective language modeling:
+Titans makes explicit what our framework implies: a three-tier memory hierarchy for effective language modeling:
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────┐
@@ -3118,34 +3120,34 @@ The optimal memory architecture for minimizing hallucination maintains distinct 
 
 ## References (currently adding links for easy access)
 
-1. Shannon, C. E. (1948). A Mathematical Theory of Communication. Bell System Technical Journal. \url{https://ieeexplore.ieee.org/document/6773024}
+1. Shannon, C. E. (1948). A Mathematical Theory of Communication. Bell System Technical Journal. https://ieeexplore.ieee.org/document/6773024
 
-2. Pappone, F. (2025). Attention sinks from the graph perspective. Università La Sapienza di Roma -- PSTP Technoscience. \url{https://publish.obsidian.md/the-tensor-throne/The+Graph+Side+of+Attention/Attention+sinks+from+the+graph+perspective}
+2. Pappone, F. (2025). Attention sinks from the graph perspective. Università La Sapienza di Roma -- PSTP Technoscience. https://publish.obsidian.md/the-tensor-throne/The+Graph+Side+of+Attention/Attention+sinks+from+the+graph+perspective
 
-3. Shannon, C. E. (1959). Coding Theorems for a Discrete Source with a Fidelity Criterion. IRE National Convention Record. \url{https://gwern.net/doc/cs/algorithm/information/1959-shannon.pdf}
+3. Shannon, C. E. (1959). Coding Theorems for a Discrete Source with a Fidelity Criterion. IRE National Convention Record. https://gwern.net/doc/cs/algorithm/information/1959-shannon.pdf
 
-4. Kolmogorov, A. N. (1965). Three Approaches to the Quantitative Definition of Information. Problems of Information Transmission. \url{http://alexander.shen.free.fr/library/Kolmogorov65_Three-Approaches-to-Information.pdf}
+4. Kolmogorov, A. N. (1965). Three Approaches to the Quantitative Definition of Information. Problems of Information Transmission. http://alexander.shen.free.fr/library/Kolmogorov65_Three-Approaches-to-Information.pdf
 
-5. Tishby, N., Pereira, F. C., & Bialek, W. (2000). The Information Bottleneck Method. arXiv:physics/0004057. \url{https://arxiv.org/abs/physics/0004057}
+5. Tishby, N., Pereira, F. C., & Bialek, W. (2000). The Information Bottleneck Method. arXiv:physics/0004057. https://arxiv.org/abs/physics/0004057
 
-6. Ji, Z., Lee, N., Frieske, R., et al. (2023). Survey of Hallucination in Natural Language Generation. arXiv:2202.03629. \url{https://arxiv.org/abs/2202.03629}
+6. Ji, Z., Lee, N., Frieske, R., et al. (2023). Survey of Hallucination in Natural Language Generation. arXiv:2202.03629. https://arxiv.org/abs/2202.03629
 
-7. Xie, S. M., Raghunathan, A., Liang, P., & Ma, T. (2022). An Explanation of In-context Learning as Implicit Bayesian Inference. arXiv:2111.02080. \url{https://arxiv.org/abs/2111.02080}
+7. Xie, S. M., Raghunathan, A., Liang, P., & Ma, T. (2022). An Explanation of In-context Learning as Implicit Bayesian Inference. arXiv:2111.02080. https://arxiv.org/abs/2111.02080
 
-8. Akyürek, E., Schuurmans, D., Andreas, J., Ma, T., & Zhou, D. (2023). What Learning Algorithm is In-Context Learning? Investigations with Linear Models. arXiv:2211.15661. \url{https://arxiv.org/abs/2211.15661}
+8. Akyürek, E., Schuurmans, D., Andreas, J., Ma, T., & Zhou, D. (2023). What Learning Algorithm is In-Context Learning? Investigations with Linear Models. arXiv:2211.15661. https://arxiv.org/abs/2211.15661
 
 9. Bach, A. (1990). Boltzmann's probability distribution of 1877. 
 Analysis of Boltzmann [Published: March 1990] Alexander Bach . URL: https://link.springer.com/article/10.1007/BF00348700
 
-10. Jaynes, E. T. (1957). Information Theory and Statistical Mechanics. Physical Review. DOI: 10.1103/PhysRev.106.620. \url{https://journals.aps.org/pr/abstract/10.1103/PhysRev.106.620}
+10. Jaynes, E. T. (1957). Information Theory and Statistical Mechanics. Physical Review. DOI: 10.1103/PhysRev.106.620. https://journals.aps.org/pr/abstract/10.1103/PhysRev.106.620
 
-11. Hopfield, J. J. (1982). Neural Networks and Physical Systems with Emergent Collective Computational Abilities. PNAS. DOI: 10.1073/pnas.79.8.2554. \url{https://www.pnas.org/doi/10.1073/pnas.79.8.2554}
+11. Hopfield, J. J. (1982). Neural Networks and Physical Systems with Emergent Collective Computational Abilities. PNAS. DOI: 10.1073/pnas.79.8.2554. https://www.pnas.org/doi/10.1073/pnas.79.8.2554
 
-12. Cover, T. M., & Thomas, J. A. (2005). Elements of Information Theory (2nd ed.). Wiley. \url{https://onlinelibrary.wiley.com/doi/book/10.1002/047174882X}
+12. Cover, T. M., & Thomas, J. A. (2005). Elements of Information Theory (2nd ed.). Wiley. https://onlinelibrary.wiley.com/doi/book/10.1002/047174882X
 
-13. Friis, H. T. (1944). Noise Figures of Radio Receivers. Proceedings of the IRE. \url{https://ieeexplore.ieee.org/document/1695024}
+13. Friis, H. T. (1944). Noise Figures of Radio Receivers. Proceedings of the IRE. https://ieeexplore.ieee.org/document/1695024
 
-14. Gammaitoni, L., Hänggi, P., Jung, P., & Marchesoni, F. (1998). Stochastic Resonance. Reviews of Modern Physics, 70(1), 223–287. \url{https://journals.aps.org/rmp/abstract/10.1103/RevModPhys.70.223}
+14. Gammaitoni, L., Hänggi, P., Jung, P., & Marchesoni, F. (1998). Stochastic Resonance. Reviews of Modern Physics, 70(1), 223–287. https://journals.aps.org/rmp/abstract/10.1103/RevModPhys.70.223
 
 15. Grossberg, S. (1976). Adaptive Pattern Classification and Universal Recoding: I. Parallel Development and Coding of Neural Feature Detectors. Biological Cybernetics.
 
@@ -3160,23 +3162,23 @@ Analysis of Boltzmann [Published: March 1990] Alexander Bach . URL: https://link
 
 21. Goldman, O. (2025). Complexity from Constraints: The Neuro-Symbolic Homeostat. Shogu Research Group @ Datamutant.ai.
 
-22. Jha, R., Zhang, C., Shmatikov, V., & Morris, J. X. (2025). Harnessing the Universal Geometry of Embeddings. arXiv:2505.12540. \url{https://arxiv.org/abs/2505.12540}
+22. Jha, R., Zhang, C., Shmatikov, V., & Morris, J. X. (2025). Harnessing the Universal Geometry of Embeddings. arXiv:2505.12540. https://arxiv.org/abs/2505.12540
 
 23. Huh, M., Cheung, B., Wang, T., & Isola, P. (2024). The Platonic Representation Hypothesis. arXiv:2405.07987.
 
-24. Behrouz, A., Zhong, P., & Mirrokni, V. (2025). Titans: Learning to Memorize at Test Time. arXiv:2501.00663. \url{https://arxiv.org/abs/2501.00663}
+24. Behrouz, A., Zhong, P., & Mirrokni, V. (2025). Titans: Learning to Memorize at Test Time. arXiv:2501.00663. https://arxiv.org/abs/2501.00663
 
-25. Fischbacher, T., Comsa, I. M., Potempa, K., Firsching, M., Versari, L., & Alakuijala, J. (2020). Intelligent Matrix Exponentiation. arXiv:2008.03936. \url{https://arxiv.org/abs/2008.03936}
+25. Fischbacher, T., Comsa, I. M., Potempa, K., Firsching, M., Versari, L., & Alakuijala, J. (2020). Intelligent Matrix Exponentiation. arXiv:2008.03936. https://arxiv.org/abs/2008.03936
 
-26. Wu, S., & Yao, Q. (2025). Asking LLMs to Verify First is Almost Free Lunch. arXiv:2511.21734. \url{https://arxiv.org/abs/2511.21734}
+26. Wu, S., & Yao, Q. (2025). Asking LLMs to Verify First is Almost Free Lunch. arXiv:2511.21734. https://arxiv.org/abs/2511.21734
 
-27. Teoh, J., Tomar, M., Ahn, K., Hu, E. S., Sharma, P., Islam, R., Lamb, A., & Langford, J. (2025). Next-Latent Prediction Transformers Learn Compact World Models. arXiv:2511.05963. \url{https://arxiv.org/abs/2511.05963}
+27. Teoh, J., Tomar, M., Ahn, K., Hu, E. S., Sharma, P., Islam, R., Lamb, A., & Langford, J. (2025). Next-Latent Prediction Transformers Learn Compact World Models. arXiv:2511.05963. https://arxiv.org/abs/2511.05963
 
-28. Nikolaou, G., Mencattini, T., Crisostomi, D., Santilli, A., Panagakis, Y., & Rodolà, E. (2025). Language Models are Injective and Hence Invertible. arXiv:2510.15511. \url{https://arxiv.org/abs/2510.15511}
+28. Nikolaou, G., Mencattini, T., Crisostomi, D., Santilli, A., Panagakis, Y., & Rodolà, E. (2025). Language Models are Injective and Hence Invertible. arXiv:2510.15511. https://arxiv.org/abs/2510.15511
 
-29. Berman, V. (2025). Random Text, Zipf's Law, Critical Length, and Implications for Large Language Models. arXiv:2511.17575. \url{https://arxiv.org/abs/2511.17575}
+29. Berman, V. (2025). Random Text, Zipf's Law, Critical Length, and Implications for Large Language Models. arXiv:2511.17575. https://arxiv.org/abs/2511.17575
 
-30. Berman, V. (2025). Zipf Distributions from Two-Stage Symbolic Processes: Stability Under Stochastic Lexical Filtering. arXiv:2511.21060. \url{https://arxiv.org/abs/2511.21060}
+30. Berman, V. (2025). Zipf Distributions from Two-Stage Symbolic Processes: Stability Under Stochastic Lexical Filtering. arXiv:2511.21060. https://arxiv.org/abs/2511.21060
 
 ---
 
@@ -3559,9 +3561,9 @@ Analysis of Boltzmann [Published: March 1990] Alexander Bach . URL: https://link
 
 ## Citation
 
-If you use this repository in your research, please cite it, this is ongoing work we would like to know your opions and experiments, thank you.
+If you use this repository in your research, please cite it, this is ongoing work we would like to know your opinions and experiments, thank you.
 
-Oscar Goldman - Shogu research Group @ Datamutant.ai subsidiary of 温心重工業
+Oscar Goldman - Shogu research Group @ Datamutant.ai (subsidiary of 温心重工業)
 
 
 
@@ -3586,18 +3588,9 @@ Huh, M., Cheung, B., Wang, T., & Isola, P. (2024). The Platonic Representation H
 
 ## License
 
-This work is licensed under a [Creative Commons Attribution 4.0 International License (CC BY 4.0)](https://creativecommons.org/licenses/by/4.0/).
-
 [![CC BY 4.0](https://licensebuttons.net/l/by/4.0/88x31.png)](https://creativecommons.org/licenses/by/4.0/)
 
-**You are free to:**
-- **Share** — copy and redistribute the material in any medium or format
-- **Adapt** — remix, transform, and build upon the material for any purpose, even commercially
 
-**Under the following terms:**
-- **Attribution but I don't really mind, just use the stuff LFG** — You must give appropriate credit, provide a link to the license, and indicate if changes were made. You may do so in any reasonable manner, but not in any way that suggests the licensor endorses you or your use.
 
-**No additional restrictions** — You may not apply legal terms or technological measures that legally restrict others from doing anything the license permits.
-
-© 2025 Oscar Goldman, Shogu Research Group @ Datamutant.ai
+© 2025 Datamutant.ai
 

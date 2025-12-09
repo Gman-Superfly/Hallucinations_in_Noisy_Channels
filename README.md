@@ -2,9 +2,9 @@
 
 **Information-Theoretic and Thermodynamic Informed Framework for Understanding LLM Hallucination Errors**
 
-[![License: CC BY 4.0](https://img.shields.io/badge/License-CC%20BY%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by/4.0/)
+
 [![Status: Theoretical Framework](https://img.shields.io/badge/Status-Theoretical%20Framework-blue.svg)]()
-[![Version: 1.2.1](https://img.shields.io/badge/Version-1.2.1-green.svg)]()
+
 
 **Author:** Oscar Goldman - Shogu Research Group @ Datamutant.ai  
 **Date:** November 2025
@@ -15,17 +15,20 @@
 
 **→ [Hallucinations in Noisy Channels v1.2.1 (Working Document)](Hallucinations_in_Noisy_Channels_v1.2.1.md)**
 
+
+This repo is work in progress, there is a lot to do here, the experiments are ongoing, some you can find in the AKIRA repo now made public, we estimate a years or more work until this is finalized, maybe longer, depends on experiments wins/failures, some statements might change, but the overall formalization is here.
+
 ---
 
 ## Overview
 
-This is a generalized framework that attempts to understand and explain the idea of LLMs as **teachers, not just generators**. During inference, they must first **reconstruct** knowledge from compressed weights, then **transmit** it reliably. 
+We model LLMs as **teachers, not just generators**. During inference, they must first **reconstruct** knowledge from compressed weights, then **transmit** it reliably.
 
 The framework establishes a fundamental duality:
 - **Training = Compression = Learning** (source coding)
 - **Inference = Transmission = Teaching** (channel coding)
 
-Hallucinations emerge when the teaching process fails—when the model cannot correctly reconstruct and transmit stored knowledge.
+Hallucinations emerge when the teaching process fails: when the model cannot correctly reconstruct and transmit stored knowledge.
 
 Currently identified process failures through six mechanisms:
 
@@ -42,15 +45,15 @@ Currently identified process failures through six mechanisms:
 
 ### The Unifying Principle
 
-> **Information cannot be created, only transmitted or lost.**
+> **Information cannot be created; it can only be transmitted or lost.**
 >
-> When output contains more information than was stored or provided, the excess was hallucinated from the **form prior**—the model knows *how* to write but not *what* is true.
+> When output contains more information than was stored or provided, the excess was hallucinated from the **form prior**; the model knows *how* to write but not *what* is true.
 
 ---
 
-## Key Contributions
+## Key contributions
 
-### Multi-Mechanism Framework
+### Multi-mechanism framework
 
 ```
 Training (Compression) → Matching → Reconstruction (Context) → Transmission (Teaching)
@@ -64,19 +67,19 @@ Capacity Violation       Matching Failure   Decompression Failure    Geometric D
                                      HALLUCINATION
 ```
 
-### Seven Theorems
+### Seven theorems
 
 | Theorem | Name | Key Result |
 |---------|------|------------|
 | **1** | Hallucination Threshold | R_T > C_T ⟹ hallucinations unavoidable (Shannon limit) |
 | **2** | Geometric Matching | P(correct) ∝ exp(-d_M) / Σexp(-d_M) in universal manifold |
 | **3** | Information Conservation | K(output) ≤ K(weights) + K(context); excess = hallucination |
-| **4** | Geometric Distortion | Fidelity = ∏(1 - εᵢ) — errors compound multiplicatively |
+| **4** | Geometric Distortion | Fidelity = ∏(1 - εᵢ); errors compound multiplicatively |
 | **5** | Thermodynamic Hallucination | P(hallucination) ∝ exp(ΔS) = Ω_form / Ω_knowledge |
 | **6** | Optimal Noise Principle | T* > 0 required for self-correction; greedy is suboptimal |
 | **7** | Nyquist–Shannon Analogy | s > 2·B_{M,T} for reliable reconstruction *(conjecture)* |
 
-### Twenty-One Testable Predictions
+### Twenty-one testable predictions
 
 Empirically falsifiable hypotheses spanning:
 - Capacity-accuracy correlations (Predictions 1-3)
@@ -90,16 +93,16 @@ Empirically falsifiable hypotheses spanning:
 - Geometry-aligned training (Predictions 19-20)
 - Attention sink effects (Prediction 21)
 
-See [Section 9: Experimental Predictions](Hallucinations_in_Noisy_Channels_v1.2.md#9-experimental-predictions) for full mathematical formulations.
+See [Section 9: Experimental predictions](Hallucinations_in_Noisy_Channels_v1.2.md#9-experimental-predictions) for full mathematical formulations.
 
 ---
 
 
 ---
 
-## Core Concepts
+## Core concepts
 
-### The Teaching Framework
+### The teaching framework
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
@@ -115,10 +118,10 @@ See [Section 9: Experimental Predictions](Hallucinations_in_Noisy_Channels_v1.2.
 └─────────────────────────────────────────────────────────────┘
 ```
 
-### The Conservation Law
+### The conservation law
 
 ```
-Information cannot be created—only transmitted or lost.
+Information cannot be created; it can only be transmitted or lost.
 
 K(output | topic) ≤ K(source | topic)
 
@@ -126,7 +129,7 @@ When violated: Information was "created" from the form prior
                 → Definitional hallucination
 ```
 
-### The Thermodynamic View
+### The thermodynamic view
 
 ```
 KNOWLEDGE        ←→        FORM PRIOR
@@ -140,7 +143,7 @@ Hallucination = Thermalization to maximum entropy
 P(hallucination) ∝ exp(S_form - S_knowledge)
 ```
 
-### The Noise Paradox
+### The noise paradox
 
 ```
 T → 0:   Frozen, deterministic, cannot self-correct
@@ -150,7 +153,7 @@ T → ∞:   Pure entropy, complete hallucination
 Optimal noise T* > 0 is REQUIRED for error correction
 ```
 
-### Geometric Distortion Cascade
+### Geometric distortion cascade
 
 ```
 Fidelity decays EXPONENTIALLY with chain length:
@@ -168,7 +171,7 @@ This is why long reasoning chains and multi-hop retrieval degrade.
 
 ---
 
-## Practical Mitigation Strategies
+## Practical mitigation strategies
 
 Principled techniques grounded in theory:
 
@@ -185,14 +188,14 @@ Principled techniques grounded in theory:
 ---
 
 We hypothesize that > "Hallucination is thermalization to the form prior bath. 
-When knowledge constraints fail, the system equilibrates to maximum entropy—fluent text, empty content."
+When knowledge constraints fail, the system equilibrates to maximum entropy: fluent text, empty content."
 The temperature parameter in LLM sampling IS analogous to the Boltzmann temperature. 
 The framework tries to reveal that hallucination control is fundamentally about managing the balance between:
 Potential energy (stored knowledge, constraints)
 Kinetic energy (form prior, entropy)
 Temperature (exploration vs. exploitation)
 
-## Experimental Status
+## Experimental status
 
 ### Theory: Complete Working document (v1.2.1)
 - [x] Six-mechanism framework formalized
@@ -216,9 +219,9 @@ Temperature (exploration vs. exploitation)
 
 ### Citation
 
-If you use this repository in your research, please cite it, this is ongoing work we would like to know your opions and experiments, thank you.
+If you use this repository in your research, please cite it. This is ongoing work; we would like to know your opinions and experiments. Thank you.
 
-Oscar Goldman - Shogu research Group @ Datamutant.ai subsidiary of 温心重工業
+Oscar Goldman - Shogu Research Group @ Datamutant.ai (subsidiary of 温心重工業)
 
 Goldman, O. (2025). *Hallucinations in Noisy Channels: An Information-Theoretic and Thermodynamic Informed Framework for Understanding LLM Hallucination Errors* (Version 1.2.1). Shogu Research Group @ Datamutant.ai. https://github.com/Gman-Superfly/Hallucinations_in_Noisy_Channels
 
@@ -242,7 +245,7 @@ Code in `experiments/`, `scripts/`, and `THX/` is licensed under the [**MIT Lice
 
 ---
 
-## Related Work
+## Related work
 
 This framework builds on:
 
@@ -263,11 +266,11 @@ Shogu Research Group @ Datamutant.ai
 
 ---
 
-> **Hallucinations are not bugs—they are information-theoretic necessities when you transmit beyond capacity.**
+> **Hallucinations are not bugs; they are information-theoretic necessities when you transmit beyond capacity.**
 >
 > **When constraints fail, systems thermalize to maximum entropy: fluent form, empty content.**
 >
-> **Information cannot be created—only transmitted or lost. The excess is hallucination.**
+> **Information cannot be created; it can only be transmitted or lost. The excess is hallucination.**
 
 ---
 
