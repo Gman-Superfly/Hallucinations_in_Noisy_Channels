@@ -4,20 +4,20 @@ This document records decisions about terminology in the Hallucinations in Noisy
 
 ---
 
-## 1. "Kolmogorov Garbage" vs "Zipf/Form Prior"
+## 1. "Kolmogorov garbage" vs "Zipf/form prior"
 
-### The Question
+### The question
 
 Should "Kolmogorov garbage" be renamed to "Zipf garbage" given that Zipf distributions represent the empirical manifestation of compression in language?
 
-### The Distinction
+### The distinction
 
 | Term | What it describes | Type |
 |------|-------------------|------|
 | **Kolmogorov garbage** | The *output* from decompression failure - fragments that look plausible individually but don't cohere into a truthful whole | Process failure output |
 | **Zipf / Form prior** | The *distribution* you sample from when content constraints fail - the null model arising from combinatorics | Attractor state |
 
-### Why "Kolmogorov Garbage" is Correct
+### Why "Kolmogorov garbage" is correct
 
 **Kolmogorov garbage** describes a *process failure*:
 
@@ -36,7 +36,7 @@ The term "Kolmogorov" is appropriate here because:
 - The garbage is the result of incomplete algorithmic reconstruction
 - The fragments have valid local structure but invalid global coherence
 
-### Why "Zipf Garbage" Doesn't Work
+### Why "Zipf garbage" doesn't work
 
 **Zipf distribution** describes an *attractor state*:
 
@@ -54,7 +54,7 @@ This is Section 8.5 (Thermodynamic Equilibration). The mechanism is:
 2. **The garbage isn't "Zipf-distributed"** - it's the result of truncated reconstruction
 3. **Zipf is the null model** - what you get from combinatorics alone, not a failure mode
 
-### The Conceptual Relationship
+### The conceptual relationship
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────┐

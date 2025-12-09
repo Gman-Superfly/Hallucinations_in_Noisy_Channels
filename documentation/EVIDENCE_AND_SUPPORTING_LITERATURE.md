@@ -4,19 +4,19 @@ This document catalogs the empirical evidence and independent research that vali
 
 ---
 
-## 1. From Theory to Observation: Compression in Language
+## 1. From theory to observation: compression in language
 
-### 1.1 The Theoretical Foundation
+### 1.1 The theoretical foundation
 
-The framework begins with a simple insight from algorithmic information theory: **learning is compression**. The shortest program that generates data captures its essential structure. This is the Kolmogorov complexity $K(x)$ — a theoretical limit that tells us compression is possible, but is itself uncomputable.
+The framework begins with a simple insight from algorithmic information theory: **learning is compression**. The shortest program that generates data captures its essential structure. This is the Kolmogorov complexity $K(x)$, a theoretical limit that tells us compression is possible, but is itself uncomputable.
 
 We use this foundation sparingly: it establishes that understanding = finding the rule that generates the data.
 
-### 1.2 The Empirical Manifestation: Zipf's Law
+### 1.2 The empirical manifestation: Zipf's law
 
 What does compression *look like* in practice? This is where Zipf distributions become central.
 
-Berman (2025a, 2025b) proves that Zipf's law — the power-law rank-frequency distribution observed in all natural languages — arises from **pure combinatorics**:
+Berman (2025a, 2025b) proves that Zipf's law, the power-law rank-frequency distribution observed in all natural languages, arises from **pure combinatorics**:
 
 $$
 p(r) \propto r^{-\alpha}, \quad \alpha \approx 1.1 - 1.5
@@ -28,7 +28,7 @@ $$
 
 This yields a power-law without any semantic content, optimization, or linguistic organization.
 
-### 1.3 The Connection: Form Prior = Zipf Distribution
+### 1.3 The connection: form prior = Zipf distribution
 
 The **form prior** in our framework is not a vague concept — it IS the Zipf distribution:
 
@@ -38,11 +38,11 @@ The **form prior** in our framework is not a vague concept — it IS the Zipf di
 | **Zipf** | Empirical: power-law distribution over tokens | Berman (2025): arises from combinatorics |
 | **Form prior** | The distribution LLMs thermalize to when content fails | = Zipf distribution |
 
-When content constraints are absent, the model samples from the maximum-entropy distribution consistent with linguistic form. This distribution IS the Zipf distribution — the statistical signature of symbolic combinatorics.
+When content constraints are absent, the model samples from the maximum-entropy distribution consistent with linguistic form. This distribution IS the Zipf distribution: the statistical signature of symbolic combinatorics.
 
-**Implication:** The form prior is not learned from semantics. It is the **null model** — what you get from structure alone. Content (knowledge) is what distinguishes truthful generation from this baseline.
+**Implication:** The form prior is not learned from semantics. It is the **null model**, i.e., what you get from structure alone. Content (knowledge) is what distinguishes truthful generation from this baseline.
 
-### 1.4 Why This Matters
+### 1.4 Why this matters
 
 This connection resolves a key question: **What exactly is the "form prior" that models thermalize to?**
 
@@ -52,7 +52,7 @@ The form is "free" (arises from combinatorics). The content is what costs inform
 
 ---
 
-## 2. Summary of Evidence Status
+## 2. Summary of evidence status
 
 | Core Claim | Status | Primary Source |
 |------------|--------|----------------|
@@ -66,9 +66,9 @@ The form is "free" (arises from combinatorics). The content is what costs inform
 
 ---
 
-## 3. Information Preservation vs Organization
+## 3. Information preservation vs organization
 
-### 3.1 LMs Are Provably Injective
+### 3.1 LMs are provably injective
 
 **Source:** Nikolaou, G., et al. (2025). *Language Models are Injective and Hence Invertible.* [arXiv:2510.15511](https://arxiv.org/abs/2510.15511)
 
@@ -79,7 +79,7 @@ The form is "free" (arises from combinatorics). The content is what costs inform
 - Introduces SipIt algorithm for exact input reconstruction from hidden states
 
 **Implications for Framework:**
-- **Information preservation is not the question** — LMs do not lose information through their forward pass
+- **Information preservation is not the question**; LMs do not lose information through their forward pass
 - The question is entirely about **organization**: whether preserved information is structured usefully
 - Hallucination is a failure of **information access**, not information storage
 
@@ -87,18 +87,18 @@ The form is "free" (arises from combinatorics). The content is what costs inform
 
 ---
 
-### 3.2 Training Creates Organization (Belief-State Convergence)
+### 3.2 Training creates organization (belief-state convergence)
 
 **Source:** Teoh, J., et al. (2025). *Next-Latent Prediction Transformers Learn Compact World Models.* [arXiv:2511.05963](https://arxiv.org/abs/2511.05963)
 
 **Key Findings:**
 - NextLat trains transformers with self-supervised predictions in latent space
-- **Latents provably converge to belief states** — compressed information of history necessary to predict future
+- **Latents provably converge to belief states**; compressed information of history necessary to predict future
 - Significant gains in representation compression AND downstream accuracy
 - Standard transformers "lack an inherent incentive to compress history into compact latent states"
 
 **Implications for Framework:**
-- **Organization requires training** — injectivity alone does not provide useful structure
+- **Organization requires training**; injectivity alone does not provide useful structure
 - Structured compression (not degenerate collapse) emerges from proper training objectives
 - Belief-state manifolds are learnable with appropriate training pressure
 
@@ -106,14 +106,14 @@ The form is "free" (arises from combinatorics). The content is what costs inform
 
 ---
 
-## 4. The Universal Manifold
+## 4. The universal manifold
 
-### 4.1 Unsupervised Embedding Translation
+### 4.1 Unsupervised embedding translation
 
 **Source:** Jha, R., et al. (2025). *Harnessing the Universal Geometry of Embeddings.* [arXiv:2505.12540](https://arxiv.org/abs/2505.12540)
 
 **Key Findings:**
-- vec2vec method translates embeddings between models with completely different architectures, parameter counts, and training data — **without paired data**
+- vec2vec method translates embeddings between models with completely different architectures, parameter counts, and training data, **without paired data**
 - **>0.92 cosine similarity** between translated embeddings and ground truth
 - **Perfect matching on 8000+ embeddings** without knowing possible match set in advance
 - Preservation of semantic information sufficient for classification and attribute inference
@@ -128,7 +128,7 @@ The form is "free" (arises from combinatorics). The content is what costs inform
 
 ---
 
-### 4.2 Platonic Representation Hypothesis
+### 4.2 Platonic representation hypothesis
 
 **Source:** Huh, M., et al. (2024). *The Platonic Representation Hypothesis.* [arXiv:2405.07987](https://arxiv.org/abs/2405.07987)
 
@@ -146,9 +146,9 @@ The form is "free" (arises from combinatorics). The content is what costs inform
 
 ---
 
-## 5. The Form Prior (Zipf Evidence)
+## 5. The form prior (Zipf evidence)
 
-### 5.1 Form Prior as Null Model (Zipf Statistics)
+### 5.1 Form prior as null model (Zipf statistics)
 
 **Source:** Berman, V. (2025a). *Random Text, Zipf's Law, Critical Length, and Implications for Large Language Models.* [arXiv:2511.17575](https://arxiv.org/abs/2511.17575)
 
@@ -159,7 +159,7 @@ The form is "free" (arises from combinatorics). The content is what costs inform
 - Clarifies which phenomena require deeper explanation beyond random-text structure
 
 **Implications for Framework:**
-- **The form prior is mathematically real** — it's the null model structure
+- **The form prior is mathematically real**; it's the null model structure
 - Form is "free" (arises from combinatorics); content is what costs information
 - Hallucination = relaxation to the null model when content constraints fail
 
@@ -167,7 +167,7 @@ The form is "free" (arises from combinatorics). The content is what costs inform
 
 ---
 
-### 5.2 Stability Under Lexical Filtering
+### 5.2 Stability under lexical filtering
 
 **Source:** Berman, V. (2025b). *Zipf Distributions from Two-Stage Symbolic Processes: Stability Under Stochastic Lexical Filtering.* [arXiv:2511.21060](https://arxiv.org/abs/2511.21060)
 
@@ -186,16 +186,16 @@ The form is "free" (arises from combinatorics). The content is what costs inform
 
 ---
 
-## 6. Noise and Error Correction
+## 6. Noise and error correction
 
-### 6.1 Stochastic Resonance (Physical Foundation)
+### 6.1 Stochastic resonance (physical foundation)
 
 **Source:** Gammaitoni, L., et al. (1998). *Stochastic Resonance.* Reviews of Modern Physics, 70(1), 223–287. [DOI](https://journals.aps.org/rmp/abstract/10.1103/RevModPhys.70.223)
 
 **Key Findings:**
 - Adding noise to a weak signal can make it **more detectable**
 - Requires three ingredients: energetic barrier, weak coherent signal, noise source
-- Optimal noise level exists — too little or too much degrades performance
+- Optimal noise level exists; too little or too much degrades performance
 
 **Implications for Framework:**
 - Maps directly to LLM generation: logit threshold (barrier), weak knowledge (signal), temperature (noise)
@@ -206,7 +206,7 @@ The form is "free" (arises from combinatorics). The content is what costs inform
 
 ---
 
-### 6.2 Verification-First Improves Reasoning
+### 6.2 Verification-first improves reasoning
 
 **Source:** Wu, S., & Yao, Q. (2025). *Asking LLMs to Verify First is Almost Free Lunch.* [arXiv:2511.21734](https://arxiv.org/abs/2511.21734)
 
@@ -216,7 +216,7 @@ The form is "free" (arises from combinatorics). The content is what costs inform
 - Verification is easier than generation (discrimination vs generation)
 
 **Implications for Framework:**
-- **Random answers act as "thermal shock"** — kicks system out of local minima
+- **Random answers act as "thermal shock"**: kicks system out of local minima
 - Validates Optimal Noise Principle: noise can improve performance
 - Verification is reverse reasoning that detects geometric distortion
 - Supports Prediction 16 (Stochastic Resonance)
@@ -225,9 +225,9 @@ The form is "free" (arises from combinatorics). The content is what costs inform
 
 ---
 
-## 7. Architectural Validation
+## 7. Architectural validation
 
-### 7.1 Titans Memory Hierarchy
+### 7.1 Titans memory hierarchy
 
 **Source:** Behrouz, A., et al. (2025). *Titans: Learning to Memorize at Test Time.* [arXiv:2501.00663](https://arxiv.org/abs/2501.00663)
 
@@ -247,7 +247,7 @@ The form is "free" (arises from combinatorics). The content is what costs inform
 
 ---
 
-## 8. Cross-Reference Matrix
+## 8. Cross-reference matrix
 
 | Evidence | Framework Section | Theorem/Definition | Documentation |
 |----------|------------------|-------------------|---------------|
@@ -262,7 +262,7 @@ The form is "free" (arises from combinatorics). The content is what costs inform
 
 ---
 
-## 9. Open Questions Requiring Further Evidence
+## 9. Open questions requiring further evidence
 
 | Claim | Current Status | Needed Evidence |
 |-------|---------------|-----------------|
