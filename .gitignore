@@ -15,6 +15,7 @@ env/
 .vscode/
 .idea/
 
+
 # Data / artifacts
 figures/*.csv
 figures/*.png

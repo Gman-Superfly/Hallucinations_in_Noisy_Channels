@@ -6,9 +6,6 @@
 **Date**: November 2025  
 **Status**: Theoretical Framework (working document)
 
-[![License: CC BY 4.0](https://img.shields.io/badge/License-CC%20BY%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by/4.0/)
-
-
 This document is a heavy work in progress, there is a lot to do here, the experiments are ongoing, some you can find in the AKIRA repo now made public, we estimate a years or more work until this is finalized, maybe longer, depends on experiments wins/failures, sections may change in light of evidence, but the core idea is here.
 ---
 
