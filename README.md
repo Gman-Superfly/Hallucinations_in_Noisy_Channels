@@ -261,7 +261,7 @@ See [Section 10: Related Work](Hallucinations_in_Noisy_Channels_v1.2.md#10-relat
 ## Contact
 
 **Oscar Goldman**  
-Shogu Research Group @ Datamutant.ai  
+Shogu Research Group Datamutant.ai  
 [GitHub](https://github.com/Gman-Superfly) · [Issues](https://github.com/Gman-Superfly/Hallucinations_in_Noisy_Channels/issues) · [Discussions](https://github.com/Gman-Superfly/Hallucinations_in_Noisy_Channels/discussions)
 
 ---
