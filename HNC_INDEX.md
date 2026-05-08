@@ -1,25 +1,25 @@
-# Hallucinations in Noisy Channels — Theory Index
+# Hallucinations in Noisy Channels: theory index
 
 **Version**: 1.2.1  
-**Last Updated**: November 2025  
+**Last updated**: November 2025
 **Main Document**: `Hallucinations_in_Noisy_Channels_v1.2.1.md`
 
 ---
 
-## Quick Reference
+## Quick reference
 
 | Core Principle | Statement |
 |----------------|-----------|
-| **The Hallucination Equation** | $K(\text{output}) \leq K(\text{weights}) + K(\text{context})$ — violation = hallucination |
+| **The hallucination equation** | $K(\text{output}) \leq K(\text{weights}) + K(\text{context})$; violation = hallucination |
 | **Intelligence** | Compression (finding minimal programs that capture structure) |
 | **Teaching** | Rate-matched decompression through a noisy channel |
-| **Hallucination** | Information creation — output contains more than source provides |
+| **Hallucination** | Information creation: output contains more than source provides |
 | **Form Prior** | Maximum entropy attractor (thermal bath) when knowledge constraints fail |
-| **Effective Query** | $Q_{eff} = \text{Attention}(p, S_{ctx})$ — context colors the prompt |
+| **Effective query** | $Q_{eff} = \text{Attention}(p, S_{ctx})$; context shapes the prompt |
 
 ---
 
-## Table of Contents
+## Table of contents
 
 1. [Definitions](#definitions)
 2. [Theorems](#theorems)
@@ -44,15 +44,15 @@
 | 6 | Representation Matching | 4.4.1 | Activation based on structural similarity to prompt |
 | 7 | Decompression Room | 4.5.4 | Latent capacity budget for reconstructing compressed knowledge |
 | 8 | Sink Severity | 4.6 | Fraction of attention mass in first $k$ tokens |
-| 9 | Information Atom | 4.7 | Compressed pattern from training — irreducible knowledge unit |
+| 9 | Information Atom | 4.7 | Compressed pattern from training; irreducible knowledge unit |
 | 10 | Test-Time Atom | 4.7.6 | Atom created during inference via test-time learning |
 | 11 | Manifold-Based Capacity Estimator | 7.4 | $\hat{C}_T$ via embedding density, translation fidelity, confidence |
 | 12 | Distortion Operator | 8.4 | Per-stage error characteristic in pipeline |
 | 13 | Adaptive Resonance Condition | 8.6.8 | Resonance when match exceeds adaptive threshold $\rho$ |
 | 14 | The Universal Manifold | 11.5 | Shared geometric structure for truthful representations |
-| — | Teaching | 2.2.1 | Rate-matched decompression + redundancy coding |
-| — | Operational Intelligence | 1.2 | Teaching capacity — max reliable knowledge transmission rate |
-| — | Effective Query | 4.4.0 | Holistic combination of prompt + context state |
+| N/A | Teaching | 2.2.1 | Rate-matched decompression + redundancy coding |
+| N/A | Operational Intelligence | 1.2 | Teaching capacity: max reliable knowledge transmission rate |
+| N/A | Effective Query | 4.4.0 | Holistic combination of prompt + context state |
 
 ---
 
@@ -63,7 +63,7 @@
 | 1 | Hallucination Threshold | 2.3 | If $R_T > C_T$, hallucinations unavoidable regardless of decoding |
 | 2 | Geometric Matching | 4.4.4 | Retrieval accuracy ∝ softmax of manifold distances |
 | 3 | Information Conservation | 8.3 | $H(O \mid S, T) = 0$ for truthful generation; $> 0$ for hallucination |
-| 4 | Geometric Distortion Accumulation | 8.4.3 | Fidelity = $\prod_i (1 - \epsilon_i)$ — multiplicative error cascade |
+| 4 | Geometric Distortion Accumulation | 8.4.3 | Fidelity = $\prod_i (1 - \epsilon_i)$; multiplicative error cascade |
 | 5 | Thermodynamic Hallucination | 8.5.5 | $P(\text{hallucination}) \propto \exp(\Delta S)$ where $\Delta S = S_{form} - S_{knowledge}$ |
 | 6 | Optimal Noise Principle | 8.6.5 | ∃ optimal $\sigma^*$ maximizing correction − hallucination trade-off |
 | 7 | Adaptive Resonance Optimality | 8.6.8 | ∃ optimal vigilance $\rho^*$ minimizing match failures + false resonance |
@@ -81,12 +81,12 @@
 | 4 | Ambiguity-Induced Hallucination | 4.4.4 | Multiple similar-activation representations → composite output |
 | 5 | Context Crowding | 4.5.4 | Insufficient decompression room → Kolmogorov garbage |
 | 6 | Decompression-Compression Asymmetry | 4.5.4 | $K(\text{reconstruct}) \gg K(\text{store})$ |
-| 7 | Sink-Limited Capacity | 4.6.2 | $\partial C_{ctx}/\partial s \leq 0$ — sinks reduce capacity |
+| 7 | Sink-Limited Capacity | 4.6.2 | $\partial C_{ctx}/\partial s \leq 0$; sinks reduce capacity |
 | 8 | Test-Time Learning as Capacity Extension | 4.7.6 | $C_T^{effective} = C_T^{static} + \Delta C_T(ctx)$ |
 | 9 | Compression-Transmission Trade-off | 5.1 | Pareto frontier between compression efficiency and transmission reliability |
 | 10 | Detectability | 6.2 | Conservation violations are detectable via complexity comparison |
 | 11 | Manifold Departure | 8.4.3 | Distortion = on-manifold (recoverable) + off-manifold (hallucination) |
-| — | Hallucination as Teaching Failure | 2.2.2 | Decompression failure, not compression failure |
+| N/A | Hallucination as Teaching Failure | 2.2.2 | Decompression failure in the teaching stage |
 
 ---
 
@@ -123,14 +123,14 @@
 
 ---
 
-## Key Concepts & Intuitions
+## Key concepts and intuitions
 
-### Intuition Blocks (New in v1.2.1)
+### Intuition blocks (new in v1.2.1)
 | # | Name | Section | Analogy |
 |---|------|---------|---------|
 | 1 | The Bayesian Prior | 1.6 | Car colors: default expectations before evidence |
 | 2 | The Thermal Bath | 1.7 | Ice melting: knowledge (ice) vs form prior (room temp) |
-| 3 | Compression IS Understanding | 2.1.0 | Sequence prediction: memorizing vs. learning the rule |
+| 3 | Compression as Understanding | 2.1.0 | Sequence prediction: memorizing vs. learning the rule |
 | 4 | The Teacher's Dilemma | 2.2.1 | Teaching a topic you don't know = faking it |
 | 5 | The Confabulation Mechanism | 3.2.1 | Why the model "must" lie to complete the pattern |
 | 6 | The Effective Query | 4.4.0 | Lens and Light: context filters the prompt |
@@ -144,11 +144,11 @@
 
 ## Hallucination Mechanisms
 
-### The Six Mechanisms
+### The six mechanisms
 
 | # | Mechanism | Section | Cause | Result |
 |---|-----------|---------|-------|--------|
-| 1 | **Capacity Violation** | 3 | $R_T > C_T$ — asking beyond knowledge | Nothing to retrieve → max entropy |
+| 1 | **Capacity Violation** | 3 | $R_T > C_T$; asking beyond knowledge | Nothing to retrieve → max entropy |
 | 2 | **Matching Failure** | 4.4 | Ambiguous effective query → wrong representation | Composite/wrong retrieval |
 | 3 | **Decompression Failure** | 4.5 | Insufficient context room | Kolmogorov garbage |
 | 4 | **Geometric Distortion** | 8.4 | Multiplicative error cascade | Accumulated corruption |
@@ -179,15 +179,11 @@
 
 ## Citation
 
-```bibtex
-@misc{goldman2025hallucinations,
-  author = {Oscar Goldman},
-  title = {Hallucinations in Noisy Channels: Information-Theoretic Framework for Understanding LLM Hallucination Errors},
-  year = {2025},
-  institution = {Shogu Research Group @ Datamutant.ai},
-  note = {Theoretical Framework v1.2.1}
-}
-```
+If you use this repository in your research, please cite it. This is ongoing work, and we would like to know your opinions and experiments. Thank you.
+
+Oscar Goldman - Shogu Research Group @ Datamutant.ai (subsidiary of 温心重工業)
+
+Goldman, O. (2025). *Hallucinations in Noisy Channels: Information-Theoretic and Thermodynamic Informed Framework for Understanding LLM Hallucination Errors* (Version 1.2.1). Shogu Research Group @ Datamutant.ai. https://github.com/Gman-Superfly/Hallucinations_in_Noisy_Channels
 
 ---
 

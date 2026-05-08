@@ -11,18 +11,18 @@
 
 ---
 
-## Read the Paper
+## Read the paper
 
 **→ [Hallucinations in Noisy Channels v1.2.1 (Working Document)](Hallucinations_in_Noisy_Channels_v1.2.1.md)**
 
 
-This repo is work in progress, there is a lot to do here, the experiments are ongoing, some you can find in the AKIRA repo now made public, we estimate a years or more work until this is finalized, maybe longer, depends on experiments wins/failures, some statements might change, but the overall formalization is here.
+This repository is work in progress. The experiments are ongoing, and some are now public in the AKIRA repository. We estimate at least a year of further work before the framework is stable, depending on experimental results. Some statements may change as evidence changes, and the current formalization records the working structure.
 
 ---
 
 ## Overview
 
-We model LLMs as **teachers, not just generators**. During inference, they must first **reconstruct** knowledge from compressed weights, then **transmit** it reliably.
+We model LLMs as **teachers** during inference. They must first **reconstruct** knowledge from compressed weights, then **transmit** it reliably.
 
 The framework establishes a fundamental duality:
 - **Training = Compression = Learning** (source coding)
@@ -43,11 +43,11 @@ Currently identified process failures through six mechanisms:
 | 5 | **Thermodynamic Equilibration** | System relaxes to maximum entropy (fluent noise) |
 | 6 | **The Noise Paradox** | Too little noise prevents self-correction; too much causes hallucination |
 
-### The Unifying Principle
+### The unifying principle
 
 > **Information cannot be created; it can only be transmitted or lost.**
 >
-> When output contains more information than was stored or provided, the excess was hallucinated from the **form prior**; the model knows *how* to write but not *what* is true.
+> When output contains more information than was stored or provided, the excess was hallucinated from the **form prior**. The model has learned linguistic form, and the missing topic knowledge is supplied by form-prior sampling.
 
 ---
 
@@ -150,7 +150,7 @@ T → 0:   Frozen, deterministic, cannot self-correct
 T = T*:  Goldilocks zone, explores and corrects
 T → ∞:   Pure entropy, complete hallucination
 
-Optimal noise T* > 0 is REQUIRED for error correction
+Optimal noise T* > 0 is required for error correction
 ```
 
 ### Geometric distortion cascade
@@ -189,7 +189,7 @@ Principled techniques grounded in theory:
 
 We hypothesize that > "Hallucination is thermalization to the form prior bath. 
 When knowledge constraints fail, the system equilibrates to maximum entropy: fluent text, empty content."
-The temperature parameter in LLM sampling IS analogous to the Boltzmann temperature. 
+The temperature parameter in LLM sampling is analogous to the Boltzmann temperature.
 The framework tries to reveal that hallucination control is fundamentally about managing the balance between:
 Potential energy (stored knowledge, constraints)
 Kinetic energy (form prior, entropy)
@@ -197,7 +197,7 @@ Temperature (exploration vs. exploitation)
 
 ## Experimental status
 
-### Theory: Complete Working document (v1.2.1)
+### Theory: complete working document (v1.2.1)
 - [x] Six-mechanism framework formalized
 - [x] Eleven intuition blocks added (Analogies + ASCII diagrams)
 - [x] Seven theorems with proof sketches (Theorem 7 = conjecture)
@@ -205,7 +205,7 @@ Temperature (exploration vs. exploitation)
 - [x] Mitigation strategies derived
 
 
-### Experiments: In Progress
+### Experiments: in progress
 - [ ] Prediction 1: Frequency-accuracy correlation (in progress)
 - [ ] Prediction 4: Prompt specificity effect (in progress)
 - [ ] Prediction 12: Temperature-hallucination relationship (in progress)
@@ -229,14 +229,14 @@ Goldman, O. (2025). *Hallucinations in Noisy Channels: An Information-Theoretic 
 
 ## License
 
-### Paper (Theoretical Content)
+### Paper (theoretical content)
 
 The theoretical framework and documentation are licensed under [**Creative Commons Attribution 4.0 International (CC-BY-4.0)**](https://creativecommons.org/licenses/by/4.0/).
 
 **You are free to:** Share, Adapt, use commercially  
 **Required:** Attribution
 
-### Code (Experiments & Scripts)
+### Code (experiments and scripts)
 
 Code in `experiments/`, `scripts/`, and `THX/` is licensed under the [**MIT License**](LICENSE).
 
@@ -266,7 +266,7 @@ Shogu Research Group Datamutant.ai
 
 ---
 
-> **Hallucinations are not bugs; they are information-theoretic necessities when you transmit beyond capacity.**
+> **Hallucinations are information-theoretic necessities when you transmit beyond capacity.**
 >
 > **When constraints fail, systems thermalize to maximum entropy: fluent form, empty content.**
 >

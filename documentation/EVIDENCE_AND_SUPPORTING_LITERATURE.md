@@ -1,6 +1,6 @@
-# Evidence and Supporting Literature
+# Evidence and supporting literature
 
-This document catalogs the empirical evidence and independent research that validates the Hallucinations in Noisy Channels framework. Each finding is linked to specific theoretical claims.
+This document catalogs empirical evidence and independent research that supports the Hallucinations in Noisy Channels framework. Each finding links to specific theoretical claims.
 
 ---
 
@@ -22,7 +22,7 @@ $$
 p(r) \propto r^{-\alpha}, \quad \alpha \approx 1.1 - 1.5
 $$
 
-**The key insight:** Zipf distributions emerge from the interaction of two exponentials:
+**Key point:** Zipf distributions emerge from the interaction of two exponentials:
 1. **Exponential growth** of possible word types with length
 2. **Exponential decay** of probability for each word type with length
 
@@ -30,7 +30,7 @@ This yields a power-law without any semantic content, optimization, or linguisti
 
 ### 1.3 The connection: form prior = Zipf distribution
 
-The **form prior** in our framework is not a vague concept — it IS the Zipf distribution:
+We identify the **form prior** in this framework with the Zipf distribution:
 
 | Concept | Definition | Evidence |
 |---------|------------|----------|
@@ -38,9 +38,9 @@ The **form prior** in our framework is not a vague concept — it IS the Zipf di
 | **Zipf** | Empirical: power-law distribution over tokens | Berman (2025): arises from combinatorics |
 | **Form prior** | The distribution LLMs thermalize to when content fails | = Zipf distribution |
 
-When content constraints are absent, the model samples from the maximum-entropy distribution consistent with linguistic form. This distribution IS the Zipf distribution: the statistical signature of symbolic combinatorics.
+When content constraints are absent, the model samples from the maximum-entropy distribution consistent with linguistic form. In this framework, that distribution corresponds to the Zipf distribution: the statistical signature of symbolic combinatorics.
 
-**Implication:** The form prior is not learned from semantics. It is the **null model**, i.e., what you get from structure alone. Content (knowledge) is what distinguishes truthful generation from this baseline.
+**Implication:** The form prior does not require semantics. It is the **null model** (what you get from structure alone). Content knowledge distinguishes truthful generation from this baseline.
 
 ### 1.4 Why this matters
 
@@ -56,13 +56,13 @@ The form is "free" (arises from combinatorics). The content is what costs inform
 
 | Core Claim | Status | Primary Source |
 |------------|--------|----------------|
-| LMs preserve information (injective) | **PROVEN** | Nikolaou et al. (2025) |
-| Organization requires training | ✅ **PROVEN** | Teoh et al. (2025) - NextLat |
-| Universal manifold exists | **STRONG** | Jha et al. (2025), Huh et al. (2024) |
-| Form prior is mathematically real | **PROVEN** | Berman (2025a, 2025b) |
-| Verification-First improves accuracy | **EMPIRICAL** | Wu & Yao (2025) |
-| Optimal noise exists ($T^* > 0$) | **THEORETICAL + EMPIRICAL** | Gammaitoni et al. (1998), Wu & Yao (2025) |
-| Test-time learning extends capacity | **ARCHITECTURAL** | Behrouz et al. (2025) - Titans |
+| LMs preserve information (injective) | **Proven** | Nikolaou et al. (2025) |
+| Organization requires training | **Proven** | Teoh et al. (2025) - NextLat |
+| Universal manifold exists | **Strong support** | Jha et al. (2025), Huh et al. (2024) |
+| Form prior has mathematical support | **Proven for the cited model** | Berman (2025a, 2025b) |
+| Verification-First improves accuracy | **Empirical** | Wu & Yao (2025) |
+| Optimal noise exists ($T^* > 0$) | **Theoretical and empirical** | Gammaitoni et al. (1998), Wu & Yao (2025) |
+| Test-time learning extends capacity | **Architectural** | Behrouz et al. (2025) - Titans |
 
 ---
 
@@ -75,15 +75,14 @@ The form is "free" (arises from combinatorics). The content is what costs inform
 **Key Findings:**
 - Mathematical proof that transformer LMs mapping discrete sequences to continuous representations are injective
 - Empirical confirmation: billions of collision tests across six state-of-the-art models → zero collisions
-- Property established at initialization AND preserved during training
+- Property established at initialization and preserved during training
 - Introduces SipIt algorithm for exact input reconstruction from hidden states
 
-**Implications for Framework:**
-- **Information preservation is not the question**; LMs do not lose information through their forward pass
-- The question is entirely about **organization**: whether preserved information is structured usefully
+**Implications for framework:**
+- The framework question shifts from preservation to **organization**: whether preserved information is structured usefully
 - Hallucination is a failure of **information access**, not information storage
 
-**Framework Connection:** Sections 11.5, Glossary (injectivity establishes that matching/decompression failures are the mechanisms, not information loss)
+**Framework connection:** Sections 11.5, Glossary (injectivity establishes matching and decompression failures as the mechanisms)
 
 ---
 
@@ -94,15 +93,15 @@ The form is "free" (arises from combinatorics). The content is what costs inform
 **Key Findings:**
 - NextLat trains transformers with self-supervised predictions in latent space
 - **Latents provably converge to belief states**; compressed information of history necessary to predict future
-- Significant gains in representation compression AND downstream accuracy
+- Significant gains in representation compression and downstream accuracy
 - Standard transformers "lack an inherent incentive to compress history into compact latent states"
 
-**Implications for Framework:**
+**Implications for framework:**
 - **Organization requires training**; injectivity alone does not provide useful structure
 - Structured compression (not degenerate collapse) emerges from proper training objectives
 - Belief-state manifolds are learnable with appropriate training pressure
 
-**Framework Connection:** Sections 4.4, 4.5 (matching and decompression); Documentation: `STRUCTURED_COMPRESSION_VS_DEGENERATE_COLLAPSE.md`, `INFORMATION_VS_ORGANIZATION.md`
+**Framework connection:** Sections 4.4, 4.5 (matching and decompression); Documentation: `STRUCTURED_COMPRESSION_VS_DEGENERATE_COLLAPSE.md`, `INFORMATION_VS_ORGANIZATION.md`
 
 ---
 
@@ -118,13 +117,13 @@ The form is "free" (arises from combinatorics). The content is what costs inform
 - **Perfect matching on 8000+ embeddings** without knowing possible match set in advance
 - Preservation of semantic information sufficient for classification and attribute inference
 
-**Implications for Framework:**
-- **The universal manifold is real and measurable**
+**Implications for framework:**
+- The universal manifold hypothesis is measurable with embedding translation methods
 - All capable models converge to the same underlying geometric structure
 - Translation succeeds by learning the shared latent representation all models approximate
 - Hallucinations can be detected as geometric outliers (off-manifold representations)
 
-**Framework Connection:** Sections 7.4 (Capacity Estimation via Universal Manifold), 11.5 (Practical Implementation)
+**Framework connection:** Sections 7.4 (Capacity Estimation via Universal Manifold), 11.5 (Practical Implementation)
 
 ---
 
@@ -137,12 +136,12 @@ The form is "free" (arises from combinatorics). The content is what costs inform
 - The internal geometry of "truth" is imposed by reality being modeled, not arbitrary model choice
 - Representations are projections of a shared underlying manifold
 
-**Implications for Framework:**
+**Implications for framework:**
 - The manifold geometry is **determined by the object, not the model**
 - Provides theoretical foundation for why vec2vec translation works
 - Supports Definition 14 (The Universal Manifold)
 
-**Framework Connection:** Sections 11.5.0 (Plato's Cave intuition), Definition 14
+**Framework connection:** Sections 11.5.0 (Plato's Cave intuition), Definition 14
 
 ---
 
@@ -158,12 +157,12 @@ The form is "free" (arises from combinatorics). The content is what costs inform
 - Provides a "structurally grounded null model" for token statistics
 - Clarifies which phenomena require deeper explanation beyond random-text structure
 
-**Implications for Framework:**
+**Implications for framework:**
 - **The form prior is mathematically real**; it's the null model structure
 - Form is "free" (arises from combinatorics); content is what costs information
 - Hallucination = relaxation to the null model when content constraints fail
 
-**Framework Connection:** Glossary (Form prior definition), Section 8.5 (Thermodynamic Interpretation)
+**Framework connection:** Glossary (Form prior definition), Section 8.5 (Thermodynamic Interpretation)
 
 ---
 
@@ -177,12 +176,12 @@ The form is "free" (arises from combinatorics). The content is what costs inform
 - Head of distribution becomes flatter (few high-frequency types)
 - Zipf exponents in range [1.1, 1.5] match empirical corpora (English, Russian, mixed-genre)
 
-**Implications for Framework:**
+**Implications for framework:**
 - The form prior structure persists across languages and filtering mechanisms
 - "Flat head + power-law tail" is a universal geometric signature
 - Linguistic constraints filter the space but don't change asymptotic structure
 
-**Framework Connection:** Glossary (Form prior), Theorem 5 (Thermodynamic Hallucination)
+**Framework connection:** Glossary (Form prior), Theorem 5 (Thermodynamic Hallucination)
 
 ---
 
@@ -197,12 +196,12 @@ The form is "free" (arises from combinatorics). The content is what costs inform
 - Requires three ingredients: energetic barrier, weak coherent signal, noise source
 - Optimal noise level exists; too little or too much degrades performance
 
-**Implications for Framework:**
+**Implications for framework:**
 - Maps directly to LLM generation: logit threshold (barrier), weak knowledge (signal), temperature (noise)
 - Explains why $T=0$ (greedy decoding) is suboptimal for weak knowledge retrieval
 - Provides physical basis for Theorem 6 (Optimal Noise Principle)
 
-**Framework Connection:** Section 8.6.3, 8.6.5 (Three Ingredients); Documentation: `NOISE_AND_ERROR_CORRECTION.md`
+**Framework connection:** Section 8.6.3, 8.6.5 (Three Ingredients); Documentation: `NOISE_AND_ERROR_CORRECTION.md`
 
 ---
 
@@ -215,13 +214,13 @@ The form is "free" (arises from combinatorics). The content is what costs inform
 - Works **even if the candidate is random or wrong**
 - Verification is easier than generation (discrimination vs generation)
 
-**Implications for Framework:**
+**Implications for framework:**
 - **Random answers act as "thermal shock"**: kicks system out of local minima
 - Validates Optimal Noise Principle: noise can improve performance
 - Verification is reverse reasoning that detects geometric distortion
 - Supports Prediction 16 (Stochastic Resonance)
 
-**Framework Connection:** Section 7.5 (Verification-First), Theorem 6 (Optimal Noise)
+**Framework connection:** Section 7.5 (Verification-First), Theorem 6 (Optimal Noise)
 
 ---
 
@@ -237,13 +236,13 @@ The form is "free" (arises from combinatorics). The content is what costs inform
 - Forgetting gate manages capacity
 - Momentum-based updates capture token flow structure
 
-**Implications for Framework:**
+**Implications for framework:**
 - Validates memory duality (static/dynamic codebook)
 - Confirms compression paradox: long context cannot fit in small state
 - Test-time learning = dynamic atom creation = capacity extension
 - Forgetting gate = sink severity control
 
-**Framework Connection:** Section 11.7 (Titans validation), Proposition 8 (Test-Time Capacity Extension)
+**Framework connection:** Section 11.7 (Titans validation), Proposition 8 (Test-Time Capacity Extension)
 
 ---
 
@@ -251,14 +250,14 @@ The form is "free" (arises from combinatorics). The content is what costs inform
 
 | Evidence | Framework Section | Theorem/Definition | Documentation |
 |----------|------------------|-------------------|---------------|
-| Nikolaou (Injectivity) | 11.5 | — | INFORMATION_VS_ORGANIZATION.md |
-| Teoh (NextLat) | 4.4, 4.5 | — | STRUCTURED_COMPRESSION.md |
-| Jha (vec2vec) | 7.4, 11.5 | Def 14 | — |
-| Huh (Platonic) | 11.5 | Def 14 | — |
-| Berman (Zipf/Form Prior) | 3, 8.5 | Thm 5 | — |
+| Nikolaou (Injectivity) | 11.5 | N/A | INFORMATION_VS_ORGANIZATION.md |
+| Teoh (NextLat) | 4.4, 4.5 | N/A | STRUCTURED_COMPRESSION.md |
+| Jha (vec2vec) | 7.4, 11.5 | Def 14 | N/A |
+| Huh (Platonic) | 11.5 | Def 14 | N/A |
+| Berman (Zipf/Form Prior) | 3, 8.5 | Thm 5 | N/A |
 | Gammaitoni (Stochastic Resonance) | 8.6 | Thm 6 | NOISE_AND_ERROR_CORRECTION.md |
 | Wu & Yao (Verify-First) | 7.5, 8.6 | Thm 6, Pred 16 | NOISE_AND_ERROR_CORRECTION.md |
-| Behrouz (Titans) | 11.7 | Prop 8, Pred 25-26 | — |
+| Behrouz (Titans) | 11.7 | Prop 8, Pred 25-26 | N/A |
 
 ---
 
@@ -276,19 +275,19 @@ The form is "free" (arises from combinatorics). The content is what costs inform
 
 ## 10. Summary
 
-The framework's core claims now have strong empirical grounding:
+The framework's foundational claims now have external support:
 
-1. **Information Preservation ≠ Organization**: Proven by Nikolaou (injectivity) + Teoh (training creates organization)
+1. **Information preservation and organization differ**: Supported by Nikolaou (injectivity) and Teoh (training creates organization)
 
-2. **Universal Manifold**: Validated by Jha (vec2vec achieves >0.92 similarity) + Huh (Platonic hypothesis)
+2. **Universal manifold**: Supported by Jha (vec2vec achieves >0.92 similarity) and Huh (Platonic hypothesis)
 
-3. **Form Prior is Real**: Proven by Berman (Zipf distributions arise from combinatorics, provide null model for LLM tokens)
+3. **Form prior has a concrete candidate distribution**: Berman shows Zipf distributions arise from combinatorics and provide a null model for LLM tokens
 
-4. **Optimal Noise Exists**: Supported by Gammaitoni (physics) + Wu & Yao (verification-first empirics)
+4. **Optimal noise exists**: Supported by Gammaitoni (physics) and Wu & Yao (verification-first empirics)
 
-5. **Memory Hierarchy is Optimal**: Validated by Titans architecture
+5. **Memory hierarchy has architectural support**: Supported by Titans architecture
 
-The remaining predictions (Sections 9.1-9.7) await systematic experimental validation, but the foundational claims are now empirically supported.
+The remaining predictions (Sections 9.1-9.7) await systematic experimental validation.
 
 ---
 

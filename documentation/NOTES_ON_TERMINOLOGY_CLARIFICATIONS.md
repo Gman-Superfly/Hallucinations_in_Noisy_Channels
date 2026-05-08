@@ -1,4 +1,4 @@
-# Notes on Terminology Clarifications
+# Notes on terminology clarifications
 
 This document records decisions about terminology in the Hallucinations in Noisy Channels framework, explaining why specific terms were chosen and how they relate to each other.
 
@@ -14,8 +14,8 @@ Should "Kolmogorov garbage" be renamed to "Zipf garbage" given that Zipf distrib
 
 | Term | What it describes | Type |
 |------|-------------------|------|
-| **Kolmogorov garbage** | The *output* from decompression failure - fragments that look plausible individually but don't cohere into a truthful whole | Process failure output |
-| **Zipf / Form prior** | The *distribution* you sample from when content constraints fail - the null model arising from combinatorics | Attractor state |
+| **Kolmogorov garbage** | The *output* from decompression failure: fragments that look plausible individually but don't cohere into a truthful whole | Process failure output |
+| **Zipf / Form prior** | The *distribution* you sample from when content constraints fail: the null model arising from combinatorics | Attractor state |
 
 ### Why "Kolmogorov garbage" is correct
 
@@ -51,8 +51,8 @@ This is Section 8.5 (Thermodynamic Equilibration). The mechanism is:
 
 "Zipf garbage" is incorrect because:
 1. **Zipf describes a distribution** (power-law over tokens), not fragmented output
-2. **The garbage isn't "Zipf-distributed"** - it's the result of truncated reconstruction
-3. **Zipf is the null model** - what you get from combinatorics alone, not a failure mode
+2. **The garbage is not Zipf-distributed**: it is the result of truncated reconstruction
+3. **Zipf is the null model**: what you get from combinatorics alone, not a failure mode
 
 ### The conceptual relationship
 
@@ -73,7 +73,7 @@ This is Section 8.5 (Thermodynamic Equilibration). The mechanism is:
 │                                                                          │
 │  2. THERMALIZATION → FORM PRIOR (ZIPF) SAMPLING                        │
 │     ════════════════════════════════════════════                        │
-│     Knowledge: NOT STORED or NOT RETRIEVED                             │
+│     Knowledge: ABSENT or INACCESSIBLE                                  │
 │     Match: FAILED or NO TARGET                                         │
 │     Problem: NO CONTENT CONSTRAINTS                                    │
 │     Result: Fluent text sampled from maximum-entropy distribution      │
