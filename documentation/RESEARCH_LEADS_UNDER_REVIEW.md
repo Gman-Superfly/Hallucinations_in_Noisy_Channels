@@ -4,7 +4,7 @@ This document tracks papers that appear relevant to the Hallucinations in Noisy 
 
 The goal is to keep the research process honest. We separate promising leads from confirmed support, record caveats early, and define the work needed before a citation becomes part of the main argument.
 
-Last link check: 2026-05-08.
+Last link check: 2026-05-10.
 
 ## Status labels
 
@@ -14,6 +14,48 @@ Last link check: 2026-05-08.
 - **Ready for evidence file**: The relevant result has been reproduced or checked deeply enough to cite with confidence.
 
 ## Current leads
+
+### Geometry of Consolidation: spectral limits for embedding memory
+
+**Source status:** Checked, reproduction needed.
+
+**Paper:** Vangara, A. B., & Gopinath, A. (2026). *The Geometry of Consolidation.* GitHub preprint source. https://github.com/niashwin/geometry-of-consolidation/blob/main/paper/arxiv/main.pdf
+
+**Code and paper source:** `niashwin/geometry-of-consolidation`. https://github.com/niashwin/geometry-of-consolidation
+
+**Relevant claim for this framework:** The paper studies consolidation of unit-norm embedding clusters under cosine-threshold retrieval. It proves a lower bound on identity-retrieval error for any consolidator that maps $n$ cluster members to $m < n$ representatives:
+
+$$
+\varepsilon_{\mathrm{id}} \geq 1 - c_1 m \left(\frac{\theta'}{\bar{d}}\right)^{d_{\mathrm{eff}}/2},
+$$
+
+where $\varepsilon_{\mathrm{id}}$ is identity-retrieval error, $m$ is the number of representatives retained, $\theta' = 1 - \theta$ is retrieval slack, $\bar{d}$ is mean within-cluster cosine distance, and $d_{\mathrm{eff}}$ is the local effective dimension, measured as the participation ratio of the cluster covariance spectrum:
+
+$$
+d_{\mathrm{eff}}(X) = \frac{\left(\sum_i \lambda_i\right)^2}{\sum_i \lambda_i^2}.
+$$
+
+**Why it matters here:** This supplies a concrete spectral memory-channel limit for RAG and agent memory. If consolidation erases identity before retrieval, then the downstream generator receives weaker or wrong content constraints. In HNC terms, this is not a general proof of hallucination. It is a precise mechanism by which a RAG memory system can convert stored source signal into ambiguous or corrupted context before the LLM begins reconstruction.
+
+**HNC interpretation:** The result gives an operational version of the Nyquist-style intuition in HNC Section 11.6, but only for embedding consolidation. The spectral quantity is not a temporal bandlimit. It is the local effective dimension of a unit-norm embedding cluster. The representative budget $m$ plays the role of a sampling or reconstruction budget. When the budget is too small relative to $(\bar{d}/\theta')^{d_{\mathrm{eff}}/2}$, identity cannot be preserved. That identity loss weakens retrieval grounding and can increase capacity violation, matching failure, or decompression failure in the final answer.
+
+**Framework mapping:**
+
+1. **Model-specific sampling limit:** Provides a concrete spectral lower bound for one memory subsystem: vector-store consolidation under cosine retrieval.
+2. **Capacity violation:** Consolidated memories can lose distinguishability, reducing the usable content capacity supplied by RAG.
+3. **Matching failure:** Identity loss makes retrieved representatives ambiguous, so the effective query may select a wrong or composite context.
+4. **Geometric distortion:** Consolidation can move memory points away from recoverable identity regions on the embedding sphere.
+5. **Information conservation:** Once identity information is lost during consolidation, later generation cannot recover it from the retrieved context.
+
+**Experiment queue:**
+
+1. **Local reproduction:** Run the repository's synthetic grid and confirm the tight/spread regime behavior.
+2. **RAG hallucination test:** Build matched RAG indexes with raw chunks, L2-normalized centroids, medoids, and LLM summaries. Measure unsupported-claim rate, exact match, and retrieval identity error.
+3. **HNC bridge test:** Correlate $\varepsilon_{\mathrm{id}}$, $d_{\mathrm{eff}}$, $\bar{d}$, and $\theta'$ with downstream hallucination rate on Natural Questions, HotpotQA, and PopQA-style tasks.
+4. **Centroid vs. LLM summary:** Test whether direct geometric centroids reduce consolidation latency and avoid summarization noise without losing answer quality.
+5. **Cluster-level diagnostic:** Add a preflight warning for clusters where the bound predicts high identity loss.
+
+**Caveats:** The theorem applies to unit-norm embedding clusters under cosine-threshold retrieval. It does not directly apply to raw LLM hidden states, non-normalized memory, multimodal memory, or biological memory. The paper reports downstream QA behavior, but the HNC-specific link to hallucination needs local reproduction with unsupported-claim metrics. Social-media claims that this explains every RAG hallucination should not be imported into HNC.
 
 ### GOAT: trainable attention priors
 
@@ -99,7 +141,7 @@ Last link check: 2026-05-08.
 
 **Why it matters here:** The signal-channel and reservoir language is close to the HNC distinction between accessible knowledge and inaccessible or noisy structure. It may give a training-time analogue of HNC capacity failure: signal that enters useful channels generalizes, while noise or weak structure remains trapped in directions that do not transfer well.
 
-**Tool for our work:** The proposed SNR preconditioner is a candidate optimizer intervention. It can test whether suppressing low-signal updates reduces memorization, improves robustness under noisy labels, or reduces hallucination after preference tuning.
+**Tool for our work:** The proposed SNR preconditioner is a candidate optimizer intervention. It can test whether suppressing low-signal updates reduces memorization, improves perturbation stability under noisy labels, or reduces hallucination after preference tuning.
 
 **Framework mapping:**
 
@@ -175,6 +217,14 @@ Last link check: 2026-05-08.
 **Methods:** Reproduce H-Neuron extraction. Evaluate on HNC categories: absent knowledge, misleading context, context crowding, and fabricated entities. Compare neuron activation with embedding-distance or translation-fidelity proxies.
 
 **Framework target:** Off-manifold drift, form-prior sampling, and geometric misalignment.
+
+### Experiment 5: consolidation identity loss and RAG hallucination
+
+**Question:** Does spectral identity loss during embedding consolidation predict downstream unsupported claims?
+
+**Methods:** Build matched RAG indexes over the same source documents using raw chunks, L2-normalized centroids, medoids, LLM summaries, and pruning. For each cluster, measure $d_{\mathrm{eff}}$, $\bar{d}$, retrieval slack $\theta'$, predicted identity-error floor, observed retrieval identity error, exact match, and unsupported-claim rate.
+
+**Framework target:** Model-specific sampling limits, RAG capacity loss, matching failure, and information conservation.
 
 ## Promotion rule
 

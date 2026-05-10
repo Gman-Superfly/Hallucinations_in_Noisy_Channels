@@ -1,6 +1,6 @@
 # Evidence and supporting literature
 
-This document catalogs empirical evidence and independent research that supports the Hallucinations in Noisy Channels framework. Each finding links to specific theoretical claims.
+This document catalogs empirical evidence and independent research relevant to the Hallucinations in Noisy Channels framework. Each finding links to a specific theoretical claim and keeps the evidence status separate from the interpretation.
 
 ---
 
@@ -8,47 +8,47 @@ This document catalogs empirical evidence and independent research that supports
 
 ### 1.1 The theoretical foundation
 
-The framework begins with a simple insight from algorithmic information theory: **learning is compression**. The shortest program that generates data captures its essential structure. This is the Kolmogorov complexity $K(x)$, a theoretical limit that tells us compression is possible, but is itself uncomputable.
+The framework begins with an idea from algorithmic information theory: learning can be modeled as compression that preserves useful structure. The shortest program that generates data captures a limiting notion of structure. This is Kolmogorov complexity $K(x)$, a theoretical quantity that guides the argument but is not computable in general.
 
-We use this foundation sparingly: it establishes that understanding = finding the rule that generates the data.
+HNC uses this foundation as an accounting language. In experiments, the framework relies on computable proxies rather than exact Kolmogorov complexity.
 
 ### 1.2 The empirical manifestation: Zipf's law
 
-What does compression *look like* in practice? This is where Zipf distributions become central.
+Zipf distributions provide one candidate signature for form structure in language.
 
-Berman (2025a, 2025b) proves that Zipf's law, the power-law rank-frequency distribution observed in all natural languages, arises from **pure combinatorics**:
+Berman (2025a, 2025b) reports that Zipf-like rank-frequency behavior can arise from combinatorics and segmentation:
 
 $$
 p(r) \propto r^{-\alpha}, \quad \alpha \approx 1.1 - 1.5
 $$
 
-**Key point:** Zipf distributions emerge from the interaction of two exponentials:
-1. **Exponential growth** of possible word types with length
-2. **Exponential decay** of probability for each word type with length
+The mechanism uses the interaction of two exponentials:
+1. Exponential growth of possible word types with length.
+2. Exponential decay of probability for each word type with length.
 
 This yields a power-law without any semantic content, optimization, or linguistic organization.
 
 ### 1.3 The connection: form prior = Zipf distribution
 
-We identify the **form prior** in this framework with the Zipf distribution:
+HNC treats Zipf-like structure as evidence for a form-prior null model:
 
 | Concept | Definition | Evidence |
 |---------|------------|----------|
 | **Kolmogorov** | Theoretical: shortest program that generates data | Foundation (uncomputable) |
 | **Zipf** | Empirical: power-law distribution over tokens | Berman (2025): arises from combinatorics |
-| **Form prior** | The distribution LLMs thermalize to when content fails | = Zipf distribution |
+| **Form prior** | The distribution that can dominate when content constraints fail | Candidate null model |
 
-When content constraints are absent, the model samples from the maximum-entropy distribution consistent with linguistic form. In this framework, that distribution corresponds to the Zipf distribution: the statistical signature of symbolic combinatorics.
+When content constraints are absent or weak, generation can move toward a high-entropy distribution consistent with linguistic form. Zipf-like statistics are one candidate signature of that form structure.
 
-**Implication:** The form prior does not require semantics. It is the **null model** (what you get from structure alone). Content knowledge distinguishes truthful generation from this baseline.
+Implication: the form prior does not require semantic grounding. It can act as a null model for fluent structure. Source-supported content distinguishes grounded output from this baseline.
 
 ### 1.4 Why this matters
 
-This connection resolves a key question: **What exactly is the "form prior" that models thermalize to?**
+This connection gives a concrete candidate for the form prior:
 
-Answer: It is the Zipf distribution over tokens/words that arises from combinatorial structure, independent of meaning. Berman proves this mathematically and validates it empirically across English, Russian, and mixed corpora.
+Answer: Zipf-like token or word statistics can arise from combinatorial structure independent of meaning. Berman gives mathematical and empirical support for this candidate across English, Russian, and mixed corpora.
 
-The form is "free" (arises from combinatorics). The content is what costs information. Hallucination = generating from form without content.
+Form structure can arise from combinatorics. Content support still requires source signal. Hallucination risk rises when generation satisfies form constraints without enough content support.
 
 ---
 
@@ -56,10 +56,10 @@ The form is "free" (arises from combinatorics). The content is what costs inform
 
 | Core Claim | Status | Primary Source |
 |------------|--------|----------------|
-| LMs preserve information (injective) | **Proven** | Nikolaou et al. (2025) |
-| Organization requires training | **Proven** | Teoh et al. (2025) - NextLat |
-| Universal manifold exists | **Strong support** | Jha et al. (2025), Huh et al. (2024) |
-| Form prior has mathematical support | **Proven for the cited model** | Berman (2025a, 2025b) |
+| LMs preserve information under the cited assumptions | Formal result | Nikolaou et al. (2025) |
+| Organization requires training pressure in the cited setting | Formal and empirical support | Teoh et al. (2025) - NextLat |
+| Shared representation geometry is measurable in some settings | Bounded support | Jha et al. (2025), Huh et al. (2024) |
+| Form-prior null model has mathematical support | Formal support for the cited model | Berman (2025a, 2025b) |
 | Verification-First improves accuracy | **Empirical** | Wu & Yao (2025) |
 | Optimal noise exists ($T^* > 0$) | **Theoretical and empirical** | Gammaitoni et al. (1998), Wu & Yao (2025) |
 | Test-time learning extends capacity | **Architectural** | Behrouz et al. (2025) - Titans |
@@ -68,19 +68,19 @@ The form is "free" (arises from combinatorics). The content is what costs inform
 
 ## 3. Information preservation vs organization
 
-### 3.1 LMs are provably injective
+### 3.1 LMs are injective under the cited assumptions
 
 **Source:** Nikolaou, G., et al. (2025). *Language Models are Injective and Hence Invertible.* [arXiv:2510.15511](https://arxiv.org/abs/2510.15511)
 
-**Key Findings:**
-- Mathematical proof that transformer LMs mapping discrete sequences to continuous representations are injective
-- Empirical confirmation: billions of collision tests across six state-of-the-art models → zero collisions
-- Property established at initialization and preserved during training
-- Introduces SipIt algorithm for exact input reconstruction from hidden states
+**Findings:**
+- Mathematical proof that transformer LMs mapping discrete sequences to continuous representations are injective under the paper's assumptions.
+- Empirical check: billions of collision tests across six models reported zero collisions.
+- Property established at initialization and preserved during training in the cited setting.
+- Introduces SipIt algorithm for exact input reconstruction from hidden states.
 
 **Implications for framework:**
-- The framework question shifts from preservation to **organization**: whether preserved information is structured usefully
-- Hallucination is a failure of **information access**, not information storage
+- The framework question shifts from preservation to organization: whether preserved information is structured usefully.
+- Some hallucinations can be modeled as failures of information access rather than storage.
 
 **Framework connection:** Sections 11.5, Glossary (injectivity establishes matching and decompression failures as the mechanisms)
 
@@ -90,14 +90,14 @@ The form is "free" (arises from combinatorics). The content is what costs inform
 
 **Source:** Teoh, J., et al. (2025). *Next-Latent Prediction Transformers Learn Compact World Models.* [arXiv:2511.05963](https://arxiv.org/abs/2511.05963)
 
-**Key Findings:**
+**Findings:**
 - NextLat trains transformers with self-supervised predictions in latent space
-- **Latents provably converge to belief states**; compressed information of history necessary to predict future
+- Latents converge to belief states under the paper's assumptions; these states compress history needed to predict future observations.
 - Significant gains in representation compression and downstream accuracy
 - Standard transformers "lack an inherent incentive to compress history into compact latent states"
 
 **Implications for framework:**
-- **Organization requires training**; injectivity alone does not provide useful structure
+- Organization requires training pressure in the cited setting; injectivity alone does not provide useful structure.
 - Structured compression (not degenerate collapse) emerges from proper training objectives
 - Belief-state manifolds are learnable with appropriate training pressure
 
@@ -107,21 +107,23 @@ The form is "free" (arises from combinatorics). The content is what costs inform
 
 ## 4. The universal manifold
 
+Current status: supported as shared local, semantic, or domain-specific geometry; not established as a single global manifold across all modalities and models.
+
 ### 4.1 Unsupervised embedding translation
 
 **Source:** Jha, R., et al. (2025). *Harnessing the Universal Geometry of Embeddings.* [arXiv:2505.12540](https://arxiv.org/abs/2505.12540)
 
-**Key Findings:**
+**Findings:**
 - vec2vec method translates embeddings between models with completely different architectures, parameter counts, and training data, **without paired data**
-- **>0.92 cosine similarity** between translated embeddings and ground truth
-- **Perfect matching on 8000+ embeddings** without knowing possible match set in advance
+- Greater than 0.92 cosine similarity between translated embeddings and ground truth in the reported setting.
+- Perfect matching on 8000+ embeddings in the reported setting without knowing the possible match set in advance.
 - Preservation of semantic information sufficient for classification and attribute inference
 
 **Implications for framework:**
 - The universal manifold hypothesis is measurable with embedding translation methods
-- All capable models converge to the same underlying geometric structure
-- Translation succeeds by learning the shared latent representation all models approximate
-- Hallucinations can be detected as geometric outliers (off-manifold representations)
+- The cited result supports substantial shared geometry in the reported text-embedding setting
+- Translation succeeds by learning a useful cross-model map between related latent spaces
+- Some hallucinations may be detectable as geometric outliers or poor cross-model translations, but this remains an empirical prediction
 
 **Framework connection:** Sections 7.4 (Capacity Estimation via Universal Manifold), 11.5 (Practical Implementation)
 
@@ -132,16 +134,28 @@ The form is "free" (arises from combinatorics). The content is what costs inform
 **Source:** Huh, M., et al. (2024). *The Platonic Representation Hypothesis.* [arXiv:2405.07987](https://arxiv.org/abs/2405.07987)
 
 **Key Findings:**
-- Different architectures trained on different data converge to the same geometric shapes for representing concepts
-- The internal geometry of "truth" is imposed by reality being modeled, not arbitrary model choice
-- Representations are projections of a shared underlying manifold
+- Different architectures trained on different data can develop geometrically similar representations
+- The internal geometry of a representation is partly constrained by the reality being modeled
+- The strongest defensible claim is convergence toward overlapping or partially shared structures, not universal identity of all representations
 
 **Implications for framework:**
-- The manifold geometry is **determined by the object, not the model**
-- Provides theoretical foundation for why vec2vec translation works
-- Supports Definition 14 (The Universal Manifold)
+- Manifold geometry is constrained by the represented object and shaped by modality, architecture, data, and task
+- Provides a theoretical basis for why vec2vec-style translation can work
+- Supports Definition 14 (Universal Manifold Hypothesis), with the caveat that full topology remains open
 
-**Framework connection:** Sections 11.5.0 (Plato's Cave intuition), Definition 14
+### 4.3 Domain support and counter-evidence
+
+**Supporting source:** Li, Z., & Walsh, A. (2026). *Platonic representation of foundation machine learning interatomic potentials.* Nature Machine Intelligence. https://www.nature.com/articles/s42256-026-01235-7
+
+**Key implication:** In physically constrained domains, independently trained models can project into a common latent organization preserving chemical periodicity and structural invariants. This strengthens the claim that shared geometry can emerge when models are constrained by the same external object.
+
+**Cautionary sources:**
+- Koepke, A. S., Zverev, D., Ginosar, S., & Efros, A. A. (2026). *Back into Plato's Cave: Examining Cross-modal Representational Convergence at Scale.* arXiv:2604.18572. https://arxiv.org/abs/2604.18572
+- Gröger, F., Wen, S., & Brbić, M. (2026). *Revisiting the Platonic Representation Hypothesis: An Aristotelian View.* arXiv:2602.14486. https://arxiv.org/abs/2602.14486
+
+**Key implication:** Cross-modal convergence appears weaker under larger and less constrained evaluations, and some representational-similarity metrics may be inflated by model scale. HNC should therefore treat the universal manifold as an operational hypothesis and measurement target, not a settled global fact.
+
+**Framework connection:** Section 11.5.0 (shared objects and shared geometry), Definition 14
 
 ---
 
@@ -181,7 +195,7 @@ The form is "free" (arises from combinatorics). The content is what costs inform
 - "Flat head + power-law tail" is a universal geometric signature
 - Linguistic constraints filter the space but don't change asymptotic structure
 
-**Framework connection:** Glossary (Form prior), Theorem 5 (Thermodynamic Hallucination)
+**Framework connection:** Glossary (Form prior), Conjecture 5 (Thermodynamic Hallucination Model)
 
 ---
 
@@ -198,8 +212,8 @@ The form is "free" (arises from combinatorics). The content is what costs inform
 
 **Implications for framework:**
 - Maps directly to LLM generation: logit threshold (barrier), weak knowledge (signal), temperature (noise)
-- Explains why $T=0$ (greedy decoding) is suboptimal for weak knowledge retrieval
-- Provides physical basis for Theorem 6 (Optimal Noise Principle)
+- Explains why $T=0$ (greedy decoding) can be suboptimal for weak but recoverable knowledge retrieval
+- Provides physical basis for Conjecture 6 (Optimal Noise Principle)
 
 **Framework connection:** Section 8.6.3, 8.6.5 (Three Ingredients); Documentation: `NOISE_AND_ERROR_CORRECTION.md`
 
@@ -215,34 +229,34 @@ The form is "free" (arises from combinatorics). The content is what costs inform
 - Verification is easier than generation (discrimination vs generation)
 
 **Implications for framework:**
-- **Random answers act as "thermal shock"**: kicks system out of local minima
-- Validates Optimal Noise Principle: noise can improve performance
+- **Random answers may act as "thermal shock"**: a perturbation that can kick the system out of local minima
+- Supports the Optimal Noise Principle: noise can improve performance when recoverable signal exists
 - Verification is reverse reasoning that detects geometric distortion
 - Supports Prediction 16 (Stochastic Resonance)
 
-**Framework connection:** Section 7.5 (Verification-First), Theorem 6 (Optimal Noise)
+**Framework connection:** Section 7.5 (Verification-First), Conjecture 6 (Optimal Noise)
 
 ---
 
-## 7. Architectural validation
+## 7. Architectural evidence
 
 ### 7.1 Titans memory hierarchy
 
 **Source:** Behrouz, A., et al. (2025). *Titans: Learning to Memorize at Test Time.* [arXiv:2501.00663](https://arxiv.org/abs/2501.00663)
 
-**Key Findings:**
+**Findings:**
 - Neural long-term memory module that learns at test time
 - Explicit three-tier memory hierarchy: long-term (weights), working (attention), adaptive (test-time learning)
 - Forgetting gate manages capacity
 - Momentum-based updates capture token flow structure
 
 **Implications for framework:**
-- Validates memory duality (static/dynamic codebook)
-- Confirms compression paradox: long context cannot fit in small state
-- Test-time learning = dynamic atom creation = capacity extension
-- Forgetting gate = sink severity control
+- Supports memory duality as an architectural pattern.
+- Provides an example of compression pressure in long contexts.
+- Test-time learning maps to dynamic atom creation and capacity extension in HNC.
+- Forgetting gates map to capacity management and sink severity control.
 
-**Framework connection:** Section 11.7 (Titans validation), Proposition 8 (Test-Time Capacity Extension)
+**Framework connection:** Section 11.7 (Titans architectural evidence), Proposition 8 (test-time capacity extension)
 
 ---
 
@@ -265,7 +279,7 @@ The form is "free" (arises from combinatorics). The content is what costs inform
 
 | Claim | Current Status | Needed Evidence |
 |-------|---------------|-----------------|
-| Hallucination rate scales as $e^{\Delta S}$ | Theoretical | Empirical measurement of entropy gap vs hallucination rate |
+| Hallucination rate scales as $e^{\Delta S}$ | Conjectural | Empirical measurement of entropy gap vs hallucination rate |
 | Optimal $T^*$ varies with topic capacity | Conjectured (Pred 24) | Temperature sweep experiments across topics |
 | Multi-hop accuracy decays as $(1-\epsilon)^n$ | Theoretical (Thm 4) | Chain-length experiments |
 | Context crowding U-curve (Pred 18) | Theoretical | Context length vs accuracy measurements |
@@ -275,19 +289,19 @@ The form is "free" (arises from combinatorics). The content is what costs inform
 
 ## 10. Summary
 
-The framework's foundational claims now have external support:
+The framework's main claims have several forms of external support, with important limits:
 
-1. **Information preservation and organization differ**: Supported by Nikolaou (injectivity) and Teoh (training creates organization)
+1. **Information preservation and organization differ**: supported by Nikolaou (injectivity) and Teoh (training creates organization in the cited setting).
 
-2. **Universal manifold**: Supported by Jha (vec2vec achieves >0.92 similarity) and Huh (Platonic hypothesis)
+2. **Universal manifold**: supported as a bounded geometry hypothesis by Jha (vec2vec reports >0.92 similarity) and Huh (Platonic representation hypothesis).
 
-3. **Form prior has a concrete candidate distribution**: Berman shows Zipf distributions arise from combinatorics and provide a null model for LLM tokens
+3. **Form prior has a concrete candidate distribution**: Berman shows Zipf-like distributions can arise from combinatorics and provide a null model for token statistics.
 
-4. **Optimal noise exists**: Supported by Gammaitoni (physics) and Wu & Yao (verification-first empirics)
+4. **Optimal noise has a plausible basis**: supported by Gammaitoni (physics) and motivated by Wu and Yao (verification-first empirics).
 
-5. **Memory hierarchy has architectural support**: Supported by Titans architecture
+5. **Memory hierarchy has architectural support**: supported by Titans as a useful test case.
 
-The remaining predictions (Sections 9.1-9.7) await systematic experimental validation.
+The remaining predictions (Sections 9.1-9.7) await systematic empirical testing.
 
 ---
 
@@ -302,4 +316,3 @@ The remaining predictions (Sections 9.1-9.7) await systematic experimental valid
 7. Gammaitoni, L., et al. (1998). Stochastic Resonance. Rev. Mod. Phys. 70(1), 223–287
 8. Wu, S., & Yao, Q. (2025). Asking LLMs to Verify First is Almost Free Lunch. arXiv:2511.21734
 9. Behrouz, A., et al. (2025). Titans: Learning to Memorize at Test Time. arXiv:2501.00663
-

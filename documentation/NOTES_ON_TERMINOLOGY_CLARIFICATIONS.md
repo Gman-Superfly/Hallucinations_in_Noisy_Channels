@@ -14,7 +14,7 @@ Should "Kolmogorov garbage" be renamed to "Zipf garbage" given that Zipf distrib
 
 | Term | What it describes | Type |
 |------|-------------------|------|
-| **Kolmogorov garbage** | The *output* from decompression failure: fragments that look plausible individually but don't cohere into a truthful whole | Process failure output |
+| **Kolmogorov garbage** | The *output* from decompression failure: fragments that look plausible individually but do not cohere into a source-supported whole | Process failure output |
 | **Zipf / Form prior** | The *distribution* you sample from when content constraints fail: the null model arising from combinatorics | Attractor state |
 
 ### Why "Kolmogorov garbage" is correct
@@ -22,7 +22,7 @@ Should "Kolmogorov garbage" be renamed to "Zipf garbage" given that Zipf distrib
 **Kolmogorov garbage** describes a *process failure*:
 
 ```
-Insufficient complexity in → Truncated reconstruction → Incoherent fragments out
+Insufficient complexity in -> truncated reconstruction -> incoherent fragments out
 ```
 
 This is Section 4.5 (Decompression Failure). The mechanism is:
@@ -41,12 +41,12 @@ The term "Kolmogorov" is appropriate here because:
 **Zipf distribution** describes an *attractor state*:
 
 ```
-Content constraints fail → System thermalizes → Samples from form prior (Zipf distribution)
+Content constraints fail -> system thermalizes -> samples from form prior (Zipf distribution)
 ```
 
 This is Section 8.5 (Thermodynamic Equilibration). The mechanism is:
 1. Knowledge constraints are absent or fail
-2. System relaxes to maximum entropy consistent with form
+2. System relaxes toward high-entropy form-consistent output
 3. Output samples from the Zipf distribution over tokens
 
 "Zipf garbage" is incorrect because:
@@ -59,23 +59,21 @@ This is Section 8.5 (Thermodynamic Equilibration). The mechanism is:
 ```
 ┌─────────────────────────────────────────────────────────────────────────┐
 │                                                                          │
-│  TWO DISTINCT FAILURE MODES                                             │
+│  Two distinct failure modes                                             │
 │                                                                          │
-│  1. DECOMPRESSION FAILURE → KOLMOGOROV GARBAGE                         │
-│     ════════════════════════════════════════                            │
-│     Knowledge: STORED                                                   │
-│     Match: CORRECT                                                      │
-│     Problem: INSUFFICIENT ROOM to reconstruct                          │
+│  1. Decompression failure -> Kolmogorov garbage                         │
+│     Knowledge: stored                                                   │
+│     Match: correct                                                      │
+│     Problem: insufficient room to reconstruct                           │
 │     Result: Fragments that individually look correct but don't cohere  │
 │                                                                          │
 │     Analogy: Trying to do long division in your head without paper     │
-│              You have the method, but can't complete the process       │
+│              You have the method, but cannot complete the process       │
 │                                                                          │
-│  2. THERMALIZATION → FORM PRIOR (ZIPF) SAMPLING                        │
-│     ════════════════════════════════════════════                        │
-│     Knowledge: ABSENT or INACCESSIBLE                                  │
-│     Match: FAILED or NO TARGET                                         │
-│     Problem: NO CONTENT CONSTRAINTS                                    │
+│  2. Thermalization -> form prior (Zipf) sampling                        │
+│     Knowledge: absent or inaccessible                                  │
+│     Match: failed or no target                                         │
+│     Problem: no content constraints                                    │
 │     Result: Fluent text sampled from maximum-entropy distribution      │
 │                                                                          │
 │     Analogy: Asked about something you don't know                      │
@@ -89,11 +87,11 @@ This is Section 8.5 (Thermodynamic Equilibration). The mechanism is:
 | Concept | Term | Mechanism | Section |
 |---------|------|-----------|---------|
 | Process failure (truncated reconstruction) | **Kolmogorov garbage** | Complexity mismatch | 4.5 |
-| Attractor state (null model) | **Zipf / Form prior** | Thermalization | 8.5 |
+| Attractor state (null model) | **Zipf / form prior** | Thermalization | 8.5 |
 
 Both produce hallucinations, but through different mechanisms:
-- Kolmogorov garbage: You had the knowledge but couldn't unfold it
-- Form prior sampling: You never had the knowledge (or couldn't find it)
+- Kolmogorov garbage: the source signal exists, but reconstruction cannot unfold it.
+- Form prior sampling: the source signal is absent, inaccessible, or too weak to constrain output.
 
 ### Decision
 

@@ -1,6 +1,6 @@
 # Hallucinations in Noisy Channels
 
-**Information-Theoretic and Thermodynamic Informed Framework for Understanding LLM Hallucination Errors**
+**An information-theoretic and thermodynamic framework for LLM hallucination errors**
 
 
 [![Status: Theoretical Framework](https://img.shields.io/badge/Status-Theoretical%20Framework-blue.svg)]()
@@ -13,7 +13,7 @@
 
 ## Read the paper
 
-**→ [Hallucinations in Noisy Channels v1.2.1 (Working Document)](Hallucinations_in_Noisy_Channels_v1.2.1.md)**
+**Read [Hallucinations in Noisy Channels v1.2.2 (working document)](Hallucinations_in_Noisy_Channels_v1.2.2.md)**
 
 
 This repository is work in progress. The experiments are ongoing, and some are now public in the AKIRA repository. We estimate at least a year of further work before the framework is stable, depending on experimental results. Some statements may change as evidence changes, and the current formalization records the working structure.
@@ -22,32 +22,32 @@ This repository is work in progress. The experiments are ongoing, and some are n
 
 ## Overview
 
-We model LLMs as **teachers** during inference. They must first **reconstruct** knowledge from compressed weights, then **transmit** it reliably.
+We model LLMs as teachers during inference. They must reconstruct usable information from compressed weights, context, retrieval, tools, or adaptive memory, then transmit it through decoding.
 
-The framework establishes a fundamental duality:
-- **Training = Compression = Learning** (source coding)
-- **Inference = Transmission = Teaching** (channel coding)
+The framework uses a compression-transmission duality:
+- Training as compression and learning (source coding)
+- Inference as reconstruction and teaching (channel coding)
 
-Hallucinations emerge when the teaching process fails: when the model cannot correctly reconstruct and transmit stored knowledge.
+Hallucinations can arise when this teaching process fails: when the model lacks source signal, selects the wrong representation, lacks decompression room, or transmits through a noisy path.
 
-Currently identified process failures through six mechanisms:
+The current paper separates six process failures:
 
 
 
 | # | Mechanism | Description |
 |---|-----------|-------------|
-| 1 | **Capacity Violations** | Asking about topics never learned |
-| 2 | **Matching Failures** | Ambiguous prompts activate wrong representations |
-| 3 | **Decompression Failures** | Insufficient context to unfold compressed knowledge |
-| 4 | **Geometric Distortion** | Errors compound multiplicatively through the pipeline |
-| 5 | **Thermodynamic Equilibration** | System relaxes to maximum entropy (fluent noise) |
-| 6 | **The Noise Paradox** | Too little noise prevents self-correction; too much causes hallucination |
+| 1 | Capacity violations | The request exceeds the available source signal. |
+| 2 | Matching failures | The effective query selects the wrong or composite representation. |
+| 3 | Decompression failures | The model lacks room to unfold compressed information. |
+| 4 | Geometric distortion | Small errors compound through sequential transformations. |
+| 5 | Thermodynamic equilibration | Weak content constraints allow prior-dominated fluent text. |
+| 6 | Noise paradox | Some stochasticity can help correction, while too much can destroy signal. |
 
-### The unifying principle
+### Source-accounting principle
 
-> **Information cannot be created; it can only be transmitted or lost.**
+> Grounded information must come from a modeled source; decoding alone should not be treated as a source of topic information.
 >
-> When output contains more information than was stored or provided, the excess was hallucinated from the **form prior**. The model has learned linguistic form, and the missing topic knowledge is supplied by form-prior sampling.
+> When output contains more topic information than the modeled sources can explain, the excess is evidence that learned priors, untracked signal, or unsupported completion filled the gap.
 
 ---
 
@@ -56,30 +56,32 @@ Currently identified process failures through six mechanisms:
 ### Multi-mechanism framework
 
 ```
-Training (Compression) → Matching → Reconstruction (Context) → Transmission (Teaching)
+Training (compression) -> Matching -> Reconstruction (context) -> Transmission (teaching)
     ↓                         ↓                 ↓                         ↓
 Capacity Violation       Matching Failure   Decompression Failure    Geometric Distortion
     └──────────────────────────────┬──────────────────────────────────────────────┘
-                          Constraints fail → THERMALIZATION TO FORM PRIOR
+                          Weak constraints -> prior relaxation risk
                                            ↓
-           P(hallucination) ∝ Ω_form / Ω_knowledge = exp(ΔS);  F = E − T·S
+           P(hallucination) ∝ Ω_form / Ω_knowledge = exp(ΔS);  F = E - T·S
                                            ↓
-                                     HALLUCINATION
+                                  unsupported output risk
 ```
 
-### Seven theorems
+### Core formal claims
 
-| Theorem | Name | Key Result |
-|---------|------|------------|
-| **1** | Hallucination Threshold | R_T > C_T ⟹ hallucinations unavoidable (Shannon limit) |
-| **2** | Geometric Matching | P(correct) ∝ exp(-d_M) / Σexp(-d_M) in universal manifold |
-| **3** | Information Conservation | K(output) ≤ K(weights) + K(context); excess = hallucination |
-| **4** | Geometric Distortion | Fidelity = ∏(1 - εᵢ); errors compound multiplicatively |
-| **5** | Thermodynamic Hallucination | P(hallucination) ∝ exp(ΔS) = Ω_form / Ω_knowledge |
-| **6** | Optimal Noise Principle | T* > 0 required for self-correction; greedy is suboptimal |
-| **7** | Nyquist–Shannon Analogy | s > 2·B_{M,T} for reliable reconstruction *(conjecture)* |
+| Type | Name | Key Result |
+|------|------|------------|
+| Corollary 1 | Hallucination threshold | $R_T > C_T$ implies reliable source-supported generation exceeds the modeled channel limit. |
+| Model 2 | Geometric matching proxy | Retrieval accuracy is modeled by a softmax over candidate representation distances. |
+| Theorem 3 | Information conservation | Grounded output should be traceable to weights, context, retrieval, tools, or adaptive memory. |
+| Theorem 4 | Geometric distortion | Fidelity decays as $\prod_i(1 - \epsilon_i)$ in the modeled cascade. |
+| Conjecture 3 | Regime-aligned generation | A router should select a regime whose source signal and verifier support the requested answer rate. |
+| Conjecture 5 | Thermodynamic hallucination model | Prior relaxation risk rises under weak content constraints. |
+| Conjecture 6 | Optimal noise principle | Intermediate noise can improve correction when recoverable signal exists. |
+| Conjecture 7 | Adaptive resonance optimality | Match threshold and noise should vary with knowledge certainty. |
+| Conjecture 8 | Model-specific sampling limit | $s > 2B_{M,T}$ is a Nyquist-style reconstruction analogy. |
 
-### Twenty-one testable predictions
+### Twenty-six testable predictions
 
 Empirically falsifiable hypotheses spanning:
 - Capacity-accuracy correlations (Predictions 1-3)
@@ -89,11 +91,13 @@ Empirically falsifiable hypotheses spanning:
 - Geometric distortion accumulation (Predictions 9-11)
 - Temperature-hallucination relationships (Predictions 12-14)
 - Optimal noise existence (Predictions 15-17)
-- Goldilocks context window (Prediction 18)
+- Balanced context window (Prediction 18)
 - Geometry-aligned training (Predictions 19-20)
 - Attention sink effects (Prediction 21)
+- Atom coverage and adaptive resonance effects (Predictions 22-24)
+- Test-time learning and memory hierarchy effects (Predictions 25-26)
 
-See [Section 9: Experimental predictions](Hallucinations_in_Noisy_Channels_v1.2.md#9-experimental-predictions) for full mathematical formulations.
+See [Section 9: Experimental predictions](Hallucinations_in_Noisy_Channels_v1.2.2.md#9-experimental-predictions) for full mathematical formulations.
 
 ---
 
@@ -107,13 +111,13 @@ See [Section 9: Experimental predictions](Hallucinations_in_Noisy_Channels_v1.2.
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │                                                              │
-│  INFERENCE = RECONSTRUCTION + TRANSMISSION = TEACHING       │
+│  Inference = reconstruction + transmission = teaching       │
 │                                                              │
 │  Query ──▶ MATCH to internal representation                 │
 │        ──▶ RECONSTRUCT knowledge in context                 │
 │        ──▶ TRANSMIT to output                               │
 │                                                              │
-│  Hallucination = Teaching Failure                           │
+│  Hallucination risk rises when teaching fails               │
 │                                                              │
 └─────────────────────────────────────────────────────────────┘
 ```
@@ -121,36 +125,36 @@ See [Section 9: Experimental predictions](Hallucinations_in_Noisy_Channels_v1.2.
 ### The conservation law
 
 ```
-Information cannot be created; it can only be transmitted or lost.
+Grounded information must come from modeled source signal.
 
 K(output | topic) ≤ K(source | topic)
 
-When violated: Information was "created" from the form prior
-                → Definitional hallucination
+When violated: unsupported completion or untracked source signal
+                may have filled the gap.
 ```
 
 ### The thermodynamic view
 
 ```
-KNOWLEDGE        ←→        FORM PRIOR
+Knowledge        <->       Form prior
 Potential energy           Kinetic/thermal energy
 Low entropy                High entropy
 Few microstates            Many microstates
 Constrained                Unconstrained
 Grounded                   Hallucinated
 
-Hallucination = Thermalization to maximum entropy
+Hallucination risk rises when generation relaxes toward form prior
 P(hallucination) ∝ exp(S_form - S_knowledge)
 ```
 
 ### The noise paradox
 
 ```
-T → 0:   Frozen, deterministic, cannot self-correct
-T = T*:  Goldilocks zone, explores and corrects
-T → ∞:   Pure entropy, complete hallucination
+T -> 0:  Frozen, deterministic, cannot self-correct
+T = T*:  Intermediate region, explores while preserving signal
+T -> ∞:  High noise, signal loss and prior relaxation risk
 
-Optimal noise T* > 0 is required for error correction
+Intermediate noise can support error correction when recoverable signal exists
 ```
 
 ### Geometric distortion cascade
@@ -163,7 +167,7 @@ n=5 stages, ε=0.1:  (0.9)⁵  = 59% fidelity
 n=10 stages, ε=0.1: (0.9)¹⁰ = 35% fidelity
 n=20 stages, ε=0.1: (0.9)²⁰ = 12% fidelity
 
-This is why long reasoning chains and multi-hop retrieval degrade.
+Long reasoning chains and multi-hop retrieval can degrade when stage errors are correlated or compounding.
 ```
 
 ---
@@ -180,28 +184,26 @@ Principled techniques grounded in theory:
 | **Unambiguous prompts** | Matching failures | §4.4 |
 | **Context budget management** | Decompression crowding | §4.5 |
 | **Chain-of-thought** | Distribute reconstruction load | §4.2 |
-| **Optimal temperature calibration** | Enable self-correction | §8.6 |
+| **Temperature calibration** | Balance exploration against signal preservation | §8.6 |
 | **Information accounting** | Detect conservation violations | §8.3 |
 | **First-stage quality** | Training > prompting (Friis analogy) | §8.4 |
 | **Semantic anchors** | Counter attention sink drift | §4.6 |
 
 ---
 
-We hypothesize that > "Hallucination is thermalization to the form prior bath. 
-When knowledge constraints fail, the system equilibrates to maximum entropy: fluent text, empty content."
-The temperature parameter in LLM sampling is analogous to the Boltzmann temperature.
-The framework tries to reveal that hallucination control is fundamentally about managing the balance between:
-Potential energy (stored knowledge, constraints)
-Kinetic energy (form prior, entropy)
-Temperature (exploration vs. exploitation)
+> **Working hypothesis:** hallucination can be modeled, in part, as relaxation toward the form prior.
+>
+> When knowledge constraints fail, generation can relax toward high-entropy fluent text with weak or unsupported content.
+
+The temperature parameter in LLM sampling is an algorithmic analogue of thermodynamic temperature. In this framing, hallucination control means managing stored or supplied source signal, form-prior pressure, and exploration noise.
 
 ## Experimental status
 
-### Theory: complete working document (v1.2.1)
+### Theory: complete working document (v1.2.2)
 - [x] Six-mechanism framework formalized
 - [x] Eleven intuition blocks added (Analogies + ASCII diagrams)
-- [x] Seven theorems with proof sketches (Theorem 7 = conjecture)
-- [x] Twenty-one testable predictions defined
+- [x] Formal claims relabeled by evidence status: corollaries, models, and conjectures
+- [x] Twenty-six testable predictions defined
 - [x] Mitigation strategies derived
 
 
@@ -223,7 +225,7 @@ If you use this repository in your research, please cite it. This is ongoing wor
 
 Oscar Goldman - Shogu Research Group @ Datamutant.ai (subsidiary of 温心重工業)
 
-Goldman, O. (2025). *Hallucinations in Noisy Channels: An Information-Theoretic and Thermodynamic Informed Framework for Understanding LLM Hallucination Errors* (Version 1.2.1). Shogu Research Group @ Datamutant.ai. https://github.com/Gman-Superfly/Hallucinations_in_Noisy_Channels
+Goldman, O. (2025). *Hallucinations in Noisy Channels: An information-theoretic and thermodynamic framework for LLM hallucination errors* (Version 1.2.2). Shogu Research Group @ Datamutant.ai. https://github.com/Gman-Superfly/Hallucinations_in_Noisy_Channels
 
 ---
 
@@ -254,7 +256,7 @@ This framework builds on:
 - **Representation Learning:** Huh et al. (2024), Jha et al. (2025)
 - **Hallucination Studies:** Ji et al. (2023), Huang et al. (2023)
 
-See [Section 10: Related Work](Hallucinations_in_Noisy_Channels_v1.2.md#10-related-work) for full citations.
+See [Section 10: Related Work](Hallucinations_in_Noisy_Channels_v1.2.2.md#10-related-work) for full citations.
 
 ---
 
@@ -266,12 +268,12 @@ Shogu Research Group Datamutant.ai
 
 ---
 
-> **Hallucinations are information-theoretic necessities when you transmit beyond capacity.**
+> Hallucination risk rises when generation exceeds available topic capacity under the channel model.
 >
-> **When constraints fail, systems thermalize to maximum entropy: fluent form, empty content.**
+> When content constraints fail, generation can relax toward high-entropy form-prior text.
 >
-> **Information cannot be created; it can only be transmitted or lost. The excess is hallucination.**
+> Grounded information should trace to modeled source signal. Unsupported excess is a hallucination candidate.
 
 ---
 
-*Oscar Goldman - Shogu Research Group @ Datamutant.ai - November 2025*
+*Oscar Goldman - Shogu Research Group @ Datamutant.ai - May 2026*
