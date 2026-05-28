@@ -62,6 +62,7 @@ Form structure can arise from combinatorics. Content support still requires sour
 | Form-prior null model has mathematical support | Formal support for the cited model | Berman (2025a, 2025b) |
 | Verification-First improves accuracy | **Empirical** | Wu & Yao (2025) |
 | Optimal noise exists ($T^* > 0$) | **Theoretical and empirical** | Gammaitoni et al. (1998), Wu & Yao (2025) |
+| LLM scaling shows capacity and SNR boundary conditions | **Empirical scaling-law support** | Ouyang et al. (2026) |
 | Test-time learning extends capacity | **Architectural** | Behrouz et al. (2025) - Titans |
 
 ---
@@ -238,6 +239,46 @@ Current status: supported as shared local, semantic, or domain-specific geometry
 
 ---
 
+### 6.3 Scaling-law evidence for capacity and SNR
+
+#### Shannon Scaling Law
+
+**Source:** Ouyang, X., Liu, D., Cai, Y., Liu, J., Yang, Y., Zheng, C., Hartvigsen, T., & Ma, Y. (2026). *LLMs as Noisy Channels: A Shannon Perspective on Model Capacity and Scaling Laws.* [arXiv:2605.23901](https://arxiv.org/abs/2605.23901)
+
+**Findings:**
+- The paper models LLM training as information transmission through a noisy channel.
+- The proposed "Shannon Scaling Law" maps model parameters $N$ to bandwidth, training tokens $D$ to signal power, and data, model interaction, and irreducible terms to noise.
+- The fitted capacity is:
+
+$$
+C_{\text{LLM}} =
+aN^{\alpha}\log_2\left(
+1 +
+\frac{bD^{\beta}}
+{c(DN)^{\gamma} + dD^{\delta} + e}
+\right)
+$$
+
+- The paper links test loss to capacity with $\mathcal{L}(N,D) \approx 1 / C_{\text{LLM}}$.
+- Experiments on Pythia and OLMo2 report non-monotonic loss under Gaussian weight noise, supervised fine-tuning perturbations, and quantization.
+- The paper reports held-out extrapolation on Pythia where fitting on models up to 6.9B parameters and 180B tokens predicts the 12B model up to 307B tokens with pooled $R^2 = 0.847$.
+
+**Implications for framework:**
+- This is external evidence that capacity and signal-to-noise ratio can act as boundary conditions for LLM behavior.
+- The evidence applies most directly to training-time and perturbation-time loss curves, not to hallucination rates.
+- The result is consistent with the HNC claim that scaling a channel without preserving SNR can degrade behavior.
+- The result leaves HNC's source-accounting principle, matching-failure model, decompression-failure model, and thermodynamic hallucination model as separate claims requiring their own tests.
+
+**Terminology boundary:**
+- Use **Shannon Scaling Law** for Ouyang et al.'s empirical scaling law.
+- Use **global LLM capacity** or $C_{\text{LLM}}(N,D)$ for their fitted training-budget capacity.
+- Keep **topic capacity** $C_T$ for HNC's inference-time, topic-conditioned ability to transmit grounded information.
+- Keep **source signal** for HNC's modeled support from weights, context, retrieval, tools, or adaptive memory. Reserve training-token signal power for direct discussion of Ouyang et al.'s scaling law.
+
+**Framework connection:** Corollary 1 (Hallucination threshold), Section 5 (Compression-transmission duality), Section 8.4 (Geometric distortion), Section 8.6 (Optimal noise principle)
+
+---
+
 ## 7. Architectural evidence
 
 ### 7.1 Titans memory hierarchy
@@ -269,6 +310,7 @@ Current status: supported as shared local, semantic, or domain-specific geometry
 | Jha (vec2vec) | 7.4, 11.5 | Def 14 | N/A |
 | Huh (Platonic) | 11.5 | Def 14 | N/A |
 | Berman (Zipf/Form Prior) | 3, 8.5 | Thm 5 | N/A |
+| Ouyang (Shannon Scaling Law) | 5, 8.4, 8.6 | Corollary 1 | NOTES_ON_TERMINOLOGY_CLARIFICATIONS.md |
 | Gammaitoni (Stochastic Resonance) | 8.6 | Thm 6 | NOISE_AND_ERROR_CORRECTION.md |
 | Wu & Yao (Verify-First) | 7.5, 8.6 | Thm 6, Pred 16 | NOISE_AND_ERROR_CORRECTION.md |
 | Behrouz (Titans) | 11.7 | Prop 8, Pred 25-26 | N/A |
@@ -284,6 +326,7 @@ Current status: supported as shared local, semantic, or domain-specific geometry
 | Multi-hop accuracy decays as $(1-\epsilon)^n$ | Theoretical (Thm 4) | Chain-length experiments |
 | Context crowding U-curve (Pred 18) | Theoretical | Context length vs accuracy measurements |
 | Atom coverage correlates with accuracy (Pred 22) | Theoretical | SAE/probing experiments |
+| Relationship between global scaling capacity and topic capacity | Untested bridge | Joint scaling-law and hallucination benchmarks with topic controls |
 
 ---
 
@@ -299,7 +342,9 @@ The framework's main claims have several forms of external support, with importa
 
 4. **Optimal noise has a plausible basis**: supported by Gammaitoni (physics) and motivated by Wu and Yao (verification-first empirics).
 
-5. **Memory hierarchy has architectural support**: supported by Titans as a useful test case.
+5. **Scaling-law capacity has adjacent empirical support**: Ouyang et al. show that a Shannon-Hartley-style law can fit and extrapolate perturbed training-loss curves across model size and token count.
+
+6. **Memory hierarchy has architectural support**: supported by Titans as a useful test case.
 
 The remaining predictions (Sections 9.1-9.7) await systematic empirical testing.
 
@@ -316,3 +361,4 @@ The remaining predictions (Sections 9.1-9.7) await systematic empirical testing.
 7. Gammaitoni, L., et al. (1998). Stochastic Resonance. Rev. Mod. Phys. 70(1), 223–287
 8. Wu, S., & Yao, Q. (2025). Asking LLMs to Verify First is Almost Free Lunch. arXiv:2511.21734
 9. Behrouz, A., et al. (2025). Titans: Learning to Memorize at Test Time. arXiv:2501.00663
+10. Ouyang, X., Liu, D., Cai, Y., Liu, J., Yang, Y., Zheng, C., Hartvigsen, T., & Ma, Y. (2026). LLMs as Noisy Channels: A Shannon Perspective on Model Capacity and Scaling Laws. arXiv:2605.23901

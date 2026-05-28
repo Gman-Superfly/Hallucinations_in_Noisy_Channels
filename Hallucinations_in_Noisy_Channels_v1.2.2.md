@@ -196,6 +196,8 @@ Boundary: this analogy explains why rule-preserving compression can support reco
 
 Shannon's source coding theorem (Shannon, 1948) establishes a limit on lossless compression by the entropy rate. HNC uses this as the source-coding side of the framework: a model can only reconstruct information that was stored, supplied, retrieved, or formed during inference.
 
+Genewein et al. (2026) give a direct foundation for this reading. They review the prediction-compression equivalence: a sequential predictor can be converted into a lossless compressor through arithmetic coding, and minimizing log-loss improves compression. They also review evidence that pretrained sequence models can act as amortized Bayesian predictors over task distributions. HNC uses this as support for the source-coding side of the theory, with hallucination-specific tests still required. See [Algorithmic compression via pretrained neural networks](documentation/RESEARCH_LEADS_UNDER_REVIEW.md#algorithmic-compression-via-pretrained-neural-networks).
+
 $$
 H(X) = -\sum_x p(x) \log p(x) \tag{Def}
 $$
@@ -553,6 +555,8 @@ $$
 
 Here, $C_T^{effective}$ is the topic capacity available to the current query, $C_T^{static}$ is the capacity supplied by model weights, and $\Delta C(\text{context})$ is the additional usable signal supplied by context. The added signal can come from examples, retrieved passages, system instructions, or other prompt structure. It is useful only to the extent that the model can attend to it and reconstruct from it.
 
+The memory-based meta-learning view reviewed by Genewein et al. (2026) gives a compatible interpretation of ICL. Under idealized meta-training, context lets a frozen model infer the current task within a learned mixture and produce an amortized Bayesian prediction. HNC translates this into source-accounting language: context increases effective capacity when it helps identify a supported task or source, while tasks outside learned support remain capacity risks.
+
 ### 4.2 Techniques as error correction
 
 Different prompting techniques map to error-correction strategies:
@@ -889,6 +893,8 @@ Kolmogorov garbage is distinct from random noise. It consists of structurally va
 
 *Terminological note:* Kolmogorov garbage, a decompression failure, differs from form prior sampling, a thermalization failure discussed in Section 8.5. Kolmogorov garbage occurs when relevant knowledge is present but there is not enough room to reconstruct it. Form prior sampling occurs when the available source signal is absent or too weak, so generation relaxes toward learned priors and produces fluent text with weak content grounding. Both can produce hallucinations, but through different mechanisms.
 
+*Supporting mechanism under review:* Thinking as Compression (Ma et al., 2026) trains a reasoning model to convert long context and a query into a compact thinking trace that a downstream answer model can use without seeing the original context. This gives HNC a direct test surface for dynamic codebooks and decompression budgeting: the trace acts as compressed context, the budget controls working load, and downstream answer quality tests whether the trace preserved usable source signal. The result is relevant to this section and still needs HNC-specific unsupported-claim tests. See [Thinking as Compression: reasoning traces as compressed context](documentation/RESEARCH_LEADS_UNDER_REVIEW.md#thinking-as-compression-reasoning-traces-as-compressed-context).
+
 #### 4.5.3 Bidirectional bandwidth: the context-decompression trade-off
 
 The context window has two roles. It supplies source signal that shapes the effective query, and it also consumes finite working capacity that reconstruction needs.
@@ -961,7 +967,7 @@ Here, $K_{storage}(r)$ is the complexity of storing representation $r$, and $K_{
 
 The asymmetry appears in ordinary computation: a program file can be small while running it requires stack, heap, and intermediate state. A compressed archive can be small while decompression needs buffer space. In HNC terms, the concept "French Revolution" may be stored compactly, but generating a coherent explanation requires unfolding dates, figures, causes, and consequences into an active working state.
 
-This asymmetry means context management should account for working capacity during generation, not only for source tokens supplied to the model.
+This asymmetry means context management should account for working capacity during generation as well as source tokens supplied to the model.
 
 #### 4.5.5 Implications
 
@@ -974,6 +980,7 @@ The decompression view gives a possible explanation for several observed phenome
 | Simple prompts work better on complex topics | More room for complex reconstruction |
 | RAG can hurt when over-filled | Context crowds out working memory |
 | Chain-of-thought helps | Distributes decompression across steps |
+| Query-conditioned thinking traces may help | Compress source signal into a smaller dynamic codebook |
 
 #### 4.5.6 Three hallucination mechanisms
 
@@ -1003,13 +1010,17 @@ At this point, HNC has three complementary mechanisms:
 
 ### 4.6 Attention sinks and anchoring
 
-The decompression model also needs an attention-allocation account. The graph-diffusion view of attention sinks from Pappone (2025) gives one candidate mechanism: some positions can accumulate attention mass and reduce access to later source signal. In HNC, this makes context crowding partly an allocation problem, not only a token-count problem.
+The decompression model also needs an attention allocation account. The graph diffusion view of attention sinks from Pappone (2025) gives one candidate mechanism: some positions can accumulate attention mass and reduce access to later source signal. Queipo-de-Llano et al. (2025) give a second mechanism lead: beginning of sequence massive activations can coincide with attention sinks and middle layer compression valleys in decoder only transformers. In HNC, this makes context crowding partly an allocation and representation compression problem, alongside the token count problem.
 
 *Supporting mechanism under review:* GOAT (Litman and Guo, 2026) frames attention as entropic optimal transport with an explicit prior. This gives a candidate attention-level mechanism for prior relaxation and sink formation. The result is relevant to this section and still needs HNC-specific hallucination tests. See [GOAT: trainable attention priors](documentation/RESEARCH_LEADS_UNDER_REVIEW.md#goat-trainable-attention-priors).
+
+*Supporting mechanism under review:* Queipo-de-Llano et al. (2025) connect attention sinks and compression valleys to massive residual stream activations. The paper studies internal mechanics and downstream performance. HNC should treat it as a mechanism lead for sink-limited capacity and decompression, with hallucination specific tests still required. See [attention sinks and compression valleys](documentation/RESEARCH_LEADS_UNDER_REVIEW.md#attention-sinks-and-compression-valleys-massive-activations).
 
 #### 4.6.1 The mechanism of sinks
 
 Causal attention can be represented as a directed acyclic graph. Repeated composition can push probability mass toward early tokens. HNC calls these positions *attention sinks* when they accumulate disproportionate attention independent of their semantic value.
+
+When hidden states are available, attention mass should be measured together with residual stream geometry. Queipo-de-Llano et al. (2025) measure beginning of sequence norm dominance, matrix based entropy, anisotropy, mixing score, column sum concentration, and sink versus identity structure. They report that massive activations and sink formation can emerge together in middle layers. HNC can use these quantities as architecture specific probes for whether a sink is also a compression event.
 
 **Definition 8 (Sink severity).**
 The sink severity $s(L)$ is the fraction of total attention mass concentrated in the first $k$ tokens (the prefix) across all heads and layers $L$:
@@ -1020,9 +1031,20 @@ $$
 
 Here, $H$ is the number of heads, $L$ is the number of layers included in the measurement, $h$ indexes heads, $\ell$ indexes layers, $i$ indexes query positions after the prefix, and $j$ indexes attended positions. $A^{(\ell,h)}_{i \to j}$ is the attention weight from position $i$ to position $j$ in layer $\ell$ and head $h$. Rows of $A$ are normalized after softmax so $\sum_j A_{i \to j} = 1$ for each query position $i$.
 
+For open weight decoder only models, this attention only metric should be paired with hidden state compression metrics:
+
+$$
+c_{\text{BOS}}^{(\ell)} = \frac{\lVert x_{\text{BOS}}^{(\ell)} \rVert^2}{\sum_{i \ne \text{BOS}} \lVert x_i^{(\ell)} \rVert^2},
+\qquad
+H(X^{(\ell)}) = -\sum_j p_j^{(\ell)} \log p_j^{(\ell)}
+\tag{Proxy}
+$$
+
+Here, $c_{\text{BOS}}^{(\ell)}$ is the beginning of sequence norm ratio at layer $\ell$, $x_i^{(\ell)}$ is the residual stream representation for token $i$, $X^{(\ell)}$ is the token by feature representation matrix, and $p_j^{(\ell)}$ is the normalized squared singular value of $X^{(\ell)}$. Low matrix entropy with high sink severity indicates a candidate sink compression event under this proxy. Mixing score, column sum concentration, and sink versus identity index can further separate broad mixing, sink concentration, and late identity style attention.
+
 #### 4.6.2 Impact on capacity
 
-Sinks can reduce the effective bandwidth available for late-context tokens. If attention concentrates on a beginning-of-sequence token, system prompt, or other prefix anchor, then retrieved context and recent tokens may contribute less to reconstruction.
+Sinks can reduce the effective bandwidth available for late context tokens. If attention concentrates on a beginning of sequence token, system prompt, or other prefix anchor, then retrieved context and recent tokens may contribute less to reconstruction. If the sink coincides with middle layer compression, then late evidence can face two constraints at once: reduced attention allocation and reduced representational degrees of freedom.
 
 **Proposition 7 (Sink-limited capacity).**
 The effective context capacity $C_{ctx}$ is monotonically decreasing with sink severity $s$:
@@ -1031,17 +1053,17 @@ $$
 \frac{\partial C_{ctx}}{\partial s} \le 0 \tag{Approx}
 $$
 
-Here, $C_{ctx}$ is the usable capacity supplied by context, and $s$ is sink severity. The approximation states that stronger sink concentration reduces usable context capacity under the model. As $s \to 1$, the channel becomes prefix-dominated, so reconstruction can fail even when relevant information appears later in context.
+Here, $C_{ctx}$ is the usable capacity supplied by context, and $s$ is sink severity. The approximation states that stronger sink concentration reduces usable context capacity under the model. As $s \to 1$, the channel becomes prefix dominated, so reconstruction can fail even when relevant information appears later in context. With hidden state access, HNC should test whether $C_{ctx}$ also decreases as $c_{\text{BOS}}^{(\ell)}$ rises and $H(X^{(\ell)})$ drops in the layers used for reconstruction.
 
 #### 4.6.3 Thermodynamic consequence
 
 Sinks create strong attention priors at the start of the sequence.
 
 - Aligned sinks: if the sink tokens are semantic anchors, such as entity definitions or strong constraints, the prior can route attention toward grounded states.
-- Misaligned sinks: if sinks are generic, such as "The" or a beginning-of-sequence token, the prior can compete with content scores. Increasing temperature $T$ can increase entropy pressure and move attention or output toward learned priors when content signal is weak.
+- Misaligned sinks: if sinks are generic, such as "The" or a beginning of sequence token, the prior can compete with content scores. Increasing temperature $T$ can increase entropy pressure and move attention or output toward learned priors when content signal is weak.
 
 **Prediction 21 (Position primacy).**
-Tasks requiring late-context evidence should degrade as sink severity $s$ increases. Repeating semantic anchors at intervals should maintain effective capacity better than placing all anchors in the prefix.
+Tasks requiring late context evidence should degrade as sink severity $s$ increases. In open weight decoder only models, the degradation should be stronger when high sink severity coincides with beginning of sequence norm dominance and low matrix entropy. Repeating semantic anchors at intervals should maintain effective capacity better than placing all anchors in the prefix.
 
 ### 4.7 Information atoms: grounding the framework
 
@@ -1524,6 +1546,8 @@ The proposed controller has five regimes:
 3. Decomposition regime: reduce requested rate by splitting the task into smaller claims when one-pass reconstruction would exceed working capacity.
 4. Adaptive-memory regime: write context-derived structure into longer-lived memory when the source is present in context but unstable under attention-only reconstruction.
 5. Abstention or clarification regime: ask for missing sources, narrow the claim, or return uncertainty when no available source can support the request.
+
+Thinking as Compression (Ma et al., 2026) is a useful implementation lead for the decomposition regime. Its Thinker-Answerer pipeline trains a thinker to turn long context into a compact, query-conditioned trace, then asks a separate answerer to respond from that trace. In HNC terms, this reduces the working load before final generation while preserving source signal through a verifier style utility reward. The result supports testing compressed intermediate states as a verifiable-generation control, with source faithfulness checks still needed for hallucination claims.
 
 ```mermaid
 flowchart TD
@@ -2513,6 +2537,119 @@ The optimal $(\sigma^*, \rho^*)$ pair varies systematically with topic capacity:
 
 This predicts that uniform temperature settings are suboptimal; adaptive temperature scheduling based on estimated knowledge capacity should improve accuracy.
 
+### 8.7 Diffusion interpretation: denoising as source conditioned repair
+
+The thermodynamic section gives HNC an accounting language: entropy, constraints, prior relaxation, temperature, and free energy proxies. A diffusion interpretation adds a dynamics language: how an answer state moves step by step under noise, drift, source conditioning, and correction. HNC should keep the thermodynamic account, then use diffusion as a testable process model for repair.
+
+Scope: autoregressive LLMs remain the object under study. Diffusion supplies a source conditioned denoising experiment that can be run on text outputs, claim sets, embeddings, hidden states, or intermediate traces.
+
+#### 8.7.0 Intuition: the smudged page
+
+Diffusion in physics describes how local structure spreads under random motion. A drop of ink placed in water spreads because many microscopic motions disperse it. Denoising asks the reverse question: given a corrupted state and a source of structure, can we recover a more constrained state?
+
+```
+┌─────────────────────────────────────────────────────────────────────────┐
+│                                                                         │
+│  The smudged page                                                        │
+│                                                                         │
+│  Physical example:                                                       │
+│    A clean page contains a written fact.                                 │
+│    Water smears the ink.                                                 │
+│    The page still contains traces, but some structure has diffused.       │
+│                                                                         │
+│  Denoising with source support:                                          │
+│    If the original text or a reliable reference exists, repair can       │
+│    pull the page back toward the supported statement.                    │
+│                                                                         │
+│  Denoising without source support:                                       │
+│    If no reference exists, repair can remove uncertain marks or ask      │
+│    for a source. It cannot recover a fact absent from all sources.       │
+│                                                                         │
+│  HNC mapping:                                                            │
+│    The draft answer is the smudged page.                                 │
+│    Source signal supplies the reference.                                 │
+│    Denoising removes unsupported claims and restores supported ones.      │
+│                                                                         │
+└─────────────────────────────────────────────────────────────────────────┘
+```
+
+Boundary: the smudged page analogy explains source conditioned repair. The literal physical diffusion process remains outside the claim.
+
+#### 8.7.1 Mechanism
+
+Let $z_t$ be the current answer state at denoising step $t$. Depending on the experiment, $z_t$ can be a draft answer, a set of extracted claims, an embedding, a hidden state, or a compressed trace. Let $S_T$ be the modeled source signal for topic $T$, and let $Q_{eff}$ be the effective query.
+
+The forward failure process moves $z_t$ away from source support. This can happen through matching errors, context crowding, retrieval noise, multi-hop distortion, excessive sampling noise, or weak content constraints that allow prior relaxation.
+
+The reverse repair process applies a source conditioned denoising step:
+
+$$
+z_{t-1} = D_\phi(z_t, S_T, Q_{eff}, V_d) \tag{Proxy}
+$$
+
+Here, $D_\phi$ is a denoising or repair operator, $S_T$ is the modeled source, $Q_{eff}$ is the effective query, and $V_d$ is a domain verifier. The operator should reduce unsupported content while preserving supported content. It may be implemented as a second LLM pass, a retrieval grounded revision step, a claim verifier, a tool check, or a hidden state intervention in open models.
+
+The core repair rule is:
+
+$$
+U(z_{t-1}; S_T, Q_{eff}) \leq U(z_t; S_T, Q_{eff}) \tag{Conj}
+$$
+
+Here, $U(z; S_T, Q_{eff})$ is an unsupported content score for answer state $z$ given source signal and effective query. A useful denoising step should reduce this score or leave it unchanged. If the source lacks the needed information, then the best denoising action may be removal, retrieval, clarification, or abstention rather than a more specific answer.
+
+#### 8.7.2 Diffusion view of HNC failure modes
+
+The diffusion interpretation gives each HNC failure mode a repair test:
+
+| Failure mode | Diffusion interpretation | Denoising test |
+|---|---|---|
+| Capacity violation | No source supported target state exists in the modeled source | Repair should remove, retrieve, clarify, or abstain |
+| Matching failure | State is pulled toward the wrong source basin | Repair should switch to the source supported candidate when evidence is present |
+| Decompression failure | State contains supported fragments without global coherence | Repair should connect fragments only when the source supports the connection |
+| Geometric distortion | Each stage moves the state farther from a supported region | Repair should reduce off source distance or unsupported claims |
+| Prior relaxation | Weak source conditioning lets broad form structure dominate | Repair should replace generic claims with source tied claims or uncertainty |
+| Noise failure | Sampling explores unsupported states faster than it finds supported states | Repair benefit should peak under weak recoverable source signal |
+
+This table makes denoising an attribution test. If repair succeeds only when source evidence is present, then the failure was partly recoverable. If repair cannot improve support after retrieval and verification, then the request may exceed available capacity.
+
+#### 8.7.3 Formal characterization
+
+HNC can model the answer state as following a source conditioned stochastic update:
+
+$$
+z_{t+\Delta t}
+= z_t
++ \underbrace{b_{\text{form}}(z_t)\Delta t}_{\text{prior drift}}
+- \underbrace{\lambda \nabla E_{\text{source}}(z_t; S_T, Q_{eff})\Delta t}_{\text{source pull}}
++ \underbrace{\sigma_t \xi_t}_{\text{noise}}
+\tag{Proxy}
+$$
+
+Here, $b_{\text{form}}(z_t)$ is drift toward broad form-prior structure, $E_{\text{source}}(z_t; S_T, Q_{eff})$ is a source grounding energy proxy, $\lambda$ is source conditioning strength, $\sigma_t$ is noise level, and $\xi_t$ is a random perturbation. This is a proxy for dynamics, and the exact internal update rule of a transformer remains an empirical question.
+
+The source grounding energy can be defined operationally as:
+
+$$
+E_{\text{source}}(z; S_T, Q_{eff}) = -\log P(V_d(z, S_T, Q_{eff}) = 1) \tag{Proxy}
+$$
+
+Here, $V_d$ is the domain verifier. Lower energy means the answer state is more likely to pass the verifier under the modeled source. Denoising should move the state toward lower source grounding energy when source support exists.
+
+**Conjecture 9 (Source conditioned denoising).**
+For tasks with available source support, a denoising step conditioned on $S_T$ and $Q_{eff}$ should reduce unsupported content more than an unconditioned rewrite:
+
+$$
+\Delta U_{\text{source}} > \Delta U_{\text{rewrite}} \tag{Conj}
+$$
+
+Here, $\Delta U_{\text{source}} = U(z_t) - U(D_\phi(z_t, S_T, Q_{eff}, V_d))$ is unsupported content reduction after source conditioned denoising, and $\Delta U_{\text{rewrite}}$ is unsupported content reduction after a generic rewrite with no source access. The prediction applies when source support exists and the verifier can detect unsupported claims.
+
+**Prediction 27 (Denoising benefit).**
+For supported or weak recoverable items, source conditioned denoising should reduce unsupported claim rate while preserving or improving exact match, F1, citation support, or verifier pass rate.
+
+**Prediction 28 (No source limit).**
+For unsupported items, source conditioned denoising should increase abstention, retrieval requests, or claim removal. A more specific answer requires new source signal. If exact answer accuracy rises on unsupported items without new source signal, then HNC should treat that as evidence of untracked source signal, benchmark leakage, or verifier failure.
+
 ---
 
 ## 9. Experimental predictions
@@ -2525,6 +2662,7 @@ The main formal claims draw on the following sources:
 - Conjecture 5 (thermodynamic hallucination model) is motivated by the Gibbs-Boltzmann distribution and maximum-entropy principles (Sections 8.5 and 10.5).
 - Conjecture 6 (optimal noise principle) is motivated by stochastic resonance and annealing-style trade-offs between exploration and stability (Sections 8.6 and 10.5).
 - Conjecture 7 (adaptive resonance optimality) is motivated by joint control of noise and vigilance in matching (Section 8.6.8).
+- Conjecture 9 (source conditioned denoising) is a testable dynamics interpretation derived from the thermodynamic, distortion, and noise models (Section 8.7).
 - Conjecture 8 (model-specific sampling limit) is motivated by Nyquist-Shannon sampling theory applied to representation manifolds (Section 11.6).
 
 ### 9.1 Testable hypotheses
@@ -2777,6 +2915,17 @@ Optimal noise experiments should test whether intermediate stochasticity improve
 5. Dropout ablation: compare models trained with and without dropout on out-of-distribution tasks and measure correction behavior.
 6. Annealing schedules: test whether temperature annealing during generation improves over fixed temperature.
 
+### 9.8 Source conditioned denoising experiments
+
+Denoising experiments should test whether source conditioned repair reduces unsupported content after an initial noisy or distorted answer:
+
+1. Draft and repair test: generate an initial answer, extract claims, then run a source conditioned repair step. Measure unsupported claim rate before and after repair.
+2. Source conditioned versus generic rewrite: compare repair with source access against a generic rewrite with no source access. The source conditioned step should reduce unsupported content more.
+3. No source limit test: use unsupported items and measure whether repair increases abstention, retrieval requests, or claim removal rather than adding unsupported specificity.
+4. Weak source recovery test: use weak recoverable items and measure whether denoising improves support without erasing correct low frequency facts.
+5. Multi step denoising curve: apply several repair passes and measure whether support improves, saturates, or begins to overfit the verifier.
+6. Representation level test: for open models, measure whether denoising reduces distance from a source supported representation region or improves a verifier probe.
+
 ---
 
 ## 10. Related work
@@ -2908,6 +3057,14 @@ The noise principle adds a correction mechanism. Noise can damage retrieval, but
 
 The theoretical framework relies heavily on Kolmogorov complexity $K(x)$, the length of the shortest program that generates $x$. This quantity is provably uncomputable (halting problem). We cannot measure true $K(x)$ for arbitrary data.
 
+Genewein et al. (2026) add a second practical limitation that HNC should track: finite pretrained networks approximate ideal Bayesian or universal predictors. One useful quantity is the amortization gap:
+
+$$
+\Delta_{\text{amort}}(x_{<t}) = D_{KL}\left(\xi(\cdot \mid x_{<t}) \| \pi_\theta(\cdot \mid x_{<t})\right) \tag{Proxy}
+$$
+
+Here, $\xi$ is the exact Bayesian mixture predictor under the modeled task distribution, and $\pi_\theta$ is the neural predictor. The gap measures excess prediction error from finite capacity, finite data, and optimization limits. HNC can treat this as a future approximation-gap proxy alongside source support and topic capacity.
+
 #### 11.5.0 Intuition: shared objects and shared geometry
 
 Why might different models learn related geometry? If two models represent the same external object well enough to answer similar questions, then some structure in their internal representations may overlap even when their coordinates differ.
@@ -3038,6 +3195,8 @@ Here, $\varepsilon_{\mathrm{id}}$ is identity-retrieval error, $c_1$ is a consta
 
 Recent architectural work provides a useful test case for several HNC mechanisms. The Titans architecture (Behrouz et al., 2025) introduces a neural long-term memory module that can memorize at test time. HNC treats Titans as architectural evidence for dynamic memory and test-time capacity extension, not as a test of the full framework.
 
+Thinking as Compression (Ma et al., 2026) gives a complementary external memory case. It writes a compact natural-language trace from the current context and query, then uses that trace as the downstream answerer's working source. HNC can use Titans to test internal memory extension and TaC to test externalized dynamic codebook construction under a budget.
+
 #### 11.7.0 Intuition: the open-book exam
 
 Standard LLMs rely on fixed weights after training. If the context contains new information, then the model must use attention and the context window to keep that information available during generation. Test-time memory changes this setup by allowing a model to write some information into a longer-lived memory state.
@@ -3130,7 +3289,7 @@ $$
 S_t = \text{diag}(\eta_t)S_{t-1} - \text{diag}(\theta_t)(\mathcal{M}_{t-1}k_t^\top k_t - v_t^\top k_t)
 $$
 
-Here, $S_t$ is the surprise state, $\eta_t$ and $\theta_t$ are update gates, $\mathcal{M}_{t-1}$ is previous memory, and $k_t$ and $v_t$ are key and value vectors. The update uses sequence history, not only the current token. In HNC terms, this supports three claims:
+Here, $S_t$ is the surprise state, $\eta_t$ and $\theta_t$ are update gates, $\mathcal{M}_{t-1}$ is previous memory, and $k_t$ and $v_t$ are key and value vectors. The update uses sequence history as well as the current token. In HNC terms, this supports three claims:
 - Context structure matters because early framing can shape later matching.
 - Chain-of-thought can help when each step supplies useful intermediate constraints.
 - Position primacy can arise because early tokens influence the state that later tokens build on.
@@ -3301,6 +3460,12 @@ Analysis of Boltzmann [Published: March 1990] Alexander Bach . URL: https://link
 35. Koepke, A. S., Zverev, D., Ginosar, S., & Efros, A. A. (2026). Back into Plato's Cave: Examining Cross-modal Representational Convergence at Scale. arXiv:2604.18572. https://arxiv.org/abs/2604.18572
 
 36. Gröger, F., Wen, S., & Brbić, M. (2026). Revisiting the Platonic Representation Hypothesis: An Aristotelian View. arXiv:2602.14486. https://arxiv.org/abs/2602.14486
+
+37. Queipo-de-Llano, E., Arroyo, A., Barbero, F., Dong, X., Bronstein, M., LeCun, Y., & Shwartz-Ziv, R. (2025). Attention Sinks and Compression Valleys in LLMs are Two Sides of the Same Coin. arXiv:2510.06477. https://arxiv.org/abs/2510.06477
+
+38. Ma, G., Liu, Y., Li, C., Liang, Y., Wang, Y., Zhang, Y., Chen, K., Zhang, Z., Sun, Z., & Shi, D. (2026). Thinking as Compression: Your Reasoning Model is Secretly a Context Compressor. arXiv:2605.28713. https://arxiv.org/abs/2605.28713
+
+39. Genewein, T., Grau-Moya, J., Wenliang, L. K., Orseau, L., & Hutter, M. (2026). Algorithmic Compression via Pretrained Neural Networks. Entropy, 28(6), 596. https://doi.org/10.3390/e28060596
 
 ---
 
