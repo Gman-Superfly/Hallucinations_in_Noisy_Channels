@@ -58,6 +58,55 @@ The support condition matters. The article states that Bayesian guarantees depen
 
 **Caveats:** This article reviews foundational work on algorithmic compression, amortized Bayesian prediction, and universal prediction. The HNC use should stay precise: cite it for prediction-compression equivalence, amortized Bayesian interpretation of in-context learning, support limits, and approximation gaps. Hallucination-specific claims still need experiments that measure unsupported output, refusal behavior, source attribution, and failure mode labels.
 
+### Neural weight norm as Kolmogorov complexity
+
+**Source status:** Checked, theory lead, reproduction needed for HNC use.
+
+**Paper:** Musat, T. (2026). *Neural Weight Norm = Kolmogorov Complexity.* arXiv:2605.10878. https://arxiv.org/abs/2605.10878
+
+**Code:** No official implementation repository verified yet.
+
+**Relevant claim for this framework:** The paper proves a two sided asymptotic bound between the minimum number of nonzero fixed precision neural parameters needed for a looped network to emit a binary string $s$ and the Kolmogorov complexity $K(s)$ of that string:
+
+$$
+\mathcal{N}(s) \leq K(s) \leq c \mathcal{N}(s)\log \mathcal{N}(s) + c.
+$$
+
+Here $\mathcal{N}(s)$ is the minimum nonzero parameter count of a fixed precision looped neural network that halts and outputs $s$. The paper then argues that, in fixed precision, $L_p$ weight norms collapse to nonzero parameter count up to constants. Under that condition, a weight norm regularizer can be read as a description length proxy for emitted strings. The paper also derives an induced output prior that matches Solomonoff's universal prior up to a logarithmic factor in the exponent.
+
+**Why it matters here:** This is relevant to HNC's compression prior layer. HNC already treats learned weights as a compressed source and treats unsupported generation as relaxation toward a form prior when source support is weak. Musat gives a theoretical route from fixed precision weights, sparsity, weight norm, and output description length to a Solomonoff style prior over computable strings. This helps explain why simple high prior continuations can dominate when the effective query lacks enough source signal.
+
+**HNC interpretation:** The paper strengthens the static codebook side of HNC. In HNC language, fixed precision weights carry a finite description length, and regularization biases the model toward shorter descriptions. This gives a sharper vocabulary for the form prior: part of the form prior can be treated as the output prior induced by the regularized compressed source. The result also supports the planned compression proxy path in `hnc_lab`, where `ApproximationGap` rows can record log loss proxies, code length proxies, support condition, and unsupported claim rate.
+
+The distinction from Genewein et al. matters. Genewein et al. focus on prediction-compression equivalence and amortized Bayesian prediction. Musat focuses on the description length of fixed precision neural parameters and the induced prior over emitted strings. Together they suggest one testable HNC question: when source support is weak, do compression proxy variables predict whether the output falls toward short, common, unsupported continuations?
+
+**Framework mapping:**
+
+1. **Static codebook:** Fixed precision weights can be treated as a finite information store whose norm or sparsity relates to description length under the paper's assumptions.
+2. **Form prior:** Weight regularization can induce a Solomonoff style output prior, up to the paper's logarithmic factor.
+3. **Capacity violation:** If a prompt asks for content outside the usable source support, then output may be drawn more strongly from the induced prior.
+4. **Approximation gap:** The theorem concerns minimum norm emitters and induced priors, while trained models found by optimization may differ. HNC should track this gap rather than assuming trained weights achieve the theoretical minimum.
+5. **Architecture profile:** The theorem is stated for fixed precision looped networks emitting strings. API only text experiments cannot measure the internal norm condition directly.
+6. **Quantization and sparsity:** The fixed precision condition makes int4, int8, sparsity, pruning, and weight decay natural experiment surfaces for HNC compression proxy work.
+
+**Useful quantities for HNC:**
+
+1. **Nonzero parameter count:** $\|\theta\|_0$, measured after pruning or thresholding under a stated precision regime.
+2. **Log augmented norm proxy:** $\|\theta\|_2^2 \log \|\theta\|_2^2$, the paper's suggested effective complexity proxy for generalization.
+3. **Quantization regime:** fp16, bf16, int8, int4, or another fixed precision format.
+4. **Sparsity level:** fraction of zero or near zero parameters after a defined pruning rule.
+5. **Compression proxy row:** a record joining norm proxies, log loss proxies, source support labels, exact match, refusal quality, and unsupported claim rate.
+
+**Experiment queue:**
+
+1. **Claim binding:** Add the paper to the `compression_proxy_pass` path before citing it as evidence. The first use should record what norm or sparsity proxy was measured and what precision regime was used.
+2. **Small model comparison:** Train or fine tune small fixed precision models with different weight decay or sparsity settings on controlled tasks with low complexity and random labels. Test whether the log augmented norm proxy separates them.
+3. **Source support test:** On the same generated outputs, record support condition, exact match, refusal quality, source attribution labels, and unsupported claim rate. Test whether weaker source support increases dependence on short high prior continuations.
+4. **Quantization test:** Compare fp16, int8, and int4 variants when available. Measure whether stronger quantization and sparsity make norm proxies more predictive of unsupported output.
+5. **SGD gap test:** Compare the theoretical minimum norm story against trained model behavior. Treat the gap between minimum norm existence and learned weights as an approximation or optimization gap.
+
+**Caveats:** The result is theoretical and asymptotic. It applies to fixed precision looped networks that emit strings, not directly to ordinary feedforward supervised learning or chat models. The induced prior statement concerns a prior over weights and outputs, not what gradient descent necessarily finds. The paper does not run hallucination experiments. HNC should use it as a compression prior lead until local experiments connect norm or sparsity proxies to unsupported output under source support strata.
+
 ### Thinking as Compression: reasoning traces as compressed context
 
 **Source status:** Checked, reproduction needed.
@@ -408,11 +457,11 @@ This suggests a direct HNC question: when the source facts are held fixed, does 
 
 ### Experiment 8: compression proxies and source support
 
-**Question:** Do prediction-compression quantities help predict unsupported output under HNC source-support strata?
+**Question:** Do prediction-compression quantities and fixed precision norm proxies help predict unsupported output under HNC source support strata?
 
-**Methods:** For the same prompt set, record log-loss or available probability proxies, compression proxies, exact match, refusal quality, source attribution labels, and unsupported-claim rate. Stratify items by strong source, weak recoverable source, unsupported source, and misleading source.
+**Methods:** For the same prompt set, record log loss or available probability proxies, code length proxies, fixed precision norm proxies when model weights are available, quantization regime, sparsity level, exact match, refusal quality, source attribution labels, and unsupported claim rate. Stratify items by strong source, weak recoverable source, unsupported source, and misleading source.
 
-**Framework target:** Learning as compression, capacity violation, approximation gap, in-context support, and source accounting.
+**Framework target:** Learning as compression, static codebooks, form prior, capacity violation, approximation gap, in-context support, and source accounting.
 
 ## Promotion rule
 
