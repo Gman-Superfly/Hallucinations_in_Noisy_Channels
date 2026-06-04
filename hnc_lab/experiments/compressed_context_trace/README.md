@@ -21,10 +21,25 @@ The first implementation should compare full context, generic summaries, token p
 - target and actual compression ratio,
 - trace utility,
 - trace faithfulness,
+- payload retention,
+- routing payload mismatch,
 - answer leakage flag,
 - unsupported claim rate,
 - downstream exact match or F1.
 
+## Payload audit
+
+This experiment should separate routing from payload preservation.
+
+Routing asks whether the trace points to the right region of the source context. Payload preservation asks whether the exact claim supporting content survived inside the trace. A trace can route correctly and still lose the value like payload needed to support the final claim.
+
+The first audit should mark each generated claim with:
+
+- the source span that should support it,
+- whether that source span was selected or summarized,
+- whether the trace retained the claim supporting payload,
+- whether the answer used the retained payload accurately.
+
 ## Evidence boundary
 
-A trace that improves answer score can still hide source accounting errors. The trace must be audited against the original context before it counts as support for HNC.
+A trace that improves answer score can still hide source accounting errors. The trace must be audited against the original context before it counts as support for HNC. It should count as source preserving only when the claim supporting payload survives the compression step.

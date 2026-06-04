@@ -262,6 +262,55 @@ The downstream RAG experiment is useful as a research lead because it links the 
 
 **Caveats:** The paper studies internal mechanics and downstream performance. Hallucination remains an HNC specific test. The paper supports a mechanism lead for sink-limited capacity and decompression. Its hidden state measurements require model access, so API only experiments can only test downstream behavioral signatures.
 
+### TCC context and payload separation
+
+**Source status:** Checked internal design lead, reproduction needed for HNC use.
+
+**Source:** `C:\Git\TCC`, especially `ONE_FIELD_NOTE.md`, `M2_INTEGRATION_DESIGN.md`, `M2_RESULTS.md`, `M2_SPEC.md`, and `model/shared_readout.py`.
+
+**Related unpublished lead:** He, M., Liu, Y., Huang, Q., & Zhang, L. (unpublished). *Do value vectors in deep layers need context from the residual stream?* This is cited in TCC as Bank of Values. Treat it as an unpublished supporting pointer until a paper or reproducible artifact is available.
+
+**Relevant claim for this framework:** TCC separates context routing from payload transport. The carried state `m_t` supplies a context path:
+
+```text
+m_t -> shared_read_trunk(m_t) -> h_t
+```
+
+The candidate code, observed present code dimensions, future teacher code, and candidate action window remain direct payload paths. In attention terms, the context path is QK-like because it decides which constraints, memories, futures, or completions matter. The payload paths are V-like because they carry the content being denoised, completed, scored, or ranked.
+
+**Why it matters here:** HNC source accounting requires more than correct routing. A model can route to a relevant place in context while losing the value like content needed to support a claim. This matters for compressed context traces, attention sinks, late context failure, and source conditioned repair. If compression preserves where to look but drops what was actually stated, then the final answer can remain coherent while exceeding the available source.
+
+**HNC interpretation:** TCC gives HNC a useful design rule: keep separate measurements for routing success and payload preservation. Routing success asks whether the effective query or attention path selects the right region, source, or constraint. Payload preservation asks whether the content needed for the claim remains available after compression, attention allocation, settling, or repair. A compressed trace, hidden state, retrieval summary, or denoising step should count as grounded only when it preserves the payload evidence that later claims require.
+
+The TCC results support a conservative intermediate architecture. M2a and M2b pass with shared context, separate heads, and direct payload inputs. The results leave one field unification unproved. The TCC notes explicitly warn that forcing all payload through `m_t` or through one scalar field can blur the experiment because payload may be erased or smuggled into the compressed state.
+
+**Framework mapping:**
+
+1. **Source accounting:** A claim needs a payload path to source content, not only a route to a relevant context region.
+2. **Compressed context traces:** A trace can improve answer score while dropping payload details. HNC should audit trace faithfulness at the claim level, not only downstream exact match.
+3. **Sink-limited capacity:** Attention sinks may preserve global routing or positional bias while starving late value content. This creates a concrete measurement split between attention allocation and content transport.
+4. **Decompression failure:** If the compressed state carries constraints without enough payload detail, the answerer may reconstruct a plausible form from the prior.
+5. **Source conditioned denoising:** A repair step should receive explicit source payload or retrieval evidence. A repair that only receives a compressed context state may improve fluency while leaving source support untracked.
+6. **Experiment design discipline:** Shared trunks and unified objectives should be tested against baselines that receive the same evidence and target. Direct payload access should be declared before the run.
+
+**Useful quantities for HNC:**
+
+1. **Routing accuracy:** whether the selected context, retrieved passage, attention region, or trace span contains the required evidence.
+2. **Payload retention:** whether the exact claim supporting content survives compression, summarization, attention routing, or denoising.
+3. **Payload attribution:** which source text, retrieved passage, tool output, or memory record supports each generated claim.
+4. **Routing-payload mismatch:** cases where routing points to the right source region but the generated claim is unsupported by the retained payload.
+5. **Direct-payload flag:** whether an experiment gives the answerer direct access to source text, only a compressed trace, only retrieved summaries, or hidden state features.
+
+**Experiment queue:**
+
+1. **Trace payload audit:** In `compressed_context_trace`, compare full context, summaries, token pruning, and query conditioned traces. For each generated claim, record whether the claim's supporting payload survived in the trace.
+2. **Routing versus payload split:** On open weight models, measure attention routing to evidence tokens and separately test whether the value-side content influences the output. Use late evidence prompts where routing and content can diverge.
+3. **Sink payload test:** In sink compression probes, measure whether beginning of sequence sink strength predicts loss of late value content, not only late-token attention mass.
+4. **Denoising evidence test:** In source conditioned repair, compare repair with direct source payload, repair with a compressed trace, and repair with no source payload. Measure unsupported claims after repair.
+5. **Unification falsification rule:** Any future unified read or compressed state experiment should preregister which payload remains direct, which payload is intentionally compressed, and which metric would falsify the unification.
+
+**Caveats:** TCC is a 2D latent control system and architecture study, not an LLM attention experiment. Its positive results support shared context with separate heads and direct payload inputs. They do not establish one scalar field for all reads, and they do not establish temporal memory repair because M2c failed its honesty checks. The Bank of Values reference remains unpublished in the inspected repo. HNC should use this as a design and experiment lead until an LLM probe tests routing and payload preservation directly.
+
 ### Co-Tok: compute optimal tokenization
 
 **Source status:** Checked, reproduction needed.
@@ -449,11 +498,19 @@ This suggests a direct HNC question: when the source facts are held fixed, does 
 
 ### Experiment 7: thinking traces as compressed context
 
-**Question:** Can query-conditioned thinking traces reduce unsupported output by preserving source signal while lowering context load?
+**Question:** Can query conditioned thinking traces reduce unsupported output by preserving source payload while lowering context load?
 
-**Methods:** Reproduce a small TaC-style thinker-answerer pipeline. Compare full context, token pruning, generic summaries, query-conditioned traces, and budget-trained traces. Measure exact match, F1, unsupported-claim rate, trace faithfulness, answer leakage, actual compression ratio, and cross-answerer transfer.
+**Methods:** Reproduce a small TaC style thinker answerer pipeline. Compare full context, token pruning, generic summaries, query conditioned traces, and budget trained traces. Measure exact match, F1, unsupported claim rate, trace faithfulness, payload retention, routing payload mismatch, answer leakage, actual compression ratio, and cross answerer transfer.
 
-**Framework target:** Dynamic codebooks, context-decompression trade-offs, Kolmogorov garbage, verifiable generation, and source accounting.
+**Framework target:** Dynamic codebooks, context decompression tradeoffs, Kolmogorov garbage, QK/V context and payload separation, verifiable generation, and source accounting.
+
+### Experiment 7b: routing versus payload audit
+
+**Question:** Can an experiment separate correct routing from preserved source payload?
+
+**Methods:** Build prompts where the required evidence appears in a known context span. Record whether the model, trace, or retrieval system selects the right span. Separately record whether the generated claim is supported by the exact content retained from that span. Count routing success, payload retention, unsupported claims, and routing payload mismatch.
+
+**Framework target:** Source accounting, sink limited capacity, compressed context traces, and decompression failure.
 
 ### Experiment 8: compression proxies and source support
 

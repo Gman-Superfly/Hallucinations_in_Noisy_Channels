@@ -982,6 +982,10 @@ The decompression view gives a possible explanation for several observed phenome
 | Chain-of-thought helps | Distributes decompression across steps |
 | Query-conditioned thinking traces may help | Compress source signal into a smaller dynamic codebook |
 
+This implication needs one extra source accounting condition. A compressed trace can point to the right region of the source while losing the content that supports a later claim. HNC therefore separates *routing success* from *payload preservation*. Routing success means the effective query, retrieval step, attention pattern, or trace selects the relevant source region. Payload preservation means the claim supporting content survives the compression step and remains available to the answerer.
+
+*Supporting mechanism under review:* TCC/Crow records the same split as a QK/V design concern: a shared context path can help decide which constraints matter, while direct payload paths carry the content being denoised, completed, scored, or ranked. HNC should treat this as an internal design lead, not confirmed LLM evidence. The relevant HNC test is whether compressed traces preserve claim supporting payload, not only whether they improve downstream answer score. See [TCC context and payload separation](documentation/RESEARCH_LEADS_UNDER_REVIEW.md#tcc-context-and-payload-separation).
+
 #### 4.5.6 Three hallucination mechanisms
 
 At this point, HNC has three complementary mechanisms:
@@ -1015,6 +1019,8 @@ The decompression model also needs an attention allocation account. The graph di
 *Supporting mechanism under review:* GOAT (Litman and Guo, 2026) frames attention as entropic optimal transport with an explicit prior. This gives a candidate attention-level mechanism for prior relaxation and sink formation. The result is relevant to this section and still needs HNC-specific hallucination tests. See [GOAT: trainable attention priors](documentation/RESEARCH_LEADS_UNDER_REVIEW.md#goat-trainable-attention-priors).
 
 *Supporting mechanism under review:* Queipo-de-Llano et al. (2025) connect attention sinks and compression valleys to massive residual stream activations. The paper studies internal mechanics and downstream performance. HNC should treat it as a mechanism lead for sink-limited capacity and decompression, with hallucination specific tests still required. See [attention sinks and compression valleys](documentation/RESEARCH_LEADS_UNDER_REVIEW.md#attention-sinks-and-compression-valleys-massive-activations).
+
+*Supporting mechanism under review:* TCC/Crow adds a design caution for attention style systems: routing and payload transport can fail separately. A QK like path can select the right region or constraint while a V like path loses the source content needed for the final claim. HNC should test this as routing payload mismatch before treating attention allocation or compressed traces as sufficient evidence of grounding. See [TCC context and payload separation](documentation/RESEARCH_LEADS_UNDER_REVIEW.md#tcc-context-and-payload-separation).
 
 #### 4.6.1 The mechanism of sinks
 
@@ -2881,6 +2887,7 @@ Information conservation experiments should test whether source-accounting gaps 
 3. Conservation-based detector: build a classifier using $K(\text{output}) - K(\text{source})$ as a primary feature, then compare it with existing hallucination detectors.
 4. Topic capacity probing: for topics with known training frequency, estimate $K(\text{weights})$ and test whether it predicts hallucination rate.
 5. Budget-aware generation: implement generation that refuses or retrieves when $K(\text{estimated output}) > K(\text{source})$, then measure hallucination rate and refusal quality.
+6. Routing versus payload audit: build prompts where the required evidence appears in a known context span. Measure whether the model, retrieval system, attention probe, or compressed trace selects that span, then separately measure whether the claim supporting content survives and supports the generated answer.
 
 ### 9.5 Geometric distortion experiments
 
