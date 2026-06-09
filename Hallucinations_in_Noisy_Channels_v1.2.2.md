@@ -108,7 +108,7 @@ The notation supports source accounting. Each quantity below names either a sour
 
 **Decompression failure.** A decompression failure occurs when the model matches the correct representation but cannot unfold it within the available context or working-memory budget. Section 4.5 connects this failure to Kolmogorov garbage.
 
-**Thermalization.** Thermalization is prior relaxation under weak content signal. GOAT gives an attention-level mechanism: in $p^*=\mathrm{softmax}(s/\tau+\log \pi)$, weak content scores $s$ or large $\tau$ relative to score gaps move attention toward prior $\pi$. HNC models the output-level analogue as relaxation toward the form prior when stored or supplied constraints stop controlling generation.
+**Thermalization.** Thermalization is prior relaxation under weak content signal. GOAT gives an attention-level mechanism: in $p^{\ast}=\mathrm{softmax}(s/\tau+\log \pi)$, weak content scores $s$ or large $\tau$ relative to score gaps move attention toward prior $\pi$. HNC models the output-level analogue as relaxation toward the form prior when stored or supplied constraints stop controlling generation.
 
 **Information atom.** An information atom is a compressed content pattern learned from training sequences. It acts as a stored knowledge constituent that can be selected and recombined during reconstruction. Output validity requires traceability to selected atoms plus context; content that cannot be derived from those sources is a hallucination candidate.
 
@@ -432,10 +432,10 @@ Here, $C$ is channel capacity, $X$ is the channel input, $Y$ is the channel outp
 For a given topic $T$, the model has a topic-specific capacity $C_T$: the maximum rate at which it can reliably generate accurate information about $T$ under the modeled source, query, and decoding conditions.
 
 $$
-C_T = \max_{p(q|T)} I(Q; A^* \mid T) \tag{Def}
+C_T = \max_{p(q|T)} I(Q; A^{\ast} \mid T) \tag{Def}
 $$
 
-Here, $Q$ is a query drawn from $p(q \mid T)$, the distribution over topic-relevant questions. $A^*$ is the accurate answer defined by an oracle, reference corpus, or experiment-specific ground truth. $I(Q; A^* \mid T)$ measures how much answer information the model can reliably connect to the query for topic $T$.
+Here, $Q$ is a query drawn from $p(q \mid T)$, the distribution over topic-relevant questions. $A^{\ast}$ is the accurate answer defined by an oracle, reference corpus, or experiment-specific ground truth. $I(Q; A^{\ast} \mid T)$ measures how much answer information the model can reliably connect to the query for topic $T$.
 
 In practice, $C_T$ is not directly computable. HNC estimates it through proxies such as held-out probing accuracy, true/false discrimination for topic facts, calibrated confidence, and representation-density measures. These are proxies; they can support comparisons but do not give exact capacity values.
 
@@ -930,10 +930,10 @@ The usable region:
 Reliable teaching requires enough context to constrain the topic and enough free working capacity to reconstruct the answer.
 
 $$
-W_{Q_{eff}} + W_{\text{reconstruct}} \leq W_{\text{latent\_capacity}}
+W_{Q_{eff}} + W_{\text{reconstruct}} \leq W_{\text{latent capacity}}
 $$
 
-Here, $W_{Q_{eff}}$ is the working cost of representing the effective query, $W_{\text{reconstruct}}$ is the working cost of unfolding the selected representation, and $W_{\text{latent\_capacity}}$ is the available working capacity under the model and context conditions.
+Here, $W_{Q_{eff}}$ is the working cost of representing the effective query, $W_{\text{reconstruct}}$ is the working cost of unfolding the selected representation, and $W_{\text{latent}}$ is the available working capacity under the model and context conditions.
 
 **What would distinguish this account.** A U-shaped quality curve in context length is consistent with several competing explanations, so observing the U-shape alone is weak evidence for the decompression account. Distractor interference predicts degradation because long context adds misleading material. Position bias predicts degradation because models weight middle positions less, as in the lost-in-the-middle results of Liu et al. (2023). Attention dilution predicts degradation because attention mass spreads across more tokens. Each of these accounts can produce the right branch of the U-curve without any claim about reconstruction workspace.
 
@@ -1618,10 +1618,10 @@ Verifier choice is domain-dependent:
 The architecture remains a proposed control policy. It is not yet a tested production recipe. In this framing, a solution improves when regime selection keeps requested answer rate and source-supported verification in the same operating range.
 
 **Conjecture 3 (Regime-aligned generation).**
-Let $R(q)$ be requested answer rate for query $q$, let $C_{eff}(q, g)$ be effective capacity under regime $g$, and let $P_{verify}(q, g)$ be verifier pass probability in that regime. Hallucination risk should decrease when the router selects $g^*$ such that:
+Let $R(q)$ be requested answer rate for query $q$, let $C_{eff}(q, g)$ be effective capacity under regime $g$, and let $P_{verify}(q, g)$ be verifier pass probability in that regime. Hallucination risk should decrease when the router selects $g^{\ast}$ such that:
 
 $$
-g^* = \arg\max_g \left[ P_{verify}(q, g) - \lambda \cdot \max(0, R(q) - C_{eff}(q, g)) \right] \tag{Conj}
+g^{\ast} = \arg\max_g \left[ P_{verify}(q, g) - \lambda \cdot \max(0, R(q) - C_{eff}(q, g)) \right] \tag{Conj}
 $$
 
 Here, $\lambda$ is a penalty on rate-capacity mismatch. The expression states an operating objective: prefer regimes that maximize verifiable support and minimize capacity overreach.
@@ -2045,7 +2045,7 @@ This approximation assumes independent errors. When errors are correlated, for e
 
 This section models one endpoint of hallucination: *thermalization*, meaning relaxation toward learned priors when content constraints become weak. The section separates two layers of claim. The exact layer is maximum-entropy structure that holds by identity: temperature-scaled softmax sampling is a Gibbs distribution over negative logits, and the maximum-entropy principle of Jaynes (1957) describes what a distribution does when constraints weaken. The analogical layer borrows thermodynamic vocabulary, thermal bath, thermalization, and free energy, to make the exact layer easier to reason about. The predictions in this section follow from the exact layer; the thermodynamic vocabulary names them and adds no separate claim.
 
-The most concrete mechanism lead is attention-level prior relaxation. GOAT frames attention as entropic optimal transport with solution $p^*=\mathrm{softmax}(s/\tau+\log \pi)$, where $s$ contains content scores, $\tau$ controls entropy pressure, and $\pi$ is a key-position prior. When content scores carry little discriminating signal, or when score differences are small relative to $\tau$, attention moves toward $\pi$. If the scores are flat, then $p^*=\pi$ exactly.
+The most concrete mechanism lead is attention-level prior relaxation. GOAT frames attention as entropic optimal transport with solution $p^{\ast}=\mathrm{softmax}(s/\tau+\log \pi)$, where $s$ contains content scores, $\tau$ controls entropy pressure, and $\pi$ is a key-position prior. When content scores carry little discriminating signal, or when score differences are small relative to $\tau$, attention moves toward $\pi$. If the scores are flat, then $p^{\ast}=\pi$ exactly.
 
 This supports the HNC thermalization model at the token-matching level. The output-level form-prior claim still needs direct hallucination experiments.
 
@@ -2208,7 +2208,7 @@ $$
 
 Here, $S_{\text{form}}$ is the entropy of form-valid outputs, $S_{\text{knowledge}}$ is the entropy of knowledge-consistent outputs, $\Omega_{\text{form}}$ is the number of form-valid output microstates, and $\Omega_{\text{knowledge}}$ is the number of knowledge-consistent output microstates. The ratio is an odds or relative-pressure proxy, not a raw probability. Hallucination risk increases with the entropy difference when content signal is too weak to control generation.
 
-**Model sketch.** Under a maximum-entropy (Gibbs) ensemble with weak energy differences across admissible outputs and $k_B=1$, the probability mass assigned to each admissible set is proportional to its microstate count $\Omega$. When constraints weaken, the model shifts from the knowledge-constrained ensemble toward the form-only ensemble; the relative pressure or odds scale as $\Omega_{\text{form}}/\Omega_{\text{knowledge}} = e^{\Delta S}$. If average energies differ non-negligibly between sets, an additional factor depending on those energies appears; we subsume this into temperature-dependent constants in the proportionality (Jaynes, 1957; Boltzmann, 1877). GOAT supplies an attention-level instantiation of the same kind of prior relaxation: as content scores weaken relative to entropy pressure, $p^*$ moves toward $\pi$.
+**Model sketch.** Under a maximum-entropy (Gibbs) ensemble with weak energy differences across admissible outputs and $k_B=1$, the probability mass assigned to each admissible set is proportional to its microstate count $\Omega$. When constraints weaken, the model shifts from the knowledge-constrained ensemble toward the form-only ensemble; the relative pressure or odds scale as $\Omega_{\text{form}}/\Omega_{\text{knowledge}} = e^{\Delta S}$. If average energies differ non-negligibly between sets, an additional factor depending on those energies appears; we subsume this into temperature-dependent constants in the proportionality (Jaynes, 1957; Boltzmann, 1877). GOAT supplies an attention-level instantiation of the same kind of prior relaxation: as content scores weaken relative to entropy pressure, $p^{\ast}$ moves toward $\pi$.
 
 #### 8.5.6 Entropy picture
 
@@ -2407,23 +2407,23 @@ Training-time noise can build redundancy and improve generalization. The mechani
 
 **Conjecture 6 (Optimal noise principle).**
 
-For tasks with weak but recoverable signal, there may exist an optimal noise level $\sigma^*$ that maximizes the trade-off between exploration benefit and thermalization cost:
+For tasks with weak but recoverable signal, there may exist an optimal noise level $\sigma^{\ast}$ that maximizes the trade-off between exploration benefit and thermalization cost:
 
 $$
-\sigma^* = \arg\max_\sigma \left[ \underbrace{P(\text{correction} | \sigma)}_{\text{exploration benefit}} - \underbrace{P(\text{hallucination} | \sigma)}_{\text{thermalization cost}} \right] \tag{Conj}
+\sigma^{\ast} = \arg\max_\sigma \left[ \underbrace{P(\text{correction} | \sigma)}_{\text{exploration benefit}} - \underbrace{P(\text{hallucination} | \sigma)}_{\text{thermalization cost}} \right] \tag{Conj}
 $$
 
-Here, $\sigma$ is the noise level, $\sigma^*$ is the candidate optimal noise level, $P(\text{correction} \mid \sigma)$ is the probability that noise helps recover a supported answer, and $P(\text{hallucination} \mid \sigma)$ is the probability that noise causes prior relaxation or unsupported output.
+Here, $\sigma$ is the noise level, $\sigma^{\ast}$ is the candidate optimal noise level, $P(\text{correction} \mid \sigma)$ is the probability that noise helps recover a supported answer, and $P(\text{hallucination} \mid \sigma)$ is the probability that noise causes prior relaxation or unsupported output.
 
-*Note on objective:* This formulation highlights the two competing effects of noise. Equivalently, $\sigma^*$ can be defined as the value that maximizes overall accuracy:
+*Note on objective:* This formulation highlights the two competing effects of noise. Equivalently, $\sigma^{\ast}$ can be defined as the value that maximizes overall accuracy:
 
 $$
-\sigma^* = \arg\max_\sigma P(\text{correct output} \mid \sigma).
+\sigma^{\ast} = \arg\max_\sigma P(\text{correct output} \mid \sigma).
 $$
 
 The decomposition into correction and hallucination terms explains the hypothesis: intermediate noise can enable error recovery while limiting drift to the form prior.
 
-At $\sigma = 0$, sampling exploration is absent, and sampling-based correction is limited. Deterministic hallucination can still occur if the selected source is wrong or insufficient. At $\sigma \to \infty$, exploration can overwhelm signal, so prior-dominated or incoherent output becomes likely. At $\sigma = \sigma^*$, the model may balance exploration and signal preservation.
+At $\sigma = 0$, sampling exploration is absent, and sampling-based correction is limited. Deterministic hallucination can still occur if the selected source is wrong or insufficient. At $\sigma \to \infty$, exploration can overwhelm signal, so prior-dominated or incoherent output becomes likely. At $\sigma = \sigma^{\ast}$, the model may balance exploration and signal preservation.
 
 **Physical basis: three ingredients.**
 Stochastic resonance is defined physically by three ingredients (Gammaitoni et al., 1998). HNC maps them to generation as follows:
@@ -2432,23 +2432,23 @@ Stochastic resonance is defined physically by three ingredients (Gammaitoni et a
 2. A weak coherent input, or signal: in physics, the periodic force. In LLMs, this maps to weakly stored knowledge or an ambiguous effective query that biases the distribution but may not cross the threshold deterministically.
 3. A source of noise: in physics, the heat bath. In LLMs, this maps to sampling temperature or random seed variation.
 
-*Mechanism:* Without sampling noise ($T=0$), a weak signal may fail to cross the threshold, and the system can default to a more probable prior-dominated path. With well-calibrated noise ($T^*$), fluctuations can combine with the weak signal and make a supported path reachable. With too much noise, the signal is swamped.
+*Mechanism:* Without sampling noise ($T=0$), a weak signal may fail to cross the threshold, and the system can default to a more probable prior-dominated path. With well-calibrated noise ($T^{\ast}$), fluctuations can combine with the weak signal and make a supported path reachable. With too much noise, the signal is swamped.
 
 Scope note: this conjecture applies when a weak but recoverable signal exists in stored knowledge or supplied context. It does not override Corollary 1. If the effective source lacks the needed information or $R_T > C_T^{effective}$, then noise can only change the form of the failure.
 
-**Proof sketch.** Let $f(\sigma) = P(\text{correction} \mid \sigma) - P(\text{hallucination} \mid \sigma)$. Empirically and in models of stochastic resonance, $f(0)$ is suboptimal due to lack of exploration, and $f(\sigma)\to -\infty$ as $\sigma\to\infty$ due to thermalization. Under continuity and mild unimodality, there exists $\sigma^*>0$ that maximizes $f$. This mirrors classical stochastic resonance (Gammaitoni et al., 1998) and simulated annealing (Kirkpatrick et al., 1983) arguments where controlled noise enables escape from poor attractors before cooling. Training-time noise mechanisms (dropout, SGLD) similarly improve generalization via noise-induced exploration (Srivastava et al., 2014; Welling & Teh, 2011).
+**Proof sketch.** Let $f(\sigma) = P(\text{correction} \mid \sigma) - P(\text{hallucination} \mid \sigma)$. Empirically and in models of stochastic resonance, $f(0)$ is suboptimal due to lack of exploration, and $f(\sigma)\to -\infty$ as $\sigma\to\infty$ due to thermalization. Under continuity and mild unimodality, there exists $\sigma^{\ast}>0$ that maximizes $f$. This mirrors classical stochastic resonance (Gammaitoni et al., 1998) and simulated annealing (Kirkpatrick et al., 1983) arguments where controlled noise enables escape from poor attractors before cooling. Training-time noise mechanisms (dropout, SGLD) similarly improve generalization via noise-induced exploration (Srivastava et al., 2014; Welling & Teh, 2011).
 
 **Corollary (Temperature regimes).**
 
 $$
 \begin{aligned}
 T = 0: \quad &\text{Deterministic sampling. Limited sampling-based correction.} \\
-T = T^*: \quad &\text{Intermediate noise. Exploration with signal preservation.} \\
+T = T^{\ast}: \quad &\text{Intermediate noise. Exploration with signal preservation.} \\
 T \to \infty: \quad &\text{High noise. Signal loss and prior relaxation risk.}
 \end{aligned} \tag{Conj}
 $$
 
-Here, $T$ is sampling temperature, and $T^*$ is the candidate task-dependent temperature that balances exploration against signal preservation.
+Here, $T$ is sampling temperature, and $T^{\ast}$ is the candidate task-dependent temperature that balances exploration against signal preservation.
 
 #### 8.6.6 Prior relaxation and noise control
 
@@ -2502,7 +2502,7 @@ Here, $T$ is sampling temperature, and $T^*$ is the candidate task-dependent tem
 
 #### 8.6.8 Adaptive resonance
 
-The stochastic resonance model in Section 8.6.3 suggests a candidate optimal noise level $\sigma^*$. The optimal noise level should depend on the knowledge state, meaning how strongly the correct representation is activated. This motivates *adaptive resonance*: adjusting noise and matching thresholds based on retrieval confidence.
+The stochastic resonance model in Section 8.6.3 suggests a candidate optimal noise level $\sigma^{\ast}$. The optimal noise level should depend on the knowledge state, meaning how strongly the correct representation is activated. This motivates *adaptive resonance*: adjusting noise and matching thresholds based on retrieval confidence.
 
 **Connection to adaptive resonance theory.**
 Grossberg's Adaptive Resonance Theory (ART) (Grossberg, 1976) from cognitive neuroscience addresses how biological systems learn new patterns without catastrophic forgetting. The key mechanism is resonance: when input sufficiently matches a stored pattern above a vigilance threshold, a feedback loop stabilizes retrieval. When no match exceeds vigilance, a new category is created.
@@ -2531,18 +2531,18 @@ The threshold $\rho_{adaptive}$ may adjust based on:
 - Temperature $T$: higher temperature can widen the set of explored candidate matches.
 
 **Conjecture 7 (Adaptive resonance optimality).**
-There may exist an optimal vigilance $\rho^* = f(C_T, T, s)$ that minimizes the sum of false rejections and false acceptances:
+There may exist an optimal vigilance $\rho^{\ast} = f(C_T, T, s)$ that minimizes the sum of false rejections and false acceptances:
 
 $$
-\rho^* = \arg\min_\rho \left[ P(\text{matching failure} \mid \rho) + P(\text{false resonance} \mid \rho) \right] \tag{Conj}
+\rho^{\ast} = \arg\min_\rho \left[ P(\text{matching failure} \mid \rho) + P(\text{false resonance} \mid \rho) \right] \tag{Conj}
 $$
 
-Here, $\rho$ is vigilance, $\rho^*$ is the candidate optimal vigilance, $P(\text{matching failure} \mid \rho)$ is the probability of rejecting the correct representation, and $P(\text{false resonance} \mid \rho)$ is the probability of accepting an incorrect or composite representation.
+Here, $\rho$ is vigilance, $\rho^{\ast}$ is the candidate optimal vigilance, $P(\text{matching failure} \mid \rho)$ is the probability of rejecting the correct representation, and $P(\text{false resonance} \mid \rho)$ is the probability of accepting an incorrect or composite representation.
 
-At $\rho = 0$, nearly everything can resonate, raising the risk of composite activation. At $\rho = 1$, almost nothing resonates, raising the risk of capacity underuse. At $\rho = \rho^*$, the model may balance specificity and recoverability.
+At $\rho = 0$, nearly everything can resonate, raising the risk of composite activation. At $\rho = 1$, almost nothing resonates, raising the risk of capacity underuse. At $\rho = \rho^{\ast}$, the model may balance specificity and recoverability.
 
 **Dual control: noise and vigilance.**
-The optimal noise $\sigma^*$ from Conjecture 6 and adaptive vigilance $\rho^*$ are paired controls that should vary with knowledge certainty:
+The optimal noise $\sigma^{\ast}$ from Conjecture 6 and adaptive vigilance $\rho^{\ast}$ are paired controls that should vary with knowledge certainty:
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────┐
@@ -2570,9 +2570,9 @@ The optimal noise $\sigma^*$ from Conjecture 6 and adaptive vigilance $\rho^*$ a
 For queries with low but nonzero estimated $C_T$, meaning weak recoverable knowledge, jointly increasing temperature $T$ while relaxing embedding-similarity thresholds should exhibit a resonance peak. At that $(\sigma, \rho)$ combination, retrieval of correct weak memories should exceed both the deterministic ($\sigma = 0$) and strict-threshold ($\rho = 1$) baselines.
 
 **Prediction 24 (Knowledge-contingent optimum).**
-The optimal $(\sigma^*, \rho^*)$ pair varies systematically with topic capacity:
-- High-capacity topics: Low $\sigma^*$, high $\rho^*$ (confident, strict)
-- Low-capacity topics with recoverable signal: Higher $\sigma^*$, lower $\rho^*$ (exploratory, permissive)
+The optimal $(\sigma^{\ast}, \rho^{\ast})$ pair varies systematically with topic capacity:
+- High-capacity topics: Low $\sigma^{\ast}$, high $\rho^{\ast}$ (confident, strict)
+- Low-capacity topics with recoverable signal: Higher $\sigma^{\ast}$, lower $\rho^{\ast}$ (exploratory, permissive)
 
 This predicts that uniform temperature settings are suboptimal; adaptive temperature scheduling based on estimated knowledge capacity should improve accuracy.
 
@@ -2656,12 +2656,7 @@ This table makes denoising an attribution test. If repair succeeds only when sou
 HNC can model the answer state as following a source conditioned stochastic update:
 
 $$
-z_{t+\Delta t}
-= z_t
-+ \underbrace{b_{\text{form}}(z_t)\Delta t}_{\text{prior drift}}
-- \underbrace{\lambda \nabla E_{\text{source}}(z_t; S_T, Q_{eff})\Delta t}_{\text{source pull}}
-+ \underbrace{\sigma_t \xi_t}_{\text{noise}}
-\tag{Proxy}
+z_{t+\Delta t} = z_t + \underbrace{b_{\text{form}}(z_t)\Delta t}_{\text{prior drift}} - \underbrace{\lambda \nabla E_{\text{source}}(z_t; S_T, Q_{eff})\Delta t}_{\text{source pull}} + \underbrace{\sigma_t \xi_t}_{\text{noise}} \tag{Proxy}
 $$
 
 Here, $b_{\text{form}}(z_t)$ is drift toward broad form-prior structure, $E_{\text{source}}(z_t; S_T, Q_{eff})$ is a source grounding energy proxy, $\lambda$ is source conditioning strength, $\sigma_t$ is noise level, and $\xi_t$ is a random perturbation. This is a proxy for dynamics, and the exact internal update rule of a transformer remains an empirical question.
@@ -2847,22 +2842,22 @@ $$
 Here, $T$ is sampling temperature, $S_{\text{form}}$ is form-prior entropy, and $E_{\text{grounding}}$ is the grounding-energy proxy. This predicts a threshold region where entropy pressure dominates grounding signal.
 
 **Prediction 15 (Optimal noise existence).**  
-For tasks with weak but recoverable signal, there should exist a candidate temperature $T^* > 0$ that maximizes accuracy through a correction-exploration trade-off:
+For tasks with weak but recoverable signal, there should exist a candidate temperature $T^{\ast} > 0$ that maximizes accuracy through a correction-exploration trade-off:
 
 $$
-T^* = \arg\max_T \left[ P(\text{correction} | T) - P(\text{hallucination} | T) \right] \tag{Conj}
+T^{\ast} = \arg\max_T \left[ P(\text{correction} | T) - P(\text{hallucination} | T) \right] \tag{Conj}
 $$
 
-Here, $T^*$ is the candidate optimal temperature. Greedy decoding ($T=0$) should underperform on tasks where sampling-based correction matters.
+Here, $T^{\ast}$ is the candidate optimal temperature. Greedy decoding ($T=0$) should underperform on tasks where sampling-based correction matters.
 
 **Prediction 16 (Stochastic resonance).**  
 For weakly stored knowledge, there exists a noise level that improves retrieval:
 
 $$
-\exists \sigma^* > 0 : P(\text{correct} | \sigma^*) > P(\text{correct} | \sigma=0) \tag{Conj}
+\exists \sigma^{\ast} > 0 : P(\text{correct} | \sigma^{\ast}) > P(\text{correct} | \sigma=0) \tag{Conj}
 $$
 
-Here, $\sigma^*$ is the candidate noise level that balances exploration against signal preservation. The prediction applies only when the correct representation is weak but recoverable.
+Here, $\sigma^{\ast}$ is the candidate noise level that balances exploration against signal preservation. The prediction applies only when the correct representation is weak but recoverable.
 
 **Prediction 17 (Self-consistency benefit).**  
 When samples contain partially independent errors and the voting rule can identify the grounded candidate, self-consistency (sampling + voting) should outperform a single sample at matched temperature:
@@ -2874,17 +2869,17 @@ $$
 Here, $n$ is the number of sampled completions. Voting can exploit exploration while reducing variance, provided the sampled errors are not all correlated in the same wrong direction.
 
 **Prediction 18 (Balanced context window).**  
-For fixed query complexity and topic, HNC predicts an optimal context length $L^*$ that minimizes hallucination. Hallucination should rise when $L \ll L^*$ because constraints are insufficient, and when $L \gg L^*$ because decompression crowding increases:
+For fixed query complexity and topic, HNC predicts an optimal context length $L^{\ast}$ that minimizes hallucination. Hallucination should rise when $L \ll L^{\ast}$ because constraints are insufficient, and when $L \gg L^{\ast}$ because decompression crowding increases:
 
 $$
-L^* \;=\; \arg\min_L \left| \underbrace{W_{\text{latent}} - W_{\text{query}} - W_{\text{context}}(L)}_{W_{\text{available}}(L)} \;-\; W_{\text{reconstruct}}(r) \right| \tag{Approx}
+L^{\ast} \;=\; \arg\min_L \left| \underbrace{W_{\text{latent}} - W_{\text{query}} - W_{\text{context}}(L)}_{W_{\text{available}}(L)} \;-\; W_{\text{reconstruct}}(r) \right| \tag{Approx}
 $$
 
 Here, $L$ is context length, $W_{\text{available}}(L)$ is decompression room at length $L$, and $W_{\text{reconstruct}}(r)$ is the reconstruction workspace for representation $r$. Equivalently, $P(\text{hallucination} \mid L)$ is predicted to be U-shaped in $L$, minimized when $W_{\text{available}}(L)\approx W_{\text{reconstruct}}(r)$ (Section 4.5).
 
-Regime clarification: Prediction 5 describes the right branch of this U-curve (crowding regime, $L \gg L^*$). The left branch ($L \ll L^*$) reflects insufficient content constraints; the model lacks information to ground its output. This prediction unifies both failure modes.
+Regime clarification: Prediction 5 describes the right branch of this U-curve (crowding regime, $L \gg L^{\ast}$). The left branch ($L \ll L^{\ast}$) reflects insufficient content constraints; the model lacks information to ground its output. This prediction unifies both failure modes.
 
-Discriminating clause: observing a U-shaped curve alone does not separate the decompression account from distractor interference, position bias, or attention dilution, because those accounts also predict degradation at long context. The HNC-specific content of this prediction is the complexity shift: $L^*$ should decrease as $W_{\text{reconstruct}}(r)$ increases, even when all context tokens are relevant, and the degradation should persist at matched routing success. If the U-curve appears but $L^*$ does not shift with answer complexity at matched routing success, then the decompression mechanism is not supported and the degradation should be attributed to distraction or position effects instead. Section 4.5.3 states the discriminating protocol.
+Discriminating clause: observing a U-shaped curve alone does not separate the decompression account from distractor interference, position bias, or attention dilution, because those accounts also predict degradation at long context. The HNC-specific content of this prediction is the complexity shift: $L^{\ast}$ should decrease as $W_{\text{reconstruct}}(r)$ increases, even when all context tokens are relevant, and the degradation should persist at matched routing success. If the U-curve appears but $L^{\ast}$ does not shift with answer complexity at matched routing success, then the decompression mechanism is not supported and the degradation should be attributed to distraction or position effects instead. Section 4.5.3 states the discriminating protocol.
 
 **Prediction 19 (Warm start from geometry alignment).**  
 Pretraining or initialization that aligns internal representations to the universal manifold $\mathcal{M}_{\text{universal}}$, for example through CCA/Procrustes losses or teacher features, should reduce sample complexity and speed convergence. Let $\tau$ be a target accuracy threshold and $t(\tau)$ be the number of training steps required to reach it:
@@ -2963,10 +2958,10 @@ Maximum-entropy experiments should test whether entropy pressure predicts prior 
 
 Optimal noise experiments should test whether intermediate stochasticity improves accuracy on tasks with weak but recoverable signal:
 
-1. Optimal temperature search: for fixed tasks, sweep temperature and estimate $T^*$, then test whether $T^* > 0$.
-2. Stochastic resonance detection: for weak-knowledge topics, test whether a $\sigma^*$ exists where noise improves retrieval.
+1. Optimal temperature search: for fixed tasks, sweep temperature and estimate $T^{\ast}$, then test whether $T^{\ast} > 0$.
+2. Stochastic resonance detection: for weak-knowledge topics, test whether a $\sigma^{\ast}$ exists where noise improves retrieval.
 3. Self-consistency scaling: measure accuracy against number of samples at multiple temperatures and compare voting with single-sample generation.
-4. Greedy versus stochastic decoding: compare $T=0$ with $T=T^*$ on error-prone tasks.
+4. Greedy versus stochastic decoding: compare $T=0$ with $T=T^{\ast}$ on error-prone tasks.
 5. Dropout ablation: compare models trained with and without dropout on out-of-distribution tasks and measure correction behavior.
 6. Annealing schedules: test whether temperature annealing during generation improves over fixed temperature.
 
@@ -3060,7 +3055,7 @@ $$
 \text{Thermalization} &\sim \text{prior relaxation under weak content signal} \\
 \text{Fidelity} &= \prod_i (1 - \epsilon_i) \quad \text{(geometric decay; independent errors)} \\
 \frac{P(\text{hallucination})}{P(\text{grounded})} &\propto \Omega_{\text{form}} / \Omega_{\text{knowledge}} = e^{\Delta S} \\
-T^* &= \arg\max_T [P(\text{correction}\mid T) - P(\text{hallucination}\mid T)]
+T^{\ast} &= \arg\max_T [P(\text{correction}\mid T) - P(\text{hallucination}\mid T)]
 \end{aligned}
 } \tag{Approx}
 $$
@@ -3081,7 +3076,7 @@ The conservation rule is the common accounting principle: grounded topic claims 
 
 The distortion principle adds dynamics: each stage can reduce fidelity, move representations away from a grounded region, and increase the space that learned priors can fill.
 
-The maximum-entropy model gives a language for prior relaxation. Knowledge acts as a low-entropy constraint; the form prior acts as a high-entropy learned prior. At the attention level, GOAT makes one version concrete: when content scores are weak relative to entropy pressure, $p^*$ moves toward $\pi$. At the output level, HNC models hallucination odds or relative pressure as increasing with the entropy gap between form and knowledge constraints.
+The maximum-entropy model gives a language for prior relaxation. Knowledge acts as a low-entropy constraint; the form prior acts as a high-entropy learned prior. At the attention level, GOAT makes one version concrete: when content scores are weak relative to entropy pressure, $p^{\ast}$ moves toward $\pi$. At the output level, HNC models hallucination odds or relative pressure as increasing with the entropy gap between form and knowledge constraints.
 
 The noise principle adds a correction mechanism. Noise can damage retrieval, but too little noise can limit exploration. A task-specific intermediate regime may enable exploration while preserving grounding when weak recoverable signal exists.
 
@@ -3102,7 +3097,7 @@ The noise principle adds a correction mechanism. Noise can damage retrieval, but
 13. Temperature control: adapt sampling temperature based on estimated knowledge capacity.
 14. Prior-relaxation barriers: test training techniques that make grounded representations harder to displace under weak content signal.
 15. Free-energy proxies: test systems that optimize a tunable $F = E - TS$ proxy.
-16. Noise calibration: estimate $T^*$ for each query and context.
+16. Noise calibration: estimate $T^{\ast}$ for each query and context.
 17. Stochastic resonance tests: measure whether noise can recover weak memories under the conditions in Conjecture 6.
 18. Annealing schedules for generation: test temperature trajectories that explore early and stabilize later.
 
@@ -3115,7 +3110,7 @@ The theoretical framework relies heavily on Kolmogorov complexity $K(x)$, the le
 Genewein et al. (2026) add a second practical limitation that HNC should track: finite pretrained networks approximate ideal Bayesian or universal predictors. One useful quantity is the amortization gap:
 
 $$
-\Delta_{\text{amort}}(x_{<t}) = D_{KL}\left(\xi(\cdot \mid x_{<t}) \| \pi_\theta(\cdot \mid x_{<t})\right) \tag{Proxy}
+\Delta_{\text{amort}}(x_{\lt t}) = D_{KL}\left(\xi(\cdot \mid x_{\lt t}) \,\|\, \pi_\theta(\cdot \mid x_{\lt t})\right) \tag{Proxy}
 $$
 
 Here, $\xi$ is the exact Bayesian mixture predictor under the modeled task distribution, and $\pi_\theta$ is the neural predictor. The gap measures excess prediction error from finite capacity, finite data, and optimization limits. HNC can treat this as a future approximation-gap proxy alongside source support and topic capacity.
@@ -3427,7 +3422,7 @@ The Titans architecture suggests implementation paths for HNC mitigation ideas:
 |--------------------------------|---------------------------|
 | Increase $C_T$ (capacity) | Test-time learning of new atoms |
 | Control sink severity $s$ | Forgetting gate $\alpha_t$ |
-| Adaptive resonance $\rho^*$ | Momentum-based memory updates |
+| Adaptive resonance $\rho^{\ast}$ | Momentum-based memory updates |
 | Prevent context crowding | Separate short-term (attention) from long-term (memory) |
 | Add redundancy | Dual memory provides error correction via cross-checking |
 

@@ -69,7 +69,7 @@
 | 4 | Geometric distortion accumulation | 8.4.3 | Fidelity = $\prod_i (1 - \epsilon_i)$; multiplicative error cascade |
 | Conjecture 5 | Maximum-entropy hallucination model | 8.5.5 | Prior relaxation risk rises under weak content constraints |
 | Conjecture 6 | Optimal noise principle | 8.6.5 | Intermediate noise can improve correction when recoverable signal exists |
-| Conjecture 7 | Adaptive resonance optimality | 8.6.8 | There may be an optimal vigilance $\rho^*$ that balances false rejections and false acceptances |
+| Conjecture 7 | Adaptive resonance optimality | 8.6.8 | There may be an optimal vigilance $\rho^{\ast}$ that balances false rejections and false acceptances |
 | Conjecture 8 | Model-specific sampling limit | 11.6 | Nyquist-style analogy: constraint sampling rate $s > 2B_{M,T}$ may be required |
 
 ---
@@ -111,7 +111,7 @@
 | 12 | Temperature-hallucination relationship | 9.1 | The curve should be U-shaped in some weak-signal regimes |
 | 13 | Entropy ratio prediction | 9.1 | $P(\text{hall}) \propto \exp(S_{form} - S_{knowledge})$ as a model target |
 | 14 | Free energy minimization | 9.1 | Generation can be modeled with $F = E - TS$ |
-| 15 | Optimal noise existence | 9.1 | There may exist $\sigma^*$ where noise helps retrieval |
+| 15 | Optimal noise existence | 9.1 | There may exist $\sigma^{\ast}$ where noise helps retrieval |
 | 16 | Stochastic resonance | 9.1 | Weak recoverable memories may improve with intermediate noise |
 | 17 | Self-consistency benefit | 9.1 | Multiple samples + voting can improve accuracy under independent-error assumptions |
 | 18 | Balanced context window | 9.1 | U-shaped error: too little context = no constraints, too much = crowding |
@@ -120,7 +120,7 @@
 | 21 | Position primacy | 4.6 | Late-context evidence degrades with sink severity |
 | 22 | Atom coverage | 4.7 | Fewer activated atoms should correlate with higher hallucination rate |
 | 23 | Adaptive resonance peak | 8.6.8 | Weak knowledge can benefit from joint $(\sigma, \rho)$ tuning |
-| 24 | Knowledge-contingent optimum | 8.6.8 | Candidate optimal $(\sigma^*, \rho^*)$ varies with topic capacity |
+| 24 | Knowledge-contingent optimum | 8.6.8 | Candidate optimal $(\sigma^{\ast}, \rho^{\ast})$ varies with topic capacity |
 | 25 | Test-time learning reduces hallucination | 11.7 | Titans-style architectures should reduce hallucination on partial-coverage topics |
 | 26 | Memory hierarchy advantage | 11.7 | Multi-tier memory should outperform monolithic architectures under partial-coverage conditions |
 

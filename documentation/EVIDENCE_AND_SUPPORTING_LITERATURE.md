@@ -61,7 +61,7 @@ Form structure can arise from combinatorics. Content support still requires sour
 | Shared representation geometry is measurable in some settings | Bounded support | Jha et al. (2025), Huh et al. (2024) |
 | Form-prior null model has mathematical support | Formal support for the cited model | Berman (2025a, 2025b) |
 | Verification-First improves accuracy | **Empirical** | Wu & Yao (2025) |
-| Optimal noise exists ($T^* > 0$) | **Theoretical and empirical** | Gammaitoni et al. (1998), Wu & Yao (2025) |
+| Optimal noise exists ($T^{\ast} > 0$) | **Theoretical and empirical** | Gammaitoni et al. (1998), Wu & Yao (2025) |
 | LLM scaling shows capacity and SNR boundary conditions | **Empirical scaling-law support** | Ouyang et al. (2026) |
 | Test-time learning extends capacity | **Architectural** | Behrouz et al. (2025) - Titans |
 
@@ -322,7 +322,7 @@ $$
 | Claim | Current Status | Needed Evidence |
 |-------|---------------|-----------------|
 | Hallucination rate scales as $e^{\Delta S}$ | Conjectural | Empirical measurement of entropy gap vs hallucination rate |
-| Optimal $T^*$ varies with topic capacity | Conjectured (Pred 24) | Temperature sweep experiments across topics |
+| Optimal $T^{\ast}$ varies with topic capacity | Conjectured (Pred 24) | Temperature sweep experiments across topics |
 | Multi-hop accuracy decays as $(1-\epsilon)^n$ | Theoretical (Thm 4) | Chain-length experiments |
 | Context crowding U-curve (Pred 18) | Theoretical | Context length vs accuracy measurements |
 | Atom coverage correlates with accuracy (Pred 22) | Theoretical | SAE/probing experiments |

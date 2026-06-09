@@ -44,7 +44,7 @@ The support condition matters. The article states that Bayesian guarantees depen
 **Useful quantities for HNC:**
 
 1. **Sequential code length:** $-\log_2 \rho(x_{1:n}) + O(1)$, a practical link between prediction quality and compression.
-2. **Amortization gap:** $\Delta_{\text{amort}}(x_{<t}) = D_{KL}(\xi(\cdot \mid x_{<t}) \| \pi_\theta(\cdot \mid x_{<t}))$, the gap between an exact Bayesian mixture and the neural approximation.
+2. **Amortization gap:** $\Delta_{\text{amort}}(x_{\lt t}) = D_{KL}(\xi(\cdot \mid x_{\lt t}) \,\|\, \pi_\theta(\cdot \mid x_{\lt t}))$, the gap between an exact Bayesian mixture and the neural approximation.
 3. **Loss decomposition:** total loss can be decomposed into irreducible entropy, model-class regret against an ideal predictor, and approximation gap.
 4. **Support condition:** task support under the pretraining or meta-training distribution controls whether the Bayesian account applies.
 
@@ -203,7 +203,7 @@ The downstream RAG experiment is useful as a research lead because it links the 
 
 **Relevant claim for this framework:** GOAT frames scaled dot-product attention as entropic optimal transport. Standard attention corresponds to a transport problem with an implicit uniform prior over key positions. GOAT replaces that prior with a learned continuous prior and keeps compatibility with optimized attention kernels.
 
-**Why it matters here:** GOAT gives a precise attention-level version of prior relaxation. The attention solution has the form $p^*=\mathrm{softmax}(s/\tau+\log \pi)$, where $s$ contains content scores, $\tau$ controls entropy pressure, and $\pi$ is the attention prior over key positions. When the content scores carry little discriminating signal, or when score differences are small relative to $\tau$, $p^*$ moves toward $\pi$. If the scores are flat, then $p^*=\pi$ exactly. This is a concrete token-matching mechanism for temperature-driven relaxation toward a prior. GOAT also gives a mathematical treatment of attention sinks, which connects to sink-limited context capacity.
+**Why it matters here:** GOAT gives a precise attention-level version of prior relaxation. The attention solution has the form $p^{\ast}=\mathrm{softmax}(s/\tau+\log \pi)$, where $s$ contains content scores, $\tau$ controls entropy pressure, and $\pi$ is the attention prior over key positions. When the content scores carry little discriminating signal, or when score differences are small relative to $\tau$, $p^{\ast}$ moves toward $\pi$. If the scores are flat, then $p^{\ast}=\pi$ exactly. This is a concrete token-matching mechanism for temperature-driven relaxation toward a prior. GOAT also gives a mathematical treatment of attention sinks, which connects to sink-limited context capacity.
 
 **HNC interpretation:** GOAT operationalizes local form-prior pressure inside attention. The entropy term supplies attention-level equilibration pressure, the prior $\pi$ supplies the local key-position prior, and weak content signal causes attention to relax toward that prior. This matches the HNC thermalization story at the token-matching level. It does not by itself prove the output-level form prior or the full thermodynamic theorem.
 
