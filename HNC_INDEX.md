@@ -67,7 +67,7 @@
 | Conjecture 3 | Regime-aligned generation | 7.6 | A router should select a generation regime whose source signal and verifier support the requested rate |
 | 3 | Information conservation | 8.3 | Unsupported entropy remains when the modeled source cannot explain the output |
 | 4 | Geometric distortion accumulation | 8.4.3 | Fidelity = $\prod_i (1 - \epsilon_i)$; multiplicative error cascade |
-| Conjecture 5 | Thermodynamic hallucination model | 8.5.5 | Prior relaxation risk rises under weak content constraints |
+| Conjecture 5 | Maximum-entropy hallucination model | 8.5.5 | Prior relaxation risk rises under weak content constraints |
 | Conjecture 6 | Optimal noise principle | 8.6.5 | Intermediate noise can improve correction when recoverable signal exists |
 | Conjecture 7 | Adaptive resonance optimality | 8.6.8 | There may be an optimal vigilance $\rho^*$ that balances false rejections and false acceptances |
 | Conjecture 8 | Model-specific sampling limit | 11.6 | Nyquist-style analogy: constraint sampling rate $s > 2B_{M,T}$ may be required |
@@ -155,7 +155,7 @@
 | 2 | **Matching failure** | 4.4 | Ambiguous effective query | Composite or wrong retrieval |
 | 3 | **Decompression Failure** | 4.5 | Insufficient context room | Kolmogorov garbage |
 | 4 | **Geometric Distortion** | 8.4 | Multiplicative error cascade | Accumulated corruption |
-| 5 | **Thermodynamic equilibration** | 8.5 | Weak content constraints | Fluent but weakly supported output |
+| 5 | **Maximum-entropy prior relaxation** | 8.5 | Weak content constraints | Fluent but weakly supported output |
 | 6 | **Noise paradox** | 8.6 | Too much or too little stochasticity | Brittle or unsupported output |
 
 ---
@@ -171,7 +171,7 @@
 | **5** | Compression-transmission duality | LLMs as teachers |
 | **6** | Hallucination taxonomy | Severity and detection |
 | **7** | Mitigation strategies | Capacity estimation, verification, regime routing |
-| **8** | Complexity from constraints | Conservation, distortion, thermodynamics, noise |
+| **8** | Complexity from constraints | Conservation, distortion, maximum-entropy relaxation, noise |
 | **9** | Experimental predictions | 26 testable predictions |
 | **10** | Related work | Prior work and boundaries |
 | **11** | Conclusion and extensions | Limitations, sampling conjecture, memory hierarchy |
@@ -186,7 +186,7 @@ If you use this repository in your research, please cite it. This is ongoing wor
 
 Oscar Goldman - Shogu Research Group @ Datamutant.ai (subsidiary of 温心重工業)
 
-Goldman, O. (2025). *Hallucinations in Noisy Channels: An information-theoretic and thermodynamic framework for LLM hallucination errors* (Version 1.2.2). Shogu Research Group @ Datamutant.ai. https://github.com/Gman-Superfly/Hallucinations_in_Noisy_Channels
+Goldman, O. (2025). *Hallucinations in Noisy Channels: An information-theoretic framework for LLM hallucination errors* (Version 1.2.2). Shogu Research Group @ Datamutant.ai. https://github.com/Gman-Superfly/Hallucinations_in_Noisy_Channels
 
 ---
 

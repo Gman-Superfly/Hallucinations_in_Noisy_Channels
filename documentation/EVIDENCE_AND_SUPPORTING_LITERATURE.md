@@ -177,7 +177,7 @@ Current status: supported as shared local, semantic, or domain-specific geometry
 - Form is "free" (arises from combinatorics); content is what costs information
 - Hallucination = relaxation to the null model when content constraints fail
 
-**Framework connection:** Glossary (Form prior definition), Section 8.5 (Thermodynamic Interpretation)
+**Framework connection:** Glossary (Form prior definition), Section 8.5 (Maximum-entropy interpretation)
 
 ---
 
@@ -196,7 +196,7 @@ Current status: supported as shared local, semantic, or domain-specific geometry
 - "Flat head + power-law tail" is a universal geometric signature
 - Linguistic constraints filter the space but don't change asymptotic structure
 
-**Framework connection:** Glossary (Form prior), Conjecture 5 (Thermodynamic Hallucination Model)
+**Framework connection:** Glossary (Form prior), Conjecture 5 (Maximum-entropy hallucination model)
 
 ---
 

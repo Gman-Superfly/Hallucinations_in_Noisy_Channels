@@ -1,10 +1,10 @@
 ﻿# Hallucinations in Noisy Channels
 
-## An information-theoretic and thermodynamic framework for LLM hallucination errors
+## An information-theoretic framework for LLM hallucination errors
 
 **Authors**: Oscar Goldman - Shogu Research Group @ Datamutant.ai  
 **Date**: November 2025  
-**Status**: Working theoretical framework. Treat conjectures, model claims, and proposed mechanisms as speculative until the relevant experiments or derivations are complete.
+**Status**: Working theoretical framework. Research roadmap. Treat conjectures, model claims, and proposed mechanisms as speculative until the relevant experiments or derivations are complete.
 
 This document is a work in progress. Experiments are ongoing, and some related work is now public in the AKIRA repository. The framework may need a year or more of additional experiments, failed tests, revisions, and derivations before it becomes stable. Sections may change as evidence changes.
 
@@ -16,7 +16,7 @@ Grounded information in an LLM answer must come from some source signal. In this
 
 The framework treats inference as a reconstruction and transmission process. Training compresses patterns into weights. During inference, the model matches the effective query to available representations, reconstructs an answer from compressed or supplied information, and transmits that answer through the decoding process. We call this inference-time role *teaching* because the system communicates reconstructed knowledge under channel constraints.
 
-Under this model, hallucinations can arise from six failure modes. A capacity violation occurs when the requested topic information exceeds what the available sources can support. A matching failure occurs when the effective query selects the wrong or composite representation. A decompression failure occurs when the correct information cannot be unfolded within the working context budget. Geometric distortion occurs when small errors compound through sequential transformations. Thermodynamic equilibration occurs when weak content constraints allow generation to relax toward prior-dominated fluent text. The noise paradox appears because some stochasticity can help recover weak available signal, while excessive stochasticity can destroy the same signal.
+Under this model, hallucinations can arise from six failure modes. A capacity violation occurs when the requested topic information exceeds what the available sources can support. A matching failure occurs when the effective query selects the wrong or composite representation. A decompression failure occurs when the correct information cannot be unfolded within the working context budget. Geometric distortion occurs when small errors compound through sequential transformations. Maximum-entropy prior relaxation occurs when weak content constraints allow generation to relax toward prior-dominated fluent text. The noise paradox appears because some stochasticity can help recover weak available signal, while excessive stochasticity can destroy the same signal.
 
 The working principle is source accounting: grounded output should be explainable from modeled source signal. When output contains more topic information than the estimated source can explain, the excess is evidence that learned priors or untracked signal filled the gap. This principle motivates testable predictions about prompt specificity, retrieval, reasoning traces, context management, capacity estimation, and temperature calibration.
 
@@ -77,15 +77,18 @@ Hallucinations occur when the model generates with insufficient content constrai
 
 The notation supports source accounting. Each quantity below names either a source of grounded information, a constraint on possible outputs, or a proxy for the cost of reconstruction.
 
-- **Topic $T$**: the subject area held fixed when the framework writes expressions such as $H(O \mid \text{topic } T)$. When $T$ is omitted, the local discussion supplies it.
+- **Topic $T$**: the subject area held fixed when the framework writes expressions such as $H(A_T(O) \mid S_T, T)$. When $T$ is omitted, the local discussion supplies it.
+- **Topic-supporting source $S_T$**: the modeled source signal that can support claims about topic $T$, including topic-relevant support from weights, prompt context, retrieval, tools, and adaptive memory. Section 8.3 states the operational convention.
+- **Topic-claim content $A_T(O)$**: the topic-claim content extracted from output $O$: factual claims, relations, citations, numerical answers, code behavior claims, or other task-relevant assertions about topic $T$. Surface wording and paraphrase variation are outside this object.
+- **Sampling noise $Z$**: the sampler randomness or random seed used during stochastic decoding. It can add surface variation; it does not by itself add grounded topic support.
 - **Kolmogorov complexity $K(x)$**: the shortest-description length of object $x$ in bits, following Kolmogorov (1965). In experiments we use computable compression proxies, so equalities involving $K(\cdot)$ hold up to compressor-dependent constants and monotone rescalings.
 - **Representation capacity proxy $K_{\text{rep}}(\text{weights} \mid T)$**: the topic-conditioned source capacity supplied by model weights. In older notation this document sometimes writes $K(\text{weights})$ for this proxy. Section 7.4 estimates it through manifold-alignment and capacity signals such as embedding density $\rho_T$, translation fidelity, and calibrated confidence.
 - **Context constraint proxy $K(\text{context})$**: the complexity of source signal supplied by the prompt, retrieval, system prompt, examples, and other in-context scaffolding. It measures usable constraints, not raw token count.
 - **Form constraints $\mathcal{F}$**: constraints that make text fluent, grammatical, stylistically plausible, or genre-consistent.
 - **Content constraints $\mathcal{C}_T$**: topic-specific constraints that make an output grounded for topic $T$.
 - **Topic capacity $C_T$**: a rate in bits, per answer or per token, for reliable topic transmission. A working proxy is $C_T \approx I(\text{Query}; \text{Accurate Answer} \mid T)$. The predictions use relative comparisons rather than absolute units.
-- **Latent capacity $K_{\text{latent}}$**: the effective working-memory budget available during reconstruction.
-- **Reconstruction budget $K_{\text{reconstruct}}(r)$**: the bits-equivalent cost of unfolding representation $r$ into an answer.
+- **Latent working capacity $W_{\text{latent}}$**: the effective working-memory, attention, and intermediate-state budget available during reconstruction.
+- **Reconstruction workspace $W_{\text{reconstruct}}(r)$**: the working cost of unfolding representation $r$ into an answer. This is a resource proxy, not plain Kolmogorov complexity.
 - **Entropy $H(X)$ and mutual information $I(X;Y)$**: Shannon entropy and mutual information in bits, using $\log_2$ unless stated otherwise.
 - **Microstate count $\Omega$**: the number of output states satisfying a given constraint set. Thermodynamic entropy is $S = k_B \ln \Omega$ in nats. By default $k_B = 1$; bit-domain comparisons use $S_{\text{bits}} = \log_2 \Omega = S / \ln 2$.
 - **Energy proxy $E(x)$ and temperature $T$**: $E(x) = -\log P(\text{correct}\mid x)$ in nats is an output-level proxy for grounding error. Sampling temperature $T$ is an algorithmic analogue of thermodynamic temperature. $Z$ denotes the partition function where the thermodynamic analogy uses one.
@@ -97,7 +100,7 @@ The notation supports source accounting. Each quantity below names either a sour
 
 **Universal manifold.** The universal manifold is a hypothesized shared or overlapping geometric structure $\mathcal{M}_{universal}$ that supports task-relevant verifiable representations. This is a conjectural object. Evidence includes unsupervised embedding translation results from Jha et al. (2025), convergence trends from Huh et al. (2024), and domain-specific evidence from Li and Walsh (2026). Counter-evidence from Koepke et al. (2026) and Gröger et al. (2026) cautions against treating it as an established single global manifold across all modalities.
 
-**Kolmogorov garbage.** Kolmogorov garbage is structurally valid but semantically incoherent output produced when decompression room is insufficient. It consists of plausible fragments that fail to cohere into a source-supported whole. Section 4.5 models this as context crowding where $K_{available} < K_{reconstruct}(r)$.
+**Kolmogorov garbage.** Kolmogorov garbage is structurally valid but semantically incoherent output produced when decompression room is insufficient. It consists of plausible fragments that fail to cohere into a source-supported whole. Section 4.5 models this as context crowding where $W_{\text{available}} < W_{\text{reconstruct}}(r)$.
 
 **Capacity violation.** A capacity violation occurs when a request asks for topic information at rate $R_T$ exceeding topic capacity $C_T$. Under the channel model used here, if $R_T > C_T$, then reliable source-supported generation exceeds the modeled channel limit. Corollary 1 states this under its assumptions.
 
@@ -629,9 +632,9 @@ It is a simplification to treat the prompt and context as separate objects. A tr
 │                                                                          │
 │  HNC example                                                             │
 │                                                                          │
-│  Context: detailed discussion of hallucination thermodynamics            │
+│  Context: detailed discussion of hallucination entropy models            │
 │  Prompt: "explain it"                                                    │
-│  Effective query: explain the thermodynamic interpretation of            │
+│  Effective query: explain the maximum-entropy interpretation of          │
 │  hallucination                                                           │
 │                                                                          │
 └─────────────────────────────────────────────────────────────────────────┘
@@ -880,8 +883,8 @@ The scratch-paper analogy is useful here. A final answer may be short, but the p
 │    Insufficient decompression room can fragment the right one.           │
 │                                                                          │
 │    Low K(input): weak representation selection                           │
-│    Low K(available): incomplete reconstruction                           │
-│    Truncated K(output): plausible fragments without global coherence     │
+│    Low W(available): incomplete reconstruction                           │
+│    Truncated topic claims: plausible fragments without global coherence  │
 │                                                                          │
 │  The output is not random noise. It is a structural failure:            │
 │  plausible fragments that do not cohere.                                │
@@ -927,43 +930,51 @@ The usable region:
 Reliable teaching requires enough context to constrain the topic and enough free working capacity to reconstruct the answer.
 
 $$
-K_{Q_{eff}} + K_{reconstruct} \leq K_{latent\_capacity}
+W_{Q_{eff}} + W_{\text{reconstruct}} \leq W_{\text{latent\_capacity}}
 $$
 
-Here, $K_{Q_{eff}}$ is the complexity of the effective query, $K_{reconstruct}$ is the reconstruction cost of the selected representation, and $K_{latent\_capacity}$ is the available working capacity under the model and context conditions.
+Here, $W_{Q_{eff}}$ is the working cost of representing the effective query, $W_{\text{reconstruct}}$ is the working cost of unfolding the selected representation, and $W_{\text{latent\_capacity}}$ is the available working capacity under the model and context conditions.
+
+**What would distinguish this account.** A U-shaped quality curve in context length is consistent with several competing explanations, so observing the U-shape alone is weak evidence for the decompression account. Distractor interference predicts degradation because long context adds misleading material. Position bias predicts degradation because models weight middle positions less, as in the lost-in-the-middle results of Liu et al. (2023). Attention dilution predicts degradation because attention mass spreads across more tokens. Each of these accounts can produce the right branch of the U-curve without any claim about reconstruction workspace.
+
+The decompression account makes two claims that the alternatives do not make. First, the optimal context length should shift with answer complexity: if $W_{\text{reconstruct}}(r)$ grows, then the usable region shrinks and the optimum moves toward shorter context, even when every context token is relevant. Second, decompression failure should occur at matched routing success: when an independent check confirms that the model attends to and can quote the relevant span, generation of a complex answer should still degrade as relevant filler grows, while generation of a simple answer from the same span should degrade less. A pure distraction or position account predicts no such interaction with answer complexity once routing success is held fixed.
+
+This yields a discriminating protocol. Hold the supporting span and its position fixed, verify routing success directly, for example by asking the model to quote the span before answering, then vary two factors: the amount of relevant, non-misleading filler, and the reconstruction complexity of the requested answer. The decompression account predicts an interaction between filler volume and answer complexity at matched routing success. Prediction 18 states the resulting U-curve and its complexity shift; Prediction 5 covers the crowding branch, and Prediction 6 covers the complexity dependence. Section 9.3 lists the corresponding experiments.
+
+Boundary: the protocol separates decompression from distraction and position accounts under the assumption that quoting the span is a valid routing check. If quoting succeeds through a shallow copy path that does not reflect the attention state used during answer generation, then the check is weaker and the experiment needs an internal attention or probing measurement instead.
 
 #### 4.5.4 Formal characterization
 
 **Definition 7 (Decompression room).**
-Let $K_{latent}$ be the effective capacity of the latent working state, constrained by context window and attention bandwidth. Let $K_{query}$ be the complexity of the explicit query, $K_{context}$ be the complexity of provided context, and $K_{reconstruct}(r)$ be the complexity required to reconstruct representation $r$.
+Let $W_{latent}$ be the effective capacity of the latent working state, constrained by context window and attention bandwidth. Let $W_{query}$ be the working cost of representing the explicit query, $W_{context}$ be the working cost of maintaining provided context, and $W_{reconstruct}(r)$ be the workspace required to reconstruct representation $r$.
 
 Successful reconstruction requires:
 
 $$
-K_{query} + K_{context} + K_{reconstruct}(r) \leq K_{latent} \tag{Def}
+W_{query} + W_{context} + W_{reconstruct}(r) \leq W_{latent} \tag{Def}
 $$
 
 Here, the left side is an upper-bound proxy for the working capacity consumed by query, context, and reconstruction. The inequality states that successful reconstruction requires the combined demand to fit inside the available latent capacity.
 
-*Note on subadditivity:* Kolmogorov complexity is uncomputable and not strictly additive. For two objects, $K(A,B) \leq K(A) + K(B) + O(\log n)$, where the logarithmic term accounts for combining descriptions. The sum $K_{query} + K_{context} + K_{reconstruct}$ is therefore an upper-bound proxy for $K(\text{query}, \text{context}, \text{reconstruction})$. If even this proxy exceeds capacity, then reconstruction failure is expected under the model.
+*Note on resource cost:* The $W$ terms are workspace, attention, and intermediate-state proxies. They are separate from plain Kolmogorov complexity. A short description can require substantial time or workspace to execute, as in decompression, proof search, or program execution. If this working-cost proxy exceeds available capacity, then reconstruction failure is expected under the model.
 
 **Proposition 5 (Context crowding).**
 As query and context consume more working capacity, available decompression room decreases:
 
 $$
-K_{available} = K_{latent} - K_{query} - K_{context} \tag{Def}
+W_{available} = W_{latent} - W_{query} - W_{context} \tag{Def}
 $$
 
-Here, $K_{available}$ is the remaining working capacity after the query and context are represented. If $K_{available} < K_{reconstruct}(r)$, then reconstruction can truncate or fragment. This can produce structurally coherent local fragments that fail to form a grounded answer.
+Here, $W_{available}$ is the remaining working capacity after the query and context are represented. If $W_{available} < W_{reconstruct}(r)$, then reconstruction can truncate or fragment. This can produce structurally coherent local fragments that fail to form a grounded answer.
 
 **Proposition 6 (Decompression-compression asymmetry).**
-For most concepts, decompression complexity exceeds storage complexity:
+For most concepts, reconstruction workspace exceeds storage description length:
 
 $$
-K_{reconstruct}(r) > K_{storage}(r) \tag{Approx}
+W_{reconstruct}(r) > K_{storage}(r) \tag{Approx}
 $$
 
-Here, $K_{storage}(r)$ is the complexity of storing representation $r$, and $K_{reconstruct}(r)$ is the working complexity needed to unfold it into an answer. The approximation states that execution usually needs more workspace than storage.
+Here, $K_{storage}(r)$ is the description-length proxy for storing representation $r$, and $W_{reconstruct}(r)$ is the working capacity needed to unfold it into an answer. The approximation states that execution usually needs more workspace than storage. It does not claim that plain Kolmogorov complexity increases during decompression.
 
 The asymmetry appears in ordinary computation: a program file can be small while running it requires stack, heap, and intermediate state. A compressed archive can be small while decompression needs buffer space. In HNC terms, the concept "French Revolution" may be stored compactly, but generating a coherent explanation requires unfolding dates, figures, causes, and consequences into an active working state.
 
@@ -982,13 +993,25 @@ The decompression view gives a possible explanation for several observed phenome
 | Chain-of-thought helps | Distributes decompression across steps |
 | Query-conditioned thinking traces may help | Compress source signal into a smaller dynamic codebook |
 
-This implication needs one extra source accounting condition. A compressed trace can point to the right region of the source while losing the content that supports a later claim. HNC therefore separates *routing success* from *payload preservation*. Routing success means the effective query, retrieval step, attention pattern, or trace selects the relevant source region. Payload preservation means the claim supporting content survives the compression step and remains available to the answerer.
+The last table row carries a condition that the next subsection develops. A compressed trace can improve the downstream answer score while losing the content that supports a specific claim, and answer-level metrics cannot detect that loss on their own.
+
+#### 4.5.6 Routing versus payload
+
+Any pipeline that moves source signal toward an answer involves two separable success conditions. The pipeline must find the right part of the source, and it must carry the supporting content through to the step that writes the answer. These conditions can fail independently, so HNC gives each one a name.
+
+*Routing success* means the selection step identifies the relevant source region. The selection step can be the effective query, a retrieval call, an attention pattern, or a compressed trace. *Payload preservation* means the claim supporting content itself survives compression and transport and remains available to the answerer. The distinction matters because a trace can route correctly and still lose the payload. A summary that says "the report states the third-quarter revenue figure" routes to the right region while dropping the figure itself. The reverse failure also occurs: a trace can quote exact content from the wrong region.
+
+Standard end-to-end metrics conflate the two conditions. Exact match, F1, and answer-level scores measure only whether the final answer is correct. When a trace drops the payload, the answering model can fill the gap from its own weights, and the score stays high. Under source accounting this substitution is a problem even when the answer happens to be correct, because the answer is no longer supported by the audited source path. The claim now rests on untracked weight knowledge, which is the situation Prediction 28 treats as a warning sign. A trace evaluation that reports only answer scores therefore cannot certify that the trace preserves source signal.
+
+The measurement is a claim-level audit. For each generated claim, the audit identifies the source span that should support it, then records three separate outcomes: whether the selection step chose or summarized that span (routing), whether the supporting content survived inside the trace (payload), and whether the answer used the surviving content accurately (use). The `CompressedContextTrace` object in the experiment scaffold carries the corresponding fields, including trace utility, trace faithfulness, payload retention, routing payload mismatch, and an answer leakage flag. The routing versus payload audit in Section 9.4 lists the experiment design.
 
 *Supporting mechanism under review:* TCC/Crow records the same split as a QK/V design concern: a shared context path can help decide which constraints matter, while direct payload paths carry the content being denoised, completed, scored, or ranked. HNC should treat this as an internal design lead, not confirmed LLM evidence. The relevant HNC test is whether compressed traces preserve claim supporting payload, not only whether they improve downstream answer score. See [TCC context and payload separation](documentation/RESEARCH_LEADS_UNDER_REVIEW.md#tcc-context-and-payload-separation).
 
-#### 4.5.6 Three hallucination mechanisms
+Boundary: routing and payload form a measurement distinction, not a claim about separate internal modules. Both can fail at once, and a single mechanism can cause both failures. The audit only requires that the two outcomes be recorded separately so that a high answer score cannot hide a payload loss.
 
-At this point, HNC has three complementary mechanisms:
+#### 4.5.7 Three hallucination mechanisms
+
+At this point, HNC has three complementary source-reconstruction mechanisms. Later sections add three transmission and relaxation mechanisms: geometric distortion (Section 8.4), maximum-entropy prior relaxation (Section 8.5), and noise failure or controlled-noise correction (Section 8.6). Together they form the six failure modes listed in the abstract.
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────┐
@@ -1061,7 +1084,7 @@ $$
 
 Here, $C_{ctx}$ is the usable capacity supplied by context, and $s$ is sink severity. The approximation states that stronger sink concentration reduces usable context capacity under the model. As $s \to 1$, the channel becomes prefix dominated, so reconstruction can fail even when relevant information appears later in context. With hidden state access, HNC should test whether $C_{ctx}$ also decreases as $c_{\text{BOS}}^{(\ell)}$ rises and $H(X^{(\ell)})$ drops in the layers used for reconstruction.
 
-#### 4.6.3 Thermodynamic consequence
+#### 4.6.3 Prior relaxation consequence
 
 Sinks create strong attention priors at the start of the sequence.
 
@@ -1073,7 +1096,7 @@ Tasks requiring late context evidence should degrade as sink severity $s$ increa
 
 ### 4.7 Information atoms: grounding the framework
 
-The abstract Kolmogorov framework, $K(\text{output}) \leq K(\text{weights}) + K(\text{context})$, needs an operational traceability proxy. HNC uses *information atoms* for this role: compressed content constituents that may be selected and recombined during inference.
+The abstract source-accounting framework, $K(A_T(O)) \leq K(S_T)$, needs an operational traceability proxy. HNC uses *information atoms* for this role: compressed content constituents that may be selected and recombined during inference.
 
 *Terminology guard:* HNC information atoms are stored content constituents. PID partial information atoms are measurement components in a redundancy lattice (Williams & Beer, 2010). Linguistic morphemes provide one concrete analogy for language-level constituents, because a morpheme is the smallest grammatical unit of speech (Britannica, n.d.). HNC atoms can live at several levels: morpheme-level forms, entity fragments, relations, facts, procedures, style templates, or retrieval cues. AKIRA Action Quanta are downstream actionable patterns constructed from selected information atoms plus context and task constraints.
 
@@ -1135,13 +1158,13 @@ This atomic view turns abstract source accounting into a traceability test:
 | "Prior relaxation" | No atoms strongly selected, so prior-dominated statistical structure fills the gap |
 
 **Corollary (Atom-grounded conservation).**
-*Corollary to Theorem 3.* Output information cannot exceed the information content of selected atoms plus context:
+*Corollary to Theorem 3.* Topic-claim information cannot exceed the information content of selected atoms plus context:
 
 $$
-K(\text{output}) \leq \sum_{i \in \text{selected}} K(a_i) + K(\text{context}) \tag{Approx}
+K(A_T(O)) \leq \sum_{i \in \text{selected}} K(a_i) + K(\text{context}) \tag{Approx}
 $$
 
-Here, $K(\text{output})$ is the complexity of the output, $K(a_i)$ is the complexity of selected atom $a_i$, and $K(\text{context})$ is the complexity of supplied context. Output information not traceable to selected atoms plus context is a hallucination candidate under the source-accounting rule.
+Here, $K(A_T(O))$ is the topic-claim complexity proxy for output $O$, $K(a_i)$ is the complexity of selected atom $a_i$, and $K(\text{context})$ is the complexity of supplied context. Topic-claim information not traceable to selected atoms plus context is a hallucination candidate under the source-accounting rule.
 
 #### 4.7.3 Atom tracing for hallucination detection
 
@@ -1158,10 +1181,10 @@ Here, $K(\text{output})$ is the complexity of the output, $K(a_i)$ is the comple
 │     coverage(O) = max_{atom subset} sim(O, decompress(atoms))          │
 │                                                                          │
 │  3. Hallucination score:                                                │
-│     H(O) = K(O) - K(O | selected atoms, context)                       │
-│          = information in O unexplained by selected atoms or context    │
+│     H_T(O) = K(A_T(O)) - K(A_T(O) | selected atoms, context)           │
+│            = topic-claim information unexplained by atoms or context    │
 │                                                                          │
-│  Prediction: H(O) correlates with factual error rate                    │
+│  Prediction: H_T(O) correlates with factual error rate                  │
 │                                                                          │
 └─────────────────────────────────────────────────────────────────────────┘
 ```
@@ -1211,10 +1234,10 @@ Here, $\mathcal{A}_{training}$ is the set of training-derived atoms, and $\mathc
 With test-time learning, the information conservation bound extends:
 
 $$
-K(\text{output}) \leq \sum_{i \in \text{selected}} K(a_i) + \sum_{j \in \text{test-learned}} K(a^{test}_j) + K(\text{context}) \tag{Approx}
+K(A_T(O)) \leq \sum_{i \in \text{selected}} K(a_i) + \sum_{j \in \text{test-learned}} K(a^{test}_j) + K(\text{context}) \tag{Approx}
 $$
 
-Here, output complexity is bounded by selected training atoms, selected test-time atoms, and context. Test-time atom creation can extend effective capacity beyond pre-training in architectures that update memory during inference. A model encountering a topic weakly covered in training may form compressed patterns from rich context, reducing the capacity gap that would otherwise raise hallucination risk. Standard RAG supplies source signal through context; it creates test-time atoms only when paired with an adaptive learning mechanism.
+Here, topic-claim complexity is bounded by selected training atoms, selected test-time atoms, and context. Test-time atom creation can extend effective capacity beyond pre-training in architectures that update memory during inference. A model encountering a topic weakly covered in training may form compressed patterns from rich context, reducing the capacity gap that would otherwise raise hallucination risk. Standard RAG supplies source signal through context; it creates test-time atoms only when paired with an adaptive learning mechanism.
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────┐
@@ -1692,7 +1715,7 @@ Under the modeled source assumptions, grounded topic information should be trace
 │                                                                          │
 │  Information conservation limit                                          │
 │                                                                          │
-│  Conservation proxy: K(output) ≤ K(weights) + K(context)               │
+│  Conservation proxy: K(A_T(output)) ≤ K(S_T)                           │
 │                                                                          │
 │  Output should not contain more grounded topic information than         │
 │  the modeled sources can explain.                                       │
@@ -1700,71 +1723,79 @@ Under the modeled source assumptions, grounded topic information should be trace
 │  Training:   K(world) is compressed into K(weights).                   │
 │  Matching:   K(query) and K(context) select K(retrieved).              │
 │  Limit:      K(retrieved) is bounded by weights plus context.          │
-│  Inference:  K(retrieved) is reconstructed into K(output).             │
+│  Inference:  K(retrieved) is reconstructed into supported claims.      │
 │                                                                          │
-│  CHAIN: K(output) ≤ K(retrieved) ≤ K(weights) + K(context)             │
+│  CHAIN: K(A_T(output)) ≤ K(retrieved_T) ≤ K(S_T)                       │
 │                                                                          │
-│  If K(output) exceeds modeled source support, then the excess           │
-│  requires an unmodeled source or unsupported prior-driven completion.   │
+│  If topic-claim information exceeds modeled source support, then the    │
+│  excess requires an unmodeled source or unsupported completion.         │
 │                                                                          │
 └─────────────────────────────────────────────────────────────────────────┘
 ```
 
-**Operational convention (proxies).** In all uses of the conservation law here, $K(\text{weights})$ abbreviates the topic-conditioned representation-capacity proxy $K_{\text{rep}}(\text{weights} \mid T)$ defined via manifold geometry (Section 7.4). $K(\text{context})$ counts the in-context constraints and reconstruction structure provided by the prompt/RAG/system prompt. Both quantities are computable proxies; inequalities using $K(\cdot)$ hold up to monotone rescalings induced by the chosen proxies.
+**Operational convention (proxies).** In all uses of the conservation law here, $S_T$ denotes modeled topic-supporting source signal, including topic-relevant support from weights, prompt context, retrieval, tools, and adaptive memory. $K(S_T)$ abbreviates computable source-support proxies such as $K_{\text{rep}}(\text{weights} \mid T)$, context support, retrieved evidence, and tool outputs. $A_T(O)$ denotes the topic-claim content extracted from output $O$: factual claims, relations, citations, numerical answers, code behavior claims, or other task-relevant assertions about topic $T$. Inequalities using $K(\cdot)$ are proxy statements about topic support, not literal claims about total output string complexity.
 
 **Theorem 3 (Information conservation / data processing limit).**
 
-Let $S = S_{weights} + S_{context}$ be the modeled information source, including weights and context. The key quantity is the conditional entropy $H(O \mid S, T)$, the output entropy that remains unexplained after conditioning on source $S$ and topic $T$.
+Let $S_T$ be the modeled topic-supporting information source. Let $A_T(O)$ be the topic-claim content extracted from output $O$. The key quantity is the conditional entropy $H(A_T(O) \mid S_T, T)$, the topic-claim entropy that remains unexplained after conditioning on modeled source support and topic $T$.
 
 For source-supported generation:
 
 $$
-H(O \mid S, T) = 0 \tag{Def}
+H(A_T(O) \mid S_T, T) = 0 \tag{Def}
 $$
 
-Here, $O$ is the output, $S$ is the modeled source, and $T$ is the topic. The equation states an ideal case: all topic-relevant output structure is determined by the modeled source.
+Here, $O$ is the output, $A_T(O)$ is the topic-claim content in that output, $S_T$ is the modeled topic-supporting source, and $T$ is the topic. The equation states an ideal case: all topic-relevant claims are determined by the modeled source. Surface wording, paraphrase choice, and harmless formatting variation are not hallucination under this definition.
 
 For hallucination:
 
 $$
-H(O \mid S, T) > 0 \tag{Def}
+H(A_T(O) \mid S_T, T) > 0 \tag{Def}
 $$
 
-This inequality states that the output contains entropy not explained by the modeled source. In HNC, the unexplained component is a hallucination candidate. A detector must still account for proxy error and untracked source signal.
+This inequality states that the output contains topic-claim content not explained by the modeled source. In HNC, the unexplained topic-claim component is a hallucination candidate. A detector must still account for proxy error, extraction error, verifier limits, and untracked source signal.
 
 Equivalently, via mutual information:
 
 $$
-I(S; O \mid T) = H(O \mid T) - H(O \mid S, T)
+I(S_T; A_T(O) \mid T) = H(A_T(O) \mid T) - H(A_T(O) \mid S_T, T)
 $$
 
-Here, $I(S; O \mid T)$ is the mutual information between source and output given topic. For source-supported generation in the idealized case, $I(S; O \mid T) = H(O \mid T)$: the source explains all topic-relevant output entropy. For hallucination, $I(S; O \mid T) < H(O \mid T)$: an explanatory gap remains.
+Here, $I(S_T; A_T(O) \mid T)$ is the mutual information between modeled source support and topic-claim content given topic. For source-supported generation in the idealized case, $I(S_T; A_T(O) \mid T) = H(A_T(O) \mid T)$: the source explains all topic-claim entropy. For hallucination, $I(S_T; A_T(O) \mid T) < H(A_T(O) \mid T)$: an explanatory gap remains.
 
-Equivalently, in complexity terms (weights + context as the source):
+Equivalently, in topic-conditioned complexity-proxy terms:
 
 $$
-K(\text{output}) \;\le\; K(\text{weights}) + K(\text{context}) + O(\log n) \tag{Proxy}
+K(A_T(O)) \;\le\; K(S_T) + O(\log n) \tag{Proxy}
 $$
 
-Here, $O(\log n)$ accounts for the overhead of combining descriptions (Kolmogorov, 1965). Kolmogorov complexities are not strictly additive:
+Here, $K(A_T(O))$ estimates topic-claim information in the output, $K(S_T)$ estimates modeled topic support, and $O(\log n)$ accounts for the overhead of combining descriptions (Kolmogorov, 1965). Kolmogorov complexities are not strictly additive:
 
 $$
 K(A,B) \le K(A) + K(B) + O(\log(K(A) + K(B))).
 $$
 
-For HNC, the simplified bound is a proxy. Its value depends on how weights and context support are estimated.
+For HNC, the simplified bound is a proxy. Its value depends on how topic claims are extracted, how source support is estimated, and what untracked sources the detector misses.
 
-**Proof sketch.** Consider the Markov chain $S \to R \to O$, where $S$ is the available source (weights + context), $R$ any intermediate reconstruction, and $O$ is the output. By the data processing inequality, $I(S;O) \le I(S;R)$. In the idealized source-supported case, the output is a deterministic function of the source given the topic: $H(O \mid S, T) = 0$. When the source is insufficient or incorrectly reconstructed, $H(O \mid S, T) > 0$, meaning the output contains entropy unexplained by the modeled source. In LLMs, a plausible source of this unexplained entropy is learned prior structure over fluent text, though practical detectors must account for untracked source signal and proxy error. The gap $H(O \mid S, T)$ quantifies unsupported output under the modeled source assumptions (see Cover and Thomas, 2006, Chapter 2).
+If decoding is stochastic, the literal surface output also depends on sampler noise or a random seed $Z$:
+
+$$
+K(O) \le K(S_T) + K(Z) + K(\text{form and formatting controls}) + O(\log n) \tag{Proxy}
+$$
+
+This stochastic term can add surface variation and prior-shaped text. It does not by itself add grounded topic support. HNC therefore applies the source-accounting test to $A_T(O)$, the topic-claim content, rather than to every bit of the output string.
+
+**Proof sketch.** Consider the Markov chain $S_T \to R_T \to A_T(O)$, where $S_T$ is the modeled topic-supporting source, $R_T$ is any intermediate reconstruction of topic support, and $A_T(O)$ is the topic-claim content in the output. By the data processing inequality, $I(S_T;A_T(O)) \le I(S_T;R_T)$. In the idealized source-supported case, the topic claims are determined by the modeled source given the topic: $H(A_T(O) \mid S_T, T) = 0$. When the source is insufficient, incorrectly matched, or incorrectly reconstructed, $H(A_T(O) \mid S_T, T) > 0$, meaning the topic-claim content contains entropy unexplained by the modeled source. In LLMs, a plausible source of unsupported topic claims is learned prior structure over fluent text, though practical detectors must account for untracked source signal and proxy error. The gap $H(A_T(O) \mid S_T, T)$ quantifies unsupported topic-claim content under the modeled source assumptions (see Cover and Thomas, 2005, Chapter 2).
 
 **Corollary (Information Accounting).**
 
 The output decomposes as:
 
 $$
-K(\text{output}) = \underbrace{K(\text{from weights} + \text{context})}_{\text{grounded}} + \underbrace{K(\text{from form prior})}_{\text{hallucinated filler}} \tag{Proxy}
+K(A_T(O)) = \underbrace{K(\text{from } S_T)}_{\text{grounded topic claims}} + \underbrace{K(\text{unsupported topic residue})}_{\text{hallucination candidate}} \tag{Proxy}
 $$
 
-For fully source-supported generation, the second term is zero under the proxy. Any contribution from the form prior that is not constrained by content knowledge marks an unsupported-output risk.
+For fully source-supported generation, the second term is zero under the proxy. Any topic-claim contribution from the form prior that is not constrained by content knowledge marks an unsupported-output risk.
 
 #### 8.3.1 Hallucination detector
 
@@ -1773,13 +1804,13 @@ For fully source-supported generation, the second term is zero under the proxy. 
 │                                                                          │
 │  Hallucination detector, information accounting                         │
 │                                                                          │
-│  Measure: K(output) vs K(source)                                        │
+│  Measure: K(A_T(output)) vs K(S_T)                                      │
 │                                                                          │
-│  If K(output) is less than or equal to K(source):                       │
-│     The information could have been transmitted.                        │
+│  If K(A_T(output)) is less than or equal to K(S_T):                     │
+│     The topic claims could have been transmitted.                       │
 │     Accuracy still needs a separate check.                              │
 │                                                                          │
-│  If K(output) is greater than K(source):                                │
+│  If K(A_T(output)) is greater than K(S_T):                              │
 │     The excess needs an unmodeled source or unsupported completion.     │
 │     Hallucination risk is high under the source-accounting model.       │
 │                                                                          │
@@ -1794,17 +1825,17 @@ Form constraints are high entropy because they permit many outputs that look lin
 
 When generation occurs without sufficient content constraints because of capacity violation, matching failure, or decompression failure, the model can sample from the high-entropy form distribution. If the resulting topic information is not traceable to modeled source signal, then the excess is a hallucination candidate.
 
-The analogy to energy accounting is limited but useful: an output budget should not exceed the modeled input budget. Boundary: this analogy supports accounting logic; it does not claim that information complexity and physical energy are the same quantity.
+The analogy to energy accounting is limited but useful: a topic-claim budget should not exceed the modeled topic-source budget. Boundary: this analogy supports accounting logic; it does not claim that information complexity and physical energy are the same quantity.
 
-The preserved quantity is topic support under the compression-transmission-decompression cycle. When output structure exceeds modeled source support, the detector should flag the answer for verification.
+The preserved quantity is topic support under the compression-transmission-decompression cycle. When topic-claim structure exceeds modeled source support, the detector should flag the answer for verification.
 
 #### 8.3.3 Practical implications
 
 This principle suggests:
-- Real-time hallucination screening: estimate $K(\text{output})$ against modeled source support.
+- Real-time hallucination screening: estimate $K(A_T(O))$ against modeled source support $K(S_T)$.
 - Capacity-aware generation: retrieve, use tools, ask for clarification, or refuse when the information budget is not satisfied.
-- Formal verification in bounded domains: prove outputs do not exceed source information bounds where source and output can be formalized.
-- Calibrated uncertainty: confidence should decrease when $K(\text{source}) / K(\text{output})$ is low.
+- Formal verification in bounded domains: prove topic claims do not exceed source information bounds where source and output can be formalized.
+- Calibrated uncertainty: confidence should decrease when $K(S_T) / K(A_T(O))$ is low.
 
 ### 8.4 Geometric distortion accumulation
 
@@ -1987,10 +2018,10 @@ Boundary: this analogy supports the early-stage-error intuition. It does not mak
 Combining conservation from Section 8.3 with distortion accumulation, and assuming independent per-stage errors:
 
 $$
-K(\text{output}) \approx \underbrace{K(\text{source}) \cdot \prod_i (1 - \epsilon_i)}_{\text{grounded (degraded)}} + \underbrace{K(\text{form prior}) \cdot \left[1 - \prod_i (1 - \epsilon_i)\right]}_{\text{hallucinated filler}} \tag{Approx}
+K(A_T(O)) \approx \underbrace{K(S_T) \cdot \prod_i (1 - \epsilon_i)}_{\text{grounded topic support (degraded)}} + \underbrace{K(\text{unsupported topic residue}) \cdot \left[1 - \prod_i (1 - \epsilon_i)\right]}_{\text{hallucination candidate}} \tag{Approx}
 $$
 
-Here, $K(\text{source})$ is modeled source support, $K(\text{form prior})$ is the complexity available from learned form priors, and $\prod_i (1 - \epsilon_i)$ is the remaining fidelity. As fidelity drops, the form prior can fill more of the output.
+Here, $K(S_T)$ is modeled topic-source support, $K(\text{unsupported topic residue})$ is the topic-claim complexity available from learned priors or untracked sources, and $\prod_i (1 - \epsilon_i)$ is the remaining fidelity. As fidelity drops, learned priors can fill more of the topic-claim content.
 
 $$
 K(\text{hallucinated}) \propto 1 - \prod_i (1 - \epsilon_i) = 1 - \text{Fidelity} \tag{Approx}
@@ -2010,9 +2041,11 @@ This approximation assumes independent errors. When errors are correlated, for e
 | Fine-tuning on domain helps | Reduces first-stage distortion for that domain |
 | Smaller models can hallucinate more | Higher per-stage distortion under limited capacity |
 
-### 8.5 Thermodynamic interpretation: thermalization as prior relaxation
+### 8.5 Maximum-entropy interpretation: prior relaxation under weak constraints
 
-This section models one endpoint of hallucination: *thermalization*, meaning relaxation toward learned priors when content constraints become weak. The most concrete mechanism lead is attention-level prior relaxation. GOAT frames attention as entropic optimal transport with solution $p^*=\mathrm{softmax}(s/\tau+\log \pi)$, where $s$ contains content scores, $\tau$ controls entropy pressure, and $\pi$ is a key-position prior. When content scores carry little discriminating signal, or when score differences are small relative to $\tau$, attention moves toward $\pi$. If the scores are flat, then $p^*=\pi$ exactly.
+This section models one endpoint of hallucination: *thermalization*, meaning relaxation toward learned priors when content constraints become weak. The section separates two layers of claim. The exact layer is maximum-entropy structure that holds by identity: temperature-scaled softmax sampling is a Gibbs distribution over negative logits, and the maximum-entropy principle of Jaynes (1957) describes what a distribution does when constraints weaken. The analogical layer borrows thermodynamic vocabulary, thermal bath, thermalization, and free energy, to make the exact layer easier to reason about. The predictions in this section follow from the exact layer; the thermodynamic vocabulary names them and adds no separate claim.
+
+The most concrete mechanism lead is attention-level prior relaxation. GOAT frames attention as entropic optimal transport with solution $p^*=\mathrm{softmax}(s/\tau+\log \pi)$, where $s$ contains content scores, $\tau$ controls entropy pressure, and $\pi$ is a key-position prior. When content scores carry little discriminating signal, or when score differences are small relative to $\tau$, attention moves toward $\pi$. If the scores are flat, then $p^*=\pi$ exactly.
 
 This supports the HNC thermalization model at the token-matching level. The output-level form-prior claim still needs direct hallucination experiments.
 
@@ -2051,12 +2084,12 @@ Without sufficient content signal, fluent learned priors remain available. Maint
 
 *Terminological note:* Form prior sampling, or thermalization, differs from Kolmogorov garbage, the decompression failure described in Section 4.5.2. Form prior sampling occurs when knowledge constraints are absent or too weak, so learned priors dominate. Kolmogorov garbage occurs when knowledge is present but inaccessible; insufficient room to unfold the compressed representation produces fragmented output. Both can produce hallucination, but the mechanisms differ.
 
-#### 8.5.1 Thermodynamic duality
+#### 8.5.1 Constraint-entropy duality
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────┐
 │                                                                          │
-│  Thermodynamic duality                                                   │
+│  Constraint-entropy duality                                              │
 │                                                                          │
 │  Low-entropy constraint              High-entropy prior                 │
 │  Stored or supplied signal            Learned distribution              │
@@ -2085,13 +2118,13 @@ The form prior is modeled as the high-entropy output prior. When topic constrain
 
 #### 8.5.3 Gibbs distribution
 
-We model output probability with a Gibbs-Boltzmann form (Boltzmann, 1877; Jaynes, 1957):
+At the token level, the Gibbs form is an identity rather than an analogy: temperature-scaled softmax sampling is exactly a Gibbs-Boltzmann distribution when negative logits are read as energies (Boltzmann, 1877; Jaynes, 1957). The analogical content of this section enters only through the choice of energy proxy and the sequence-level microstate accounting, both of which are HNC modeling decisions:
 
 $$
 P(x) = \frac{1}{Z} e^{-E(x)/kT} \tag{Def}
 $$
 
-Here, $P(x)$ is the modeled probability of output $x$, $E(x)$ is an energy proxy, $T$ is sampling temperature treated as an algorithmic analogue of thermodynamic temperature, $k$ is a scaling constant, and $Z$ is the partition function that normalizes probabilities.
+Here, $P(x)$ is the modeled probability of token, sequence, or candidate output $x$, $E(x)$ is an energy proxy, $T$ is sampling temperature treated as an algorithmic analogue of thermodynamic temperature, $k$ is a scaling constant, and $Z$ is the partition function that normalizes probabilities.
 
 In this paper, the energy proxy is:
 
@@ -2101,7 +2134,7 @@ $$
 
 This assigns higher energy to outputs that look less grounded under the correctness model.
 
-Note: In LLMs, sampling temperature is an algorithmic control, not a physical temperature. The Gibbs-Boltzmann analogy is conceptual and requires empirical testing in this setting.
+Note: In LLMs, sampling temperature is an algorithmic control, not a physical temperature. At the token level, temperature-scaled softmax can be written exactly in Gibbs form by treating negative logits as energies. Correctness energy, grounding energy, and sequence-level microstate counts are HNC proxies and require empirical testing.
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────┐
@@ -2165,24 +2198,24 @@ $$
 
 Here, $F$ is the free-energy proxy, $E$ is the grounding-energy proxy, $T$ is sampling temperature, and $S$ is output entropy. At low $T$, the energy term dominates selection. The result is grounded only when the model-preferred state matches content constraints. At high $T$, the entropy term receives more weight, and prior relaxation risk increases when content signal is weak.
 
-**Thermodynamic hallucination model (Conjecture 5).**
+**Maximum-entropy hallucination model (Conjecture 5).**
 
 Let $\Omega_{\text{knowledge}}$ be the number of outputs consistent with stored or supplied knowledge, and $\Omega_{\text{form}}$ be the number of outputs consistent only with form. In the modeled output-level ensemble, the relative pressure toward hallucination follows:
 
 $$
-P(\text{hallucination}) \propto e^{S_{\text{form}} - S_{\text{knowledge}}} = \frac{\Omega_{\text{form}}}{\Omega_{\text{knowledge}}} \tag{Approx}
+\frac{P(\text{hallucination})}{P(\text{grounded})} \propto e^{S_{\text{form}} - S_{\text{knowledge}}} = \frac{\Omega_{\text{form}}}{\Omega_{\text{knowledge}}} \tag{Approx}
 $$
 
-Here, $S_{\text{form}}$ is the entropy of form-valid outputs, $S_{\text{knowledge}}$ is the entropy of knowledge-consistent outputs, $\Omega_{\text{form}}$ is the number of form-valid output microstates, and $\Omega_{\text{knowledge}}$ is the number of knowledge-consistent output microstates. Hallucination risk increases with the entropy difference when content signal is too weak to control generation.
+Here, $S_{\text{form}}$ is the entropy of form-valid outputs, $S_{\text{knowledge}}$ is the entropy of knowledge-consistent outputs, $\Omega_{\text{form}}$ is the number of form-valid output microstates, and $\Omega_{\text{knowledge}}$ is the number of knowledge-consistent output microstates. The ratio is an odds or relative-pressure proxy, not a raw probability. Hallucination risk increases with the entropy difference when content signal is too weak to control generation.
 
-**Model sketch.** Under a maximum-entropy (Gibbs) ensemble with weak energy differences across admissible outputs and $k_B=1$, the probability mass assigned to each admissible set is proportional to its microstate count $\Omega$. When constraints weaken, the model shifts from the knowledge-constrained ensemble toward the form-only ensemble; the relative pressure scales as $\Omega_{\text{form}}/\Omega_{\text{knowledge}} = e^{\Delta S}$. If average energies differ non-negligibly between sets, an additional factor depending on those energies appears; we subsume this into temperature-dependent constants in the proportionality (Jaynes, 1957; Boltzmann, 1877). GOAT supplies an attention-level instantiation of the same kind of prior relaxation: as content scores weaken relative to entropy pressure, $p^*$ moves toward $\pi$.
+**Model sketch.** Under a maximum-entropy (Gibbs) ensemble with weak energy differences across admissible outputs and $k_B=1$, the probability mass assigned to each admissible set is proportional to its microstate count $\Omega$. When constraints weaken, the model shifts from the knowledge-constrained ensemble toward the form-only ensemble; the relative pressure or odds scale as $\Omega_{\text{form}}/\Omega_{\text{knowledge}} = e^{\Delta S}$. If average energies differ non-negligibly between sets, an additional factor depending on those energies appears; we subsume this into temperature-dependent constants in the proportionality (Jaynes, 1957; Boltzmann, 1877). GOAT supplies an attention-level instantiation of the same kind of prior relaxation: as content scores weaken relative to entropy pressure, $p^*$ moves toward $\pi$.
 
-#### 8.5.6 Thermodynamic picture
+#### 8.5.6 Entropy picture
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────┐
 │                                                                          │
-│  Thermodynamic picture of hallucination                                 │
+│  Entropy picture of hallucination                                       │
 │                                                                          │
 │  Stored or supplied knowledge: low-entropy constraint                   │
 │    Compressed in weights or supplied through context                    │
@@ -2209,9 +2242,9 @@ Here, $S_{\text{form}}$ is the entropy of form-valid outputs, $S_{\text{knowledg
 
 #### 8.5.7 Implications for control
 
-This thermodynamic view suggests control mechanisms:
+This entropy view suggests control mechanisms:
 
-| Control | Thermodynamic interpretation |
+| Control | Entropy interpretation |
 |---------|------------------------------|
 | Lower temperature | Favor low model energy states; grounded only when content constraints align |
 | More context | Add source signal and content constraints |
@@ -2545,7 +2578,7 @@ This predicts that uniform temperature settings are suboptimal; adaptive tempera
 
 ### 8.7 Diffusion interpretation: denoising as source conditioned repair
 
-The thermodynamic section gives HNC an accounting language: entropy, constraints, prior relaxation, temperature, and free energy proxies. A diffusion interpretation adds a dynamics language: how an answer state moves step by step under noise, drift, source conditioning, and correction. HNC should keep the thermodynamic account, then use diffusion as a testable process model for repair.
+The maximum-entropy section gives HNC an accounting language: entropy, constraints, prior relaxation, temperature, and free energy proxies. A diffusion interpretation adds a dynamics language: how an answer state moves step by step under noise, drift, source conditioning, and correction. HNC should keep the entropy account, then use diffusion as a testable process model for repair.
 
 Scope: autoregressive LLMs remain the object under study. Diffusion supplies a source conditioned denoising experiment that can be run on text outputs, claim sets, embeddings, hidden states, or intermediate traces.
 
@@ -2656,19 +2689,31 @@ For supported or weak recoverable items, source conditioned denoising should red
 **Prediction 28 (No source limit).**
 For unsupported items, source conditioned denoising should increase abstention, retrieval requests, or claim removal. A more specific answer requires new source signal. If exact answer accuracy rises on unsupported items without new source signal, then HNC should treat that as evidence of untracked source signal, benchmark leakage, or verifier failure.
 
+General form: this limit applies to any intervention that adds no new source signal, including prompting changes, self-critique passes, agentic loops, and decoding adjustments. If such an intervention raises exact answer accuracy on certified-unsupported items, then either the certification failed or the framework is wrong about where grounded information comes from. This is the cleanest falsification surface HNC offers, and its force depends entirely on the certification procedure below.
+
+Certification procedure: an item counts as *certified unsupported* only when the experimenter can argue that no modeled source contains the answer. Training data for API models cannot be inspected, so the certification must come from item construction rather than data audit. Three constructions work:
+
+1. Post-cutoff facts: questions whose answers became determinate after the model's training cutoff, verified against the documented cutoff date.
+2. Synthetic entities: questions about constructed entities, identifiers, or documents that did not exist before the experiment, so no training corpus can contain them.
+3. Counterfactual perturbation: supplied documents altered in a known detail, where the question targets the altered detail and the unaltered version is withheld.
+
+Each construction needs a closed-book probe before the intervention runs: query the model without the intervention, at several temperatures and with direct elicitation attempts, and confirm that the answer does not surface. An item that survives the probe receives the unsupported label in the dataset metadata (the `capacity_stratum` field in the experiment scaffold). Without this probe, the defense that the item was secretly supported remains available for any positive result, and the prediction loses its falsifying force.
+
+Decision rule: if accuracy on certified-unsupported items rises under an intervention, then check in order: certification failure (the probe missed elicitable knowledge), verifier failure (the verifier accepts unsupported answers), untracked source signal (the intervention smuggled in retrieval, tools, or context), and only then framework revision. A result that survives all three checks counts as direct evidence against the source-accounting principle.
+
 ---
 
 ## 9. Experimental predictions
 
-The claims in this work should be treated as experiment targets unless they are explicitly derived from established results. This section lists predictions that can support, falsify, or revise the HNC framework.
+The claims in this work should be treated as experiment targets unless they are explicitly derived from established results. This section lists predictions that can support, falsify, or revise the HNC framework. Some predictions are introduced near the mechanisms they test, for example attention sinks, atom coverage, adaptive resonance, denoising, and memory hierarchy. The numbering is kept stable across the document rather than reordered by section.
 
 The main formal claims draw on the following sources:
 - Theorem 3 (information conservation) is motivated by the data processing inequality and related information-theoretic limits (Section 10.1).
 - Theorem 4 (geometric distortion accumulation) is motivated by submultiplicativity of contractions and cascaded-noise models (Sections 8.4 and 10.5).
-- Conjecture 5 (thermodynamic hallucination model) is motivated by the Gibbs-Boltzmann distribution and maximum-entropy principles (Sections 8.5 and 10.5).
+- Conjecture 5 (maximum-entropy hallucination model) is motivated by the Gibbs-Boltzmann distribution and maximum-entropy principles (Sections 8.5 and 10.5).
 - Conjecture 6 (optimal noise principle) is motivated by stochastic resonance and annealing-style trade-offs between exploration and stability (Sections 8.6 and 10.5).
 - Conjecture 7 (adaptive resonance optimality) is motivated by joint control of noise and vigilance in matching (Section 8.6.8).
-- Conjecture 9 (source conditioned denoising) is a testable dynamics interpretation derived from the thermodynamic, distortion, and noise models (Section 8.7).
+- Conjecture 9 (source conditioned denoising) is a testable dynamics interpretation derived from the maximum-entropy, distortion, and noise models (Section 8.7).
 - Conjecture 8 (model-specific sampling limit) is motivated by Nyquist-Shannon sampling theory applied to representation manifolds (Section 11.6).
 
 ### 9.1 Testable hypotheses
@@ -2688,10 +2733,10 @@ Here, $P(\text{hallucination} \mid T_i)$ is the measured hallucination rate for 
 Relevant examples should reduce hallucination rate with diminishing returns:
 
 $$
-P(\text{hallucination} | k \text{ examples}) \propto \frac{1}{\log(1 + k)} \tag{Approx}
+P(\text{hallucination} \mid k \text{ examples}) \approx \frac{P_0}{1 + \alpha \log(1 + k)} \tag{Approx}
 $$
 
-Here, $k$ is the number of relevant examples supplied in context. The logarithmic form is an approximate scaling prediction, not a fitted result.
+Here, $k$ is the number of relevant examples supplied in context, $P_0$ is the hallucination rate with no examples, and $\alpha$ is an example-quality parameter. The logarithmic form is an approximate scaling prediction, not a fitted result. It is defined at $k=0$, where the expression returns the baseline $P_0$.
 
 **Prediction 3 (Confidence-grounding decoupling).**  
 On out-of-distribution topics, model confidence should correlate more with form quality than content accuracy:
@@ -2703,40 +2748,40 @@ $$
 Here, $\text{Corr}$ denotes empirical correlation measured over generated answers.
 
 **Prediction 4 (Prompt specificity effect).**  
-Hallucination rate should increase with geometric mismatch between the effective query and the target representation under the geometric matching proxy:
+The matching-failure component of hallucination risk should increase with geometric mismatch between the effective query and the target representation under the geometric matching proxy:
 
 $$
-P(\text{hallucination}) \approx 1 - \exp\left(-\frac{d_{\mathcal{M}}(\phi(p), \phi(r_{target}))^2}{2\sigma^2}\right) \tag{Approx}
+P_{\text{match-failure}} \approx 1 - \exp\left(-\frac{d_{\mathcal{M}}(\phi(p), \phi(r_{target}))^2}{2\sigma^2}\right) \tag{Approx}
 $$
 
-Here, $d_{\mathcal{M}}$ is distance in the universal embedding space, $\phi(p)$ is the prompt embedding, $\phi(r_{target})$ is the target representation embedding, and $\sigma$ controls the width of the matching kernel. For small distances, this is approximately quadratic: $P(\text{hallucination}) \approx d_{\mathcal{M}}^2 / 2\sigma^2$. More specific effective queries should better match target representation structure, reducing ambiguity-induced errors.
+Here, $d_{\mathcal{M}}$ is distance in the universal embedding space, $\phi(p)$ is the prompt embedding, $\phi(r_{target})$ is the target representation embedding, and $\sigma$ controls the width of the matching kernel. For small distances, this is approximately quadratic: $P_{\text{match-failure}} \approx d_{\mathcal{M}}^2 / 2\sigma^2$. More specific effective queries should better match target representation structure, reducing ambiguity-induced errors. A zero mismatch removes this modeled matching-failure component; it does not remove capacity violation, decompression failure, distortion, or noise-driven failure.
 
 **Prediction 5 (Context crowding effect).**  
-In the crowding regime, where context utilization is high, hallucination rate should increase nonlinearly as available decompression room approaches zero:
+In the crowding regime, where context utilization is high, hallucination risk should increase nonlinearly as available decompression room approaches zero:
 
 $$
-P(\text{hallucination}) \propto \frac{1}{K_{latent} - K_{query} - K_{context}} \quad \text{when } K_{context} \to K_{latent} - K_{query} \tag{Approx}
+R_{\text{crowding}} \propto \frac{1}{W_{latent} - W_{query} - W_{context} + \delta} \quad \text{when } W_{context} \to W_{latent} - W_{query} \tag{Approx}
 $$
 
-Here, $K_{latent}$ is total latent capacity, $K_{query}$ is query complexity, and $K_{context}$ is context load. As decompression room decreases, reconstruction quality should degrade, producing Kolmogorov garbage. This describes the right side of the U-shaped curve in Prediction 18; the left side reflects insufficient content constraints.
+Here, $R_{\text{crowding}}$ is an unnormalized risk or odds proxy, $W_{latent}$ is total latent working capacity, $W_{query}$ is query working cost, $W_{context}$ is context working load, and $\delta > 0$ is a small regularizer that prevents the proxy from being read as an infinite probability at the boundary. The symbol $\delta$ is local to this prediction; $\epsilon_i$ remains reserved for per-stage distortion. A measured probability should use a bounded link function such as a logistic transform of this risk score. As decompression room decreases, reconstruction quality should degrade, producing Kolmogorov garbage. This describes the right side of the U-shaped curve in Prediction 18; the left side reflects insufficient content constraints.
 
 **Prediction 6 (Decompression asymmetry).**  
 Complex topics should require more reconstruction room than simple topics, even when query length is controlled:
 
 $$
-K_{reconstruct}(\text{complex}) \gg K_{reconstruct}(\text{simple}) \tag{Approx}
+W_{reconstruct}(\text{complex}) \gg W_{reconstruct}(\text{simple}) \tag{Approx}
 $$
 
-Here, $K_{reconstruct}$ is the estimated working complexity needed to unfold a representation into an answer. The prediction is that complex topics fail earlier under context crowding.
+Here, $W_{reconstruct}$ is the estimated working capacity needed to unfold a representation into an answer. The prediction is that complex topics fail earlier under context crowding.
 
 **Prediction 7 (Information conservation violation).**  
-Information accounting should flag unsupported outputs when the estimated output structure exceeds estimated source support. For grounded outputs:
+Information accounting should flag unsupported outputs when estimated topic-claim structure exceeds estimated topic-source support. For grounded outputs:
 
 $$
-K(\text{output} | \text{topic}) \leq K(\text{source} | \text{topic}) \tag{Proxy}
+K(A_T(O)) \leq K(S_T) \tag{Proxy}
 $$
 
-Here, $K(\text{output} \mid \text{topic})$ is the topic-conditioned output complexity proxy, and $K(\text{source} \mid \text{topic})$ is the estimated topic-conditioned source support. When this proxy inequality is violated, the output contains more structure than the estimated source can explain. This is evidence of unsupported generation under the proxy model; the excess may come from learned priors, unrelated memorized structure, or other untracked source signal.
+Here, $K(A_T(O))$ is the topic-claim complexity proxy for output $O$, and $K(S_T)$ is the estimated topic-conditioned source support. When this proxy inequality is violated, the output contains more topic-claim structure than the estimated source can explain. This is evidence of unsupported generation under the proxy model; the excess may come from learned priors, unrelated memorized structure, or other untracked source signal.
 
 **Prediction 8 (Excess information source).**  
 The excess information in hallucinations should correlate more with high-frequency form patterns in the training corpus than with topic-specific facts:
@@ -2775,22 +2820,22 @@ $$
 Here, $\text{Accuracy}(n)$ is measured accuracy after $n$ reasoning hops. This assumes independent errors; correlated errors, for example consistent retrieval bias, can cause faster degradation.
 
 **Prediction 12 (Temperature-hallucination relationship).**  
-In the output-level model, hallucination risk follows a Boltzmann-like relationship with sampling temperature:
+In the output-level model, hallucination odds or relative pressure follow a Boltzmann-like relationship with sampling temperature:
 
 $$
-P(\text{hallucination} | T) \propto e^{\Delta S} \cdot f(T) \tag{Approx}
+\frac{P(\text{hallucination} \mid T)}{P(\text{grounded} \mid T)} \propto e^{\Delta S} \cdot f(T) \tag{Approx}
 $$
 
-Here, $\Delta S = S_{\text{form}} - S_{\text{knowledge}}$ with $k_B = 1$ per notation conventions, and $f(T)$ is expected to increase when entropy pressure dominates content signal. Higher temperature should increase prior-relaxation risk when content scores are weak.
+Here, $\Delta S = S_{\text{form}} - S_{\text{knowledge}}$ with $k_B = 1$ per notation conventions, and $f(T)$ is expected to increase when entropy pressure dominates content signal. Higher temperature should increase prior-relaxation odds when content scores are weak.
 
 **Prediction 13 (Entropy ratio prediction).**  
-Modeled hallucination risk scales with the ratio of microstate counts:
+Modeled hallucination odds or relative pressure scale with the ratio of microstate counts:
 
 $$
-P(\text{hallucination}) \propto \frac{\Omega_{\text{form}}}{\Omega_{\text{knowledge}}} = e^{S_{\text{form}} - S_{\text{knowledge}}} \tag{Approx}
+\frac{P(\text{hallucination})}{P(\text{grounded})} \propto \frac{\Omega_{\text{form}}}{\Omega_{\text{knowledge}}} = e^{S_{\text{form}} - S_{\text{knowledge}}} \tag{Approx}
 $$
 
-Here, $\Omega_{\text{form}}$ is the number of form-valid output microstates, and $\Omega_{\text{knowledge}}$ is the number of knowledge-consistent output microstates. Topics with larger form-to-knowledge entropy gaps should show higher hallucination risk, subject to direct hallucination benchmarks.
+Here, $\Omega_{\text{form}}$ is the number of form-valid output microstates, and $\Omega_{\text{knowledge}}$ is the number of knowledge-consistent output microstates. Topics with larger form-to-knowledge entropy gaps should show higher hallucination odds or relative pressure, subject to direct hallucination benchmarks.
 
 **Prediction 14 (Free-energy threshold).**  
 At fixed temperature, the free-energy proxy predicts hallucination risk when the entropy term dominates the grounding term:
@@ -2832,12 +2877,14 @@ Here, $n$ is the number of sampled completions. Voting can exploit exploration w
 For fixed query complexity and topic, HNC predicts an optimal context length $L^*$ that minimizes hallucination. Hallucination should rise when $L \ll L^*$ because constraints are insufficient, and when $L \gg L^*$ because decompression crowding increases:
 
 $$
-L^* \;=\; \arg\min_L \left| \underbrace{K_{\text{latent}} - K_{\text{query}} - K_{\text{context}}(L)}_{K_{\text{available}}(L)} \;-\; K_{\text{reconstruct}}(r) \right| \tag{Approx}
+L^* \;=\; \arg\min_L \left| \underbrace{W_{\text{latent}} - W_{\text{query}} - W_{\text{context}}(L)}_{W_{\text{available}}(L)} \;-\; W_{\text{reconstruct}}(r) \right| \tag{Approx}
 $$
 
-Here, $L$ is context length, $K_{\text{available}}(L)$ is decompression room at length $L$, and $K_{\text{reconstruct}}(r)$ is the reconstruction budget for representation $r$. Equivalently, $P(\text{hallucination} \mid L)$ is predicted to be U-shaped in $L$, minimized when $K_{\text{available}}(L)\approx K_{\text{reconstruct}}(r)$ (Section 4.5).
+Here, $L$ is context length, $W_{\text{available}}(L)$ is decompression room at length $L$, and $W_{\text{reconstruct}}(r)$ is the reconstruction workspace for representation $r$. Equivalently, $P(\text{hallucination} \mid L)$ is predicted to be U-shaped in $L$, minimized when $W_{\text{available}}(L)\approx W_{\text{reconstruct}}(r)$ (Section 4.5).
 
 Regime clarification: Prediction 5 describes the right branch of this U-curve (crowding regime, $L \gg L^*$). The left branch ($L \ll L^*$) reflects insufficient content constraints; the model lacks information to ground its output. This prediction unifies both failure modes.
+
+Discriminating clause: observing a U-shaped curve alone does not separate the decompression account from distractor interference, position bias, or attention dilution, because those accounts also predict degradation at long context. The HNC-specific content of this prediction is the complexity shift: $L^*$ should decrease as $W_{\text{reconstruct}}(r)$ increases, even when all context tokens are relevant, and the degradation should persist at matched routing success. If the U-curve appears but $L^*$ does not shift with answer complexity at matched routing success, then the decompression mechanism is not supported and the degradation should be attributed to distraction or position effects instead. Section 4.5.3 states the discriminating protocol.
 
 **Prediction 19 (Warm start from geometry alignment).**  
 Pretraining or initialization that aligns internal representations to the universal manifold $\mathcal{M}_{\text{universal}}$, for example through CCA/Procrustes losses or teacher features, should reduce sample complexity and speed convergence. Let $\tau$ be a target accuracy threshold and $t(\tau)$ be the number of training steps required to reach it:
@@ -2877,16 +2924,17 @@ Matching and decompression experiments should separate wrong-representation retr
 4. Kolmogorov garbage detection: train classifiers to distinguish coherent outputs from fragmented outputs.
 5. Lost-in-the-middle replication: measure whether mid-context information degrades more than edge information under decompression crowding.
 6. Chain-of-thought decomposition: measure whether distributing reasoning across steps reduces decompression pressure.
+7. Answer complexity interaction: hold the supporting span, its position, and verified routing success fixed, then vary relevant filler volume and the reconstruction complexity of the requested answer. Test whether the optimal context length shifts with answer complexity, which separates the decompression account from distraction and position accounts (Section 4.5.3, Prediction 18).
 
 ### 9.4 Information conservation experiments
 
 Information conservation experiments should test whether source-accounting gaps predict unsupported output:
 
-1. Information accounting: estimate $K(\text{output})$ and $K(\text{source})$ via compression proxies such as gzip or neural compressors, then test whether hallucinations violate $K(\text{out}) \leq K(\text{source})$ more often than grounded outputs.
+1. Information accounting: estimate $K(A_T(O))$ and $K(S_T)$ via claim extraction, compression proxies, neural compressors, retrieval support, or verifier scores, then test whether hallucinations violate $K(A_T(O)) \leq K(S_T)$ more often than grounded outputs.
 2. Excess source tracing: test whether excess information in hallucinations correlates with corpus-wide form patterns more than topic-specific knowledge.
-3. Conservation-based detector: build a classifier using $K(\text{output}) - K(\text{source})$ as a primary feature, then compare it with existing hallucination detectors.
+3. Conservation-based detector: build a classifier using $K(A_T(O)) - K(S_T)$ as a primary feature, then compare it with existing hallucination detectors.
 4. Topic capacity probing: for topics with known training frequency, estimate $K(\text{weights})$ and test whether it predicts hallucination rate.
-5. Budget-aware generation: implement generation that refuses or retrieves when $K(\text{estimated output}) > K(\text{source})$, then measure hallucination rate and refusal quality.
+5. Budget-aware generation: implement generation that refuses or retrieves when $K(A_T(O_{\text{estimated}})) > K(S_T)$, then measure hallucination rate and refusal quality.
 6. Routing versus payload audit: build prompts where the required evidence appears in a known context span. Measure whether the model, retrieval system, attention probe, or compressed trace selects that span, then separately measure whether the claim supporting content survives and supports the generated answer.
 
 ### 9.5 Geometric distortion experiments
@@ -2900,9 +2948,9 @@ Geometric distortion experiments should test whether errors compound across reas
 5. Self-consistency as distortion reduction: test whether self-consistency reduces effective $\epsilon$ by decorrelating errors.
 6. Friis formula fit: model hallucination as SNR degradation and fit a Friis-like formula to empirical data.
 
-### 9.6 Thermodynamic experiments
+### 9.6 Maximum-entropy experiments
 
-Thermodynamic experiments should test whether entropy pressure predicts prior relaxation under weak content signal:
+Maximum-entropy experiments should test whether entropy pressure predicts prior relaxation under weak content signal:
 
 1. Temperature scaling: measure hallucination rate against sampling temperature and test the Boltzmann-like relationship.
 2. Entropy ratio measurement: estimate $\Omega_{\text{form}}$ and $\Omega_{\text{knowledge}}$ via sampling, then test whether hallucination risk scales with the ratio.
@@ -2995,10 +3043,10 @@ The framework makes ten working commitments:
 6. Decompression failures occur when the model matches a relevant representation but lacks enough room to unfold it coherently.
 7. Information conservation gives a source-accounting test: grounded topic information should trace to modeled source signal.
 8. Geometric distortion can accumulate across training, matching, retrieval, and generation.
-9. Thermodynamic language models prior relaxation under weak content signal.
+9. Prior relaxation under weak content signal follows a maximum-entropy account.
 10. Controlled stochasticity can help recover weak available signal, while excessive noise can destroy signal.
 
-These commitments connect capacity, matching, decompression, distortion, thermodynamics, and controlled noise into one information-processing account. The conservation law in Theorem 3 gives a source-accounting criterion under its assumptions. The distortion theorem in Theorem 4 models multiplicative accumulation. Conjecture 5 models prior relaxation when content signal is weak. Conjecture 6 predicts that $T=0$ can be suboptimal when a weak recoverable signal exists.
+These commitments connect capacity, matching, decompression, distortion, maximum-entropy relaxation, and controlled noise into one information-processing account. The conservation law in Theorem 3 gives a source-accounting criterion under its assumptions. The distortion theorem in Theorem 4 models multiplicative accumulation. Conjecture 5 models prior relaxation when content signal is weak. Conjecture 6 predicts that $T=0$ can be suboptimal when a weak recoverable signal exists.
 
 ### 11.2 Key equations
 
@@ -3011,7 +3059,7 @@ $$
 \text{Form prior} &\sim \text{high-entropy learned prior} \\
 \text{Thermalization} &\sim \text{prior relaxation under weak content signal} \\
 \text{Fidelity} &= \prod_i (1 - \epsilon_i) \quad \text{(geometric decay; independent errors)} \\
-P(\text{hallucination}) &\propto \Omega_{\text{form}} / \Omega_{\text{knowledge}} = e^{\Delta S} \\
+\frac{P(\text{hallucination})}{P(\text{grounded})} &\propto \Omega_{\text{form}} / \Omega_{\text{knowledge}} = e^{\Delta S} \\
 T^* &= \arg\max_T [P(\text{correction}\mid T) - P(\text{hallucination}\mid T)]
 \end{aligned}
 } \tag{Approx}
@@ -3029,18 +3077,18 @@ From the matching perspective, hallucinations can arise when the effective query
 
 From the decompression perspective, Kolmogorov garbage occurs when context is too cramped for reconstruction. The model can produce fragments that look plausible in isolation but fail to cohere into a grounded answer.
 
-The conservation rule is the common accounting principle: grounded information must come from a modeled source. Under the channel assumptions, output structure that exceeds the estimated source budget is evidence of unsupported completion, learned-prior filling, or untracked source signal.
+The conservation rule is the common accounting principle: grounded topic claims must come from a modeled source. Under the channel assumptions, topic-claim structure that exceeds the estimated source budget is evidence of unsupported completion, learned-prior filling, or untracked source signal.
 
 The distortion principle adds dynamics: each stage can reduce fidelity, move representations away from a grounded region, and increase the space that learned priors can fill.
 
-The thermodynamic model gives a language for prior relaxation. Knowledge acts as a low-entropy constraint; the form prior acts as a high-entropy learned prior. At the attention level, GOAT makes one version concrete: when content scores are weak relative to entropy pressure, $p^*$ moves toward $\pi$. At the output level, HNC models hallucination risk as increasing with the entropy gap between form and knowledge constraints.
+The maximum-entropy model gives a language for prior relaxation. Knowledge acts as a low-entropy constraint; the form prior acts as a high-entropy learned prior. At the attention level, GOAT makes one version concrete: when content scores are weak relative to entropy pressure, $p^*$ moves toward $\pi$. At the output level, HNC models hallucination odds or relative pressure as increasing with the entropy gap between form and knowledge constraints.
 
 The noise principle adds a correction mechanism. Noise can damage retrieval, but too little noise can limit exploration. A task-specific intermediate regime may enable exploration while preserving grounding when weak recoverable signal exists.
 
 ### 11.4 Future directions
 
 1. Capacity estimators: test embedding density, translation fidelity, and probing-based estimators at scale.
-2. Information conservation detector: implement $K(\text{output})$ versus $K(\text{source})$ comparison for real-time hallucination screening.
+2. Information conservation detector: implement $K(A_T(O))$ versus $K(S_T)$ comparison for real-time hallucination screening.
 3. Constraint injection: determine the minimum context and retrieval support needed for reliable generation.
 4. Capacity-aware architectures: design systems that estimate when a requested answer exceeds available source support.
 5. Kolmogorov matching metrics: develop measures of prompt-representation alignment to predict retrieval accuracy.
@@ -3165,7 +3213,7 @@ Despite these limitations, the framework provides:
 - Vocabulary for discussing hallucination mechanisms.
 - Testable predictions using approximate measurements.
 - Design principles for mitigation, including constraint injection, capacity awareness, and temperature control.
-- A shared information-theoretic and thermodynamic vocabulary for observations that are often discussed separately.
+- A shared information-theoretic vocabulary for observations that are often discussed separately.
 
 ### 11.6 Open conjecture: model-specific sampling limit
 
@@ -3540,9 +3588,9 @@ Analysis of Boltzmann [Published: March 1990] Alexander Bach . URL: https://link
 │                                                                          │
 │  Decompression equation                                                  │
 │                                                                          │
-│  K(query) + K(context) + K(reconstruct) ≤ K(latent)                    │
+│  W(query) + W(context) + W(reconstruct) ≤ W(latent)                    │
 │                                                                          │
-│  When K(available) < K(reconstruct):                                    │
+│  When W(available) < W(reconstruct):                                    │
 │                                                                          │
 │  Reconstruction can be truncated.                                       │
 │  Fragments can be stitched together.                                    │
@@ -3605,7 +3653,7 @@ Analysis of Boltzmann [Published: March 1990] Alexander Bach . URL: https://link
 │                                                                          │
 │  Information conservation law                                           │
 │                                                                          │
-│  Conservation proxy: K(output) ≤ K(weights) + K(context)               │
+│  Conservation proxy: K(A_T(output)) ≤ K(S_T)                           │
 │                                                                          │
 │  Grounded output should not contain more topic information than         │
 │  the modeled sources can support.                                       │
@@ -3614,18 +3662,18 @@ Analysis of Boltzmann [Published: March 1990] Alexander Bach . URL: https://link
 │  Energy accounting checks whether output exceeds input.                 │
 │  Source accounting checks whether output exceeds modeled source.        │
 │                                                                          │
-│  Hallucination decomposition:                                           │
+│  Topic-claim support decomposition:                                     │
 │                                                                          │
-│  K(output) = K(from weights+context)  + K(from form prior)             │
-│            = K(grounded content)      + K(hallucinated filler)         │
+│  K(A_T(output)) = K(from S_T) + K(unsupported topic residue)           │
+│                 = grounded topic claims + hallucination candidate       │
 │                                                                          │
-│  For source-supported output: K(hallucinated filler) = 0               │
-│  For hallucination risk:       K(hallucinated filler) > 0              │
+│  For source-supported topic claims: unsupported residue = 0            │
+│  For hallucination risk:       unsupported residue > 0                 │
 │                                                                          │
 │  Detection principle:                                                    │
 │                                                                          │
-│  If K(output) ≤ K(source): information could have been transmitted.    │
-│  If K(output) > K(source): unsupported content is likely under proxy.  │
+│  If K(A_T(output)) ≤ K(S_T): topic claims could be source-supported.   │
+│  If K(A_T(output)) > K(S_T): unsupported content is likely under proxy.│
 │                                                                          │
 │  The excess may come from learned priors, unrelated memorized          │
 │  structure, or untracked source signal. It flags hallucination risk.   │
@@ -3672,8 +3720,8 @@ Analysis of Boltzmann [Published: March 1990] Alexander Bach . URL: https://link
 │                                                                          │
 │  Hallucination-distortion relationship:                                │
 │                                                                          │
-│  K(output) ≈ K(source)·∏(1-εᵢ) + K(form prior)·[1-∏(1-εᵢ)]            │
-│            ≈ (grounded × fidelity) + (hallucinated × infidelity)       │
+│  K(A_T(output)) ≈ K(S_T)·∏(1-εᵢ) + K(unsupported)·[1-∏(1-εᵢ)]          │
+│                ≈ (grounded × fidelity) + (unsupported × infidelity)   │
 │                                                                          │
 │  As fidelity drops, form prior can fill more of the output.            │
 │  Hallucination risk scales with accumulated distortion.                 │
@@ -3686,12 +3734,12 @@ Analysis of Boltzmann [Published: March 1990] Alexander Bach . URL: https://link
 
 ---
 
-## Appendix G: Thermodynamic framework
+## Appendix G: Maximum-entropy framework
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────┐
 │                                                                          │
-│  Thermodynamic model of hallucination                                  │
+│  Maximum-entropy model of hallucination                                │
 │                                                                          │
 │  FUNDAMENTAL DUALITY:                                                   │
 │                                                                          │
@@ -3725,9 +3773,9 @@ Analysis of Boltzmann [Published: March 1990] Alexander Bach . URL: https://link
 │                                                                          │
 │  Increasing T raises entropy pressure relative to content signal       │
 │                                                                          │
-│  Hallucination probability proxy:                                       │
+│  Hallucination odds / relative pressure proxy:                         │
 │                                                                          │
-│  P(hallucination) ∝ Ω_form / Ω_knowledge = exp(ΔS)                     │
+│  P(hallucination) / P(grounded) ∝ Ω_form / Ω_knowledge = exp(ΔS)       │
 │                                                                          │
 │  Modeled hallucination risk increases with entropy gap                 │
 │                                                                          │

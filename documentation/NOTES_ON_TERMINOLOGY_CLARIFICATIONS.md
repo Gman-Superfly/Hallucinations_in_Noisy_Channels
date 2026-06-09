@@ -44,7 +44,7 @@ The term "Kolmogorov" is appropriate here because:
 Content constraints fail -> system thermalizes -> samples from form prior (Zipf distribution)
 ```
 
-This is Section 8.5 (Thermodynamic Equilibration). The mechanism is:
+This is Section 8.5 (Maximum-entropy prior relaxation). The mechanism is:
 1. Knowledge constraints are absent or fail
 2. System relaxes toward high-entropy form-consistent output
 3. Output samples from the Zipf distribution over tokens

@@ -210,7 +210,7 @@ The downstream RAG experiment is useful as a research lead because it links the 
 **Framework mapping:**
 
 1. **Capacity violation:** GOAT uses Shannon entropy and KL divergence inside attention. It does not directly use Shannon's noisy-channel coding theorem. When the content signal in $s$ is weak, the attention distribution moves toward the prior. This gives a local mechanism that can be tested against the HNC capacity-violation story.
-2. **Thermodynamic equilibration:** The entropy term in the attention objective gives a concrete attention-level pressure toward higher-entropy matching. The prior $\pi$ defines the distribution that attention relaxes toward under weak content scores.
+2. **Maximum-entropy prior relaxation:** The entropy term in the attention objective gives a concrete attention-level pressure toward higher-entropy matching. The prior $\pi$ defines the distribution that attention relaxes toward under weak content scores.
 3. **Sink-limited capacity:** GOAT gives a formal account of attention sinks and includes a key-only sink bias. This is directly relevant to HNC sink severity and late-context degradation.
 4. **Optimal noise:** The attention temperature $\tau$ controls the balance between content scores and entropy pressure. This creates a direct experiment for the HNC U-shaped noise prediction.
 5. **Information conservation diagnostics:** GOAT exposes attention entropy and prior dominance as measurable layer-level signals. These signals may predict unsupported output content, but that connection needs a hallucination benchmark.
@@ -219,7 +219,7 @@ The downstream RAG experiment is useful as a research lead because it links the 
 
 **GOAT-specific experiment queue:**
 
-1. **Thermodynamic equilibration test:** Compare baseline attention and GOAT on capacity-stressed prompts. Measure attention entropy, prior dominance, unsupported claims, and refusal accuracy.
+1. **Maximum-entropy prior relaxation test:** Compare baseline attention and GOAT on capacity-stressed prompts. Measure attention entropy, prior dominance, unsupported claims, and refusal accuracy.
 2. **Sink-limited capacity test:** Measure attention mass on beginning-of-sequence and early tokens with and without GOAT's sink bias. Correlate this with late-context retrieval and multi-hop accuracy.
 3. **Temperature sweep:** Vary $\tau$ and measure hallucination rate, self-consistency, and recovery from misleading context. Test whether the curve has a minimum at an intermediate value.
 4. **Information conservation diagnostic:** Use per-layer attention entropy and prior dominance as early-warning signals for outputs that contain unsupported claims.
@@ -343,7 +343,7 @@ This suggests a direct HNC question: when the source facts are held fixed, does 
 
 1. **Capacity violation:** Co-Tok defines compression rate as average bytes per token and shows that validation loss depends on this rate. This gives a source-coding variable that can be tested against HNC topic capacity. The paper measures loss, so the hallucination-capacity connection remains our experiment to run.
 2. **Information conservation:** Off-optimal compression may remove or obscure recoverable input structure before attention and reconstruction begin. HNC can test whether this increases unsupported output content or excess complexity proxies.
-3. **Thermodynamic equilibration:** Entropy-threshold segmentation gives a controlled way to change the strength of the input signal. If compression is too aggressive, then useful boundaries or high-entropy regions may be missed. HNC can test whether weaker input signal increases relaxation toward form-prior output.
+3. **Maximum-entropy prior relaxation:** Entropy-threshold segmentation gives a controlled way to change the strength of the input signal. If compression is too aggressive, then useful boundaries or high-entropy regions may be missed. HNC can test whether weaker input signal increases relaxation toward form-prior output.
 4. **Sink-limited capacity:** Changing compression rate changes sequence length and the structure seen by attention. This can test whether upstream compression changes sink severity and late-context retrieval.
 5. **GOAT complement:** Co-Tok gives an upstream source-coding control, while GOAT gives an attention-prior control. Together they can test whether source encoding and attention priors jointly reduce context failure.
 6. **Language parity and topic capacity:** Co-Tok reports that optimal compression varies across languages and correlates with parity. HNC can test whether language-specific encoding burden changes topic capacity, refusal quality, or unsupported-answer rate when facts are matched across translated prompts.
@@ -376,7 +376,7 @@ This suggests a direct HNC question: when the source facts are held fixed, does 
 **Framework mapping:**
 
 1. **Hallucination threshold:** The signal-channel and reservoir split gives a training-time way to ask whether useful signal enters transferable directions. HNC can test whether weak topic signal later produces capacity-violation behavior at inference.
-2. **Thermodynamic equilibration:** The reservoir may act as a high-dimensional holding region for noise or idiosyncratic memorization. This is relevant to form-prior drift, but it is not identical to the HNC output-level form prior until hallucination measurements are added.
+2. **Maximum-entropy prior relaxation:** The reservoir may act as a high-dimensional holding region for noise or idiosyncratic memorization. This is relevant to form-prior drift, but it is not identical to the HNC output-level form prior until hallucination measurements are added.
 3. **Information conservation:** The population-risk objective and SNR quantities may help quantify noise that remains in transferable directions. HNC can test whether that noise predicts unsupported output content or excess complexity proxies.
 4. **Optimal noise:** The SNR preconditioner suppresses low-signal updates. This gives a practical training intervention for testing whether better signal/noise control reduces hallucination after noisy supervision or preference tuning.
 5. **Relation to GOAT and Co-Tok:** Co-Tok controls upstream source encoding, GOAT controls attention priors, and the SNR gate controls training updates. Together they define a source-coding, attention-matching, and training-dynamics experiment stack.

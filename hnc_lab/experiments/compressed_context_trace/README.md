@@ -8,6 +8,7 @@ This experiment maps to:
 
 - Section 4.5.2, Kolmogorov garbage.
 - Section 4.5.5, context and decompression implications.
+- Section 4.5.6, routing versus payload.
 - Section 7.6, verifiable generation regimes.
 - Project status Section 1.2, what the Thinking as Compression paper changes.
 - Research lead Experiment 7, thinking traces as compressed context.

@@ -9,7 +9,7 @@ This experiment maps to:
 - Prediction 12, temperature and hallucination relationship.
 - Prediction 15, optimal noise existence.
 - Prediction 16, stochastic resonance.
-- Section 8.5, thermodynamic interpretation.
+- Section 8.5, maximum-entropy interpretation.
 - Section 8.6, functional role of noise.
 
 The experiment tests whether decoding temperature changes exact match, refusal, answer variance, and later unsupported claim labels across source support strata.

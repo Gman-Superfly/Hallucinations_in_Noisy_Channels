@@ -1,6 +1,6 @@
 # Hallucinations in Noisy Channels
 
-**An information-theoretic and thermodynamic framework for LLM hallucination errors**
+**An information-theoretic framework for LLM hallucination errors**
 
 
 [![Status: Theoretical Framework](https://img.shields.io/badge/Status-Theoretical%20Framework-blue.svg)]()
@@ -40,7 +40,7 @@ The current paper separates six process failures:
 | 2 | Matching failures | The effective query selects the wrong or composite representation. |
 | 3 | Decompression failures | The model lacks room to unfold compressed information. |
 | 4 | Geometric distortion | Small errors compound through sequential transformations. |
-| 5 | Thermodynamic equilibration | Weak content constraints allow prior-dominated fluent text. |
+| 5 | Maximum-entropy prior relaxation | Weak content constraints allow prior-dominated fluent text. |
 | 6 | Noise paradox | Some stochasticity can help correction, while too much can destroy signal. |
 
 ### Source-accounting principle
@@ -76,7 +76,7 @@ Capacity Violation       Matching Failure   Decompression Failure    Geometric D
 | Theorem 3 | Information conservation | Grounded output should be traceable to weights, context, retrieval, tools, or adaptive memory. |
 | Theorem 4 | Geometric distortion | Fidelity decays as $\prod_i(1 - \epsilon_i)$ in the modeled cascade. |
 | Conjecture 3 | Regime-aligned generation | A router should select a regime whose source signal and verifier support the requested answer rate. |
-| Conjecture 5 | Thermodynamic hallucination model | Prior relaxation risk rises under weak content constraints. |
+| Conjecture 5 | Maximum-entropy hallucination model | Prior relaxation risk rises under weak content constraints. |
 | Conjecture 6 | Optimal noise principle | Intermediate noise can improve correction when recoverable signal exists. |
 | Conjecture 7 | Adaptive resonance optimality | Match threshold and noise should vary with knowledge certainty. |
 | Conjecture 8 | Model-specific sampling limit | $s > 2B_{M,T}$ is a Nyquist-style reconstruction analogy. |
@@ -133,7 +133,7 @@ When violated: unsupported completion or untracked source signal
                 may have filled the gap.
 ```
 
-### The thermodynamic view
+### The maximum-entropy view
 
 ```
 Knowledge        <->       Form prior
@@ -225,7 +225,7 @@ If you use this repository in your research, please cite it. This is ongoing wor
 
 Oscar Goldman - Shogu Research Group @ Datamutant.ai (subsidiary of 温心重工業)
 
-Goldman, O. (2025). *Hallucinations in Noisy Channels: An information-theoretic and thermodynamic framework for LLM hallucination errors* (Version 1.2.2). Shogu Research Group @ Datamutant.ai. https://github.com/Gman-Superfly/Hallucinations_in_Noisy_Channels
+Goldman, O. (2025). *Hallucinations in Noisy Channels: An information-theoretic framework for LLM hallucination errors* (Version 1.2.2). Shogu Research Group @ Datamutant.ai. https://github.com/Gman-Superfly/Hallucinations_in_Noisy_Channels
 
 ---
 
