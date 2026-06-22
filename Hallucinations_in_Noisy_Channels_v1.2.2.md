@@ -826,6 +826,8 @@ The matching view explains why several mitigation techniques can reduce hallucin
 
 The matching view is a mechanistic proxy. It maps naturally to attention as soft matching and embeddings as compressed representations, but the exact operational test depends on the model family and available representation probes.
 
+*Supporting mechanism under review:* Lu et al. (2026) propose compositional interference (CI), a normalized local cumulative coherence over salient atomic concept directions in the residual stream. The paper argues that lossy superposition makes joint recovery harder when those directions overlap, and that CI predicts compositional failure on SCAN, multihop QA, and multilingual fact recall without evaluating the composed input. In HNC terms, this is a pre-input geometric probe for binding failure when atomic components succeed in isolation. It complements the Felix-the-cat ambiguity story in Section 4.4.3: failure can track query underspecification, atomic overlap, or both, and those cases need discriminating tests. The result is relevant to matching failure and geometric distortion, and still needs HNC-specific failure-mode labeling and unsupported-claim audits. See [Adversarial Concept Search: compositional interference and lossy superposition](documentation/RESEARCH_LEADS_UNDER_REVIEW.md#adversarial-concept-search-compositional-interference-and-lossy-superposition).
+
 ### 4.5 Context window as decompression buffer
 
 Beyond matching, there is a third mechanism: the model needs room to reconstruct the selected representation. Internal representations can be compact, while generation requires unfolding them into a working state that supports a coherent answer.
@@ -1394,7 +1396,7 @@ Here, $C_{mind}$ is a conjectural capacity measure, `Experience` is the source s
 Possible limiting factors include:
 - Parameter count or memory width.
 - Precision of weights or stored state.
-- Interference between concepts.
+- Interference between concepts. Lu et al. (2026) operationalize one form of this as compositional interference among atomic encodings in superposition; see [Adversarial Concept Search](documentation/RESEARCH_LEADS_UNDER_REVIEW.md#adversarial-concept-search-compositional-interference-and-lossy-superposition).
 - Attention bandwidth or other serial bottlenecks.
 
 ---
@@ -1535,6 +1537,8 @@ def estimate_capacity(query: str, model: object, reference_manifold: object) -> 
 ```
 
 Note: this is a theoretical operationalization. It specifies what to measure. Developing and testing practical estimators at scale remains future work. The universal manifold hypothesis and current embedding-geometry evidence, such as Jha et al. (2025), support testing capacity estimation as a geometric measurement problem.
+
+*Supporting mechanism under review:* Lu et al. (2026) measure cross-lingual factual recall as composition of an English fact vector with a target-language subspace. Compositional interference between those geometric objects predicts transfer failure without evaluating every translated prompt. That gives a candidate cross-lingual alignment probe for $\hat{C}_T(q)$ when topic capacity differs by language rather than by missing facts alone. The result is a research lead, not confirmed HNC evidence. See [Adversarial Concept Search: compositional interference and lossy superposition](documentation/RESEARCH_LEADS_UNDER_REVIEW.md#adversarial-concept-search-compositional-interference-and-lossy-superposition).
 
 Primary target: capacity violation, Section 3. Secondary target: geometric distortion, Section 8.4, when low fidelity triggers retrieval, uncertainty, or refusal.
 
@@ -1963,6 +1967,8 @@ $$
 $$
 
 **Proof sketch.** Model each stage $i$ as a contraction $T_i$ on the topic-aligned signal subspace with operator norm $\lVert T_i \rVert \le 1-\epsilon_i$. By submultiplicativity, $\lVert T_n \cdots T_1 \rVert \le \prod_i (1-\epsilon_i)$. Under independence and small $\epsilon_i$, expected fidelity follows the product. When distortions are correlated, the effective contraction can be stricter, yielding a smaller bound than the independent-case product (Friis, 1944, by analogy).
+
+*Supporting mechanism under review:* Multihop reasoning is one compositional stage in this cascade. Lu et al. (2026) filter to items where each atomic hop succeeds, then predict composed-query failure from interference between hop representations measured before the composed prompt runs. That isolates a binding-stage distortion signal distinct from missing knowledge at either hop. See [Adversarial Concept Search: compositional interference and lossy superposition](documentation/RESEARCH_LEADS_UNDER_REVIEW.md#adversarial-concept-search-compositional-interference-and-lossy-superposition).
 
 **Proposition 11 (Manifold departure).**
 

@@ -4,7 +4,7 @@ This document tracks papers that appear relevant to the Hallucinations in Noisy 
 
 The goal is to keep the research process honest. We separate promising leads from confirmed support, record caveats early, and define the work needed before a citation becomes part of the main argument.
 
-Last link check: 2026-05-10.
+Last link check: 2026-06-22.
 
 ## Status labels
 
@@ -190,6 +190,103 @@ The downstream RAG experiment is useful as a research lead because it links the 
 6. **Cluster-level diagnostic:** Add a preflight warning for clusters where the bound predicts high identity loss.
 
 **Caveats:** The theorem applies to unit-norm embedding clusters under cosine-threshold retrieval. Treat raw LLM hidden states, non-normalized memory, multimodal memory, biological memory, and learned reranking heads as separate test surfaces. The paper reports downstream QA behavior, but the HNC-specific link to hallucination needs local reproduction with unsupported-claim metrics. Cite the regime conditions by their inequalities because the prose labels around tight and spread regimes are easy to confuse. Social-media claims that this explains every RAG hallucination should stay outside HNC.
+
+### Adversarial Concept Search: compositional interference and lossy superposition
+
+**Source status:** Checked, reproduction needed for HNC use.
+
+**Paper:** Lu, M., Zhang, R., Lee, I., Alvarez-Melis, D., Pavlick, E., & Saphra, N. (2026). *Adversarial Concept Search: Predicting Compositional Errors From Feature Geometry.* arXiv:2606.13934. https://arxiv.org/html/2606.13934v1
+
+**Code:** Not verified locally yet. The paper states code and compute details in Appendix I.
+
+**Relevant claim for this framework:** The paper proposes Adversarial Concept Search (ACS): rank concept combinations by predicted compositional failure before evaluating composed inputs. The central metric is compositional interference (CI), a normalized local cumulative coherence over salient feature directions estimated from residual-stream activations:
+
+$$
+\text{CI}(C) = \max_{i \in \mathcal{S}(C)} \frac{1}{|\mathcal{S}(C)|} \sum_{j \in \mathcal{S}(C)} |\cos(a_i, a_j)|.
+$$
+
+Here $C$ is the active atomic concept set for a composition, $\mathcal{S}(C)$ is the salient feature support, and $a_i$, $a_j$ are empirical encodings of those directions. The paper argues that ideal compressed sensing permits lossless recovery from non-orthogonal superposed features when decoding is noiseless and sparsity holds, but real LLM inference is lossy. Under noise, recovery error grows with coherence among the active salient features (Adcock et al., 2021; Ben-Haim et al., 2010). Higher CI should predict compositional failure; near-orthogonal atomic encodings should predict success.
+
+The paper validates this on three surfaces:
+
+1. **SCAN toy models:** Autoregressive transformers trained with varying command coverage and hidden width. Lower coverage and smaller models produce less orthogonal atomic concept encodings and higher CI. CI ranking predicts test accuracy better than random ordering ($p < 0.01$ for models with non-extreme accuracy).
+2. **Multihop QA on Llama-3.2-3B:** Two-hop factual queries built from single-hop components where the model answers each hop correctly. CI computed from cluster-centered residual activations at the last token of each atomic query predicts composed-query failure. Reported bin-level correlation with accuracy is $r = -0.855$. PR-AUC for CI-based error ranking beats the model failure-rate baseline.
+3. **Multilingual fact recall (KLAR):** Each query composes a factual concept and a language concept. The fact vector comes from the English query; the language concept is a low-rank subspace from multilingual OSCAR residuals. CI between the English fact vector and the target-language subspace predicts cross-lingual factual errors without access to the translated input.
+
+The practical objective is targeted stress testing and active learning: prioritize collecting or generating inputs for high-CI concept pairs rather than exhaustively evaluating the combinatorial space.
+
+**Why it matters here:** HNC lists interference between concepts as a possible capacity limiter but does not yet define a measurement protocol for it. Lu et al. supply both a mechanism and a metric. Their account sits at the intersection of three HNC failure modes:
+
+- **Matching failure (Section 4.4):** When atomic concept directions overlap in representation space, the effective query for a composed task may activate a composite or wrong binding rather than the intended joint representation. HNC already models this with geometric matching proxies and Proposition 4 (ambiguity-induced composite output). ACS gives a pre-input scalar that estimates overlap among the atoms themselves, not only ambiguity in the surface prompt.
+- **Geometric distortion (Section 8.4):** Multihop QA is a staged teaching pipeline. ACS filters to cases where each atomic hop succeeds, so the measured failure is composition-specific rather than missing knowledge. That isolates one stage of the distortion cascade: binding hop-one output to hop-two retrieval under superposition interference.
+- **Capacity violation (Section 3):** SCAN results show that smaller models and lower training coverage increase CI. That supports the HNC claim that compression pressure during learning affects later teaching reliability, here through less separated atomic encodings rather than absent facts.
+
+ACS does not replace HNC's channel story. It does not perform source accounting, does not distinguish form-prior fabrication from compositional binding errors, and does not study decompression room or temperature effects. It is strongest when the model already has the atomic pieces and fails to combine them systematically.
+
+**HNC interpretation:** Read ACS as a geometric preflight test for one compositional failure family: **lossy binding under superposition**.
+
+In HNC language, each atomic concept corresponds to an information atom or a small bonded configuration of atoms stored in compressed weights. A composed query asks the model to select and jointly decode multiple atoms in one forward pass. Lu et al. treat the residual stream as a linear encoding of salient features in superposition. When those encodings are nearly orthogonal, the implicit decoder can recover each atom with little cross-talk. When they are close, destructive interference raises recovery error and compositional accuracy drops.
+
+This connects cleanly to the matching view in Section 4.4. HNC's Felix-the-cat problem concerns an ambiguous effective query that keeps several candidate representations active. ACS addresses a different but related case: the query may be structurally clear, but the **stored atomic directions are too close** for reliable joint retrieval. Both produce composite or wrong output; the discriminating variable is whether failure correlates with query underspecification or with pre-composition CI.
+
+The multilingual experiment is especially relevant to HNC's staged teaching cascade. Prior work on multilingual LLMs describes a pipeline: map the query to a language-agnostic fact representation, retrieve the answer, generate in the target language. Lu et al. treat that as composing a factual atom with a language subspace. CI between the English fact vector and the target-language subspace predicts failure better than coarse resource-level heuristics. That gives HNC a concrete cross-lingual matching-failure probe that does not require evaluating every translated prompt.
+
+The cluster-mean-centering step also matters for HNC methodology. Raw residual inner products can be dominated by background structure (prompt type, task family, topic cluster). ACS subtracts the cluster mean before estimating concept directions. Any HNC experiment that uses cosine similarity between hidden states should report whether background centering was applied, because uncorrected geometry can confound matching-failure measurements.
+
+**Framework mapping:**
+
+1. **Matching failure:** High CI among atomic concept encodings predicts wrong or failed binding during composition, even when each atom alone succeeds.
+2. **Geometric distortion:** Multihop results isolate one compositional stage of the distortion cascade. CI is measured before the composed query runs.
+3. **Capacity violation:** SCAN shows that stronger compression (smaller width, lower training coverage) increases CI and reduces compositional accuracy. This is a training-side capacity story told through representational separation.
+4. **Information atoms:** Atomic concepts in ACS map to HNC information atoms at the level of stored knowledge constituents. ACS does not claim these are discrete SAE features; it uses residual-stream proxies.
+5. **Interference between concepts:** CI operationalizes the bullet in Section 7.4 that lists interference as a limiting factor.
+6. **Universal manifold (conjecture):** Multilingual fact recall tests whether English fact vectors align with language subspaces. High CI may indicate weak cross-lingual alignment on a topic, which HNC would read as geometric misalignment between source regions rather than missing facts.
+7. **Decompression failure:** Partial overlap only. If multiple atoms must be unfolded within a fixed working budget and interference consumes effective bandwidth, decompression failure may co-occur with high CI. ACS does not measure $W_{\text{reconstruct}}$ directly.
+8. **Prior relaxation / thermalization:** Not studied. ACS predicts error likelihood from geometry; it does not audit whether wrong answers are fluent fabrications or binding mistakes.
+9. **Source accounting:** Not studied. ACS assumes atomic success, which removes pure capacity-violation cases from the evaluation set.
+
+**Useful quantities for HNC:**
+
+1. **Compositional interference:** $\text{CI}(C)$ as defined above, computed from cluster-centered residual activations at a chosen layer.
+2. **Local cumulative coherence:** $\alpha(\mathcal{S}) = \max_{i \in \mathcal{S}} \sum_{j \in \mathcal{S}, j \neq i} |\cos(a_i, a_j)|$, the unstructured variant from Adcock et al. (2021). CI is a normalized operational version for finite salient supports.
+3. **Global coherence:** $\rho = \max_{i \neq j} |\cos(a_i, a_j)|$, worst-case column similarity across the full feature dictionary. ACS focuses on salient supports, not global worst cases.
+4. **Atomic correctness filter:** A binary gate requiring single-hop or single-language success before CI is interpreted as a compositional signal. Without this filter, CI may mix capacity violation with binding failure.
+5. **Cluster-centered residual:** $h_c(x) = h(x) - \mu_{\gamma(x)}$, where $\gamma(x)$ is the background cluster label and $\mu_{\gamma(x)}$ is the cluster mean activation. Required for comparable angles across prompt families.
+6. **Language subspace rank:** For multilingual ACS, the variance threshold retained by SVD on language-specific residuals (the paper sweeps 0.85, 0.90, 0.95, 0.99 on the development set).
+7. **Challenge-set curve:** Accuracy on cumulative subsets ranked by decreasing CI. A monotonic rise from low to overall accuracy supports CI as a difficulty ranking for active learning.
+8. **PR-AUC for error ranking:** Area under the precision-recall curve when examples are sorted by CI. Baseline is the model failure rate $1 - \text{accuracy}$.
+
+**Discriminating tests against other HNC accounts:**
+
+ACS is most valuable when it is used to **separate** compositional interference from competing explanations HNC already names:
+
+1. **Query ambiguity vs. atomic overlap:** Construct composed prompts with fixed high-CI atom pairs and vary surface specificity. If failure tracks CI while query Kolmogorov-complexity proxies stay high, atomic overlap dominates. If failure tracks query ambiguity at matched CI, HNC's effective-query matching account dominates.
+2. **Distractor interference vs. compositional CI:** Long-context degradation can come from distractors (Section 4.5.3). ACS predicts failure from atomic geometry alone. A matched experiment should hold composed prompt length fixed and compare CI against distractor count.
+3. **Missing knowledge vs. binding failure:** The atomic-correctness filter is essential. CI should not be interpreted on items where single-hop accuracy is already low; those are capacity violations in HNC terms.
+4. **Form-prior fill-in vs. compositional error:** Audit high-CI failures for unsupported-claim rate and source attribution. Binding mistakes may preserve some grounded fragments; prior relaxation may produce fluent but untraceable content.
+
+**Experiment queue:**
+
+1. **CI reproduction on multihop QA:** Reproduce the Khandelwal and Pavlick (2025) two-hop setup on one open model. Measure CI at multiple layers, report cluster-centering ablation, and confirm whether PR-AUC beats the failure-rate baseline.
+2. **HNC failure-mode labeling:** On the same items, label outputs as binding error, dropped hop, prior fill-in, or correct. Test whether CI separates binding errors from other modes conditional on atomic success.
+3. **Query ambiguity control:** For fixed atom pairs with high and low CI, vary prompt specificity (named entities, dates, explicit referents). Measure whether HNC's unambiguous-prompt mitigation reduces failure more on high-CI pairs.
+4. **Multilingual ACS on topic strata:** Compute CI between English fact vectors and target-language subspaces across HNC topic strata with known cross-lingual capacity differences. Test whether CI predicts unsupported-claim rate better than parameter-count or corpus-size proxies alone.
+5. **SCAN-style capacity sweep:** Train or fine-tune small models with varying coverage and width. Measure whether CI mediates the relationship between compression pressure and compositional hallucination rate.
+6. **Cross-paper link to Geometry of Consolidation:** Consolidation identity loss weakens retrieved context before generation; ACS measures interference among atoms inside the model. A combined RAG-plus-composition test could ask whether external consolidation loss and internal CI jointly predict failure.
+7. **Layer and centering ablation:** Report raw vs. cluster-centered CI, layer sweep, and whether background cluster labels come from prompt type, task family, or embedding clustering.
+8. **Active-learning simulation:** Rank concept pairs by CI, simulate a fixed annotation budget, and measure error coverage against random pair selection. This tests ACS as a deployment tool for HNC capacity-aware generation.
+
+**Related work named in the paper (separate leads if needed):**
+
+- Elhage et al. (2022), toy models of superposition: theoretical basis for lossy vs. lossless encoding.
+- Gorton and Lewis (2025), adversarial examples as superposition: worst-case interference during fine-tuning and attack.
+- Garg et al. (2026), linear representation hypothesis and near-lossless linear decoding bounds.
+- Khandelwal and Pavlick (2025), function composition in LLMs: multihop dataset and prompt setup used in Section 4.1.
+- Blum et al. (2025), cross-lingual unification forces: related multilingual alignment story.
+- Barin Pacela et al. (2026), linear probes and SAEs failing at compositional generalization: caution if HNC uses SAE features as atom proxies.
+- Adcock et al. (2021), structured sparse recovery and local coherence bounds: formal backbone for the CI metric.
+
+**Caveats:** ACS studies compositional generalization under the assumption that atomic components succeed in isolation. It does not measure hallucinations caused by missing source signal, misleading context, context crowding, or form-prior relaxation. CI is a geometric proxy, not a direct readout of information atoms or SAE features. The multihop and multilingual experiments use one model (Llama-3.2-3B) and specific datasets; layer choice and cluster-centering details matter, and the paper tunes these on a 10% validation set. Constructive interference (correlated features aiding recovery) is acknowledged but not modeled; ACS focuses on destructive overlap. The paper predicts error likelihood, not the semantic content of the error. HNC should cite it for compositional interference, pre-input geometric matching risk, and active-learning prioritization, with hallucination-specific reproduction still required before promotion to the main evidence file.
 
 ### GOAT: trainable attention priors
 
@@ -519,6 +616,14 @@ This suggests a direct HNC question: when the source facts are held fixed, does 
 **Methods:** For the same prompt set, record log loss or available probability proxies, code length proxies, fixed precision norm proxies when model weights are available, quantization regime, sparsity level, exact match, refusal quality, source attribution labels, and unsupported claim rate. Stratify items by strong source, weak recoverable source, unsupported source, and misleading source.
 
 **Framework target:** Learning as compression, static codebooks, form prior, capacity violation, approximation gap, in-context support, and source accounting.
+
+### Experiment 9: compositional interference and binding failure
+
+**Question:** Does compositional interference (CI) predict binding failure conditional on atomic correctness, and does it separate that failure mode from query ambiguity and missing source signal?
+
+**Methods:** On multihop QA and multilingual fact-recall tasks, filter to items where single-hop or English-only atomic queries succeed. Compute cluster-centered CI from residual activations at a validation-selected layer. Label composed outputs by failure mode: binding error, dropped hop, prior fill-in, capacity violation, or correct. Compare CI ranking against query-complexity proxies, distractor count, and source-support strata. Ablate cluster centering and layer choice.
+
+**Framework target:** Matching failure, geometric distortion, interference between concepts, information atoms, universal-manifold alignment (multilingual), and active-learning prioritization for capacity-aware generation.
 
 ## Promotion rule
 
